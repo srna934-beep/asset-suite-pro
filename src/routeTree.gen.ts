@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as UnitsIndexRouteImport } from './routes/units.index'
 import { Route as TenantsIndexRouteImport } from './routes/tenants.index'
 import { Route as TasksIndexRouteImport } from './routes/tasks.index'
+import { Route as SettingsIndexRouteImport } from './routes/settings.index'
 import { Route as ReportsIndexRouteImport } from './routes/reports.index'
 import { Route as PropertiesIndexRouteImport } from './routes/properties.index'
 import { Route as PaymentsIndexRouteImport } from './routes/payments.index'
@@ -41,6 +42,11 @@ const TenantsIndexRoute = TenantsIndexRouteImport.update({
 const TasksIndexRoute = TasksIndexRouteImport.update({
   id: '/tasks/',
   path: '/tasks/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsIndexRoute = SettingsIndexRouteImport.update({
+  id: '/settings/',
+  path: '/settings/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReportsIndexRoute = ReportsIndexRouteImport.update({
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/payments/': typeof PaymentsIndexRoute
   '/properties/': typeof PropertiesIndexRoute
   '/reports/': typeof ReportsIndexRoute
+  '/settings/': typeof SettingsIndexRoute
   '/tasks/': typeof TasksIndexRoute
   '/tenants/': typeof TenantsIndexRoute
   '/units/': typeof UnitsIndexRoute
@@ -115,6 +122,7 @@ export interface FileRoutesByTo {
   '/payments': typeof PaymentsIndexRoute
   '/properties': typeof PropertiesIndexRoute
   '/reports': typeof ReportsIndexRoute
+  '/settings': typeof SettingsIndexRoute
   '/tasks': typeof TasksIndexRoute
   '/tenants': typeof TenantsIndexRoute
   '/units': typeof UnitsIndexRoute
@@ -131,6 +139,7 @@ export interface FileRoutesById {
   '/payments/': typeof PaymentsIndexRoute
   '/properties/': typeof PropertiesIndexRoute
   '/reports/': typeof ReportsIndexRoute
+  '/settings/': typeof SettingsIndexRoute
   '/tasks/': typeof TasksIndexRoute
   '/tenants/': typeof TenantsIndexRoute
   '/units/': typeof UnitsIndexRoute
@@ -148,6 +157,7 @@ export interface FileRouteTypes {
     | '/payments/'
     | '/properties/'
     | '/reports/'
+    | '/settings/'
     | '/tasks/'
     | '/tenants/'
     | '/units/'
@@ -163,6 +173,7 @@ export interface FileRouteTypes {
     | '/payments'
     | '/properties'
     | '/reports'
+    | '/settings'
     | '/tasks'
     | '/tenants'
     | '/units'
@@ -178,6 +189,7 @@ export interface FileRouteTypes {
     | '/payments/'
     | '/properties/'
     | '/reports/'
+    | '/settings/'
     | '/tasks/'
     | '/tenants/'
     | '/units/'
@@ -194,6 +206,7 @@ export interface RootRouteChildren {
   PaymentsIndexRoute: typeof PaymentsIndexRoute
   PropertiesIndexRoute: typeof PropertiesIndexRoute
   ReportsIndexRoute: typeof ReportsIndexRoute
+  SettingsIndexRoute: typeof SettingsIndexRoute
   TasksIndexRoute: typeof TasksIndexRoute
   TenantsIndexRoute: typeof TenantsIndexRoute
   UnitsIndexRoute: typeof UnitsIndexRoute
@@ -227,6 +240,13 @@ declare module '@tanstack/react-router' {
       path: '/tasks'
       fullPath: '/tasks/'
       preLoaderRoute: typeof TasksIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/': {
+      id: '/settings/'
+      path: '/settings'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof SettingsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reports/': {
@@ -306,6 +326,7 @@ const rootRouteChildren: RootRouteChildren = {
   PaymentsIndexRoute: PaymentsIndexRoute,
   PropertiesIndexRoute: PropertiesIndexRoute,
   ReportsIndexRoute: ReportsIndexRoute,
+  SettingsIndexRoute: SettingsIndexRoute,
   TasksIndexRoute: TasksIndexRoute,
   TenantsIndexRoute: TenantsIndexRoute,
   UnitsIndexRoute: UnitsIndexRoute,
