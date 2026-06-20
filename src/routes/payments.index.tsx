@@ -103,14 +103,37 @@ function PaymentsList() {
       </section>
 
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-        <header className="border-b border-border px-5 py-4"><h3 className="text-base font-extrabold">كل الدفعات</h3></header>
+        <header className="flex items-center justify-between border-b border-border px-5 py-4">
+          <h3 className="text-base font-extrabold">كل الدفعات</h3>
+          <RecordDialog
+            table="payments"
+            title="إضافة دفعة جديدة"
+            invalidate={INVALIDATE}
+            fields={[
+              { name: "contract_id", label: "العقد", type: "select", required: true,
+                options: contracts.map((c: any) => {
+                  const u = units.find((uu: any) => uu.id === c.unit_id);
+                  const t = tenants.find((tt: any) => tt.id === c.tenant_id);
+                  return { value: c.id, label: `${t?.full_name ?? ""} — ${u?.unit_number ?? ""}` };
+                }),
+              },
+              { name: "due_date", label: "تاريخ الاستحقاق", type: "date", required: true },
+              { name: "amount", label: "المبلغ (ر.س)", type: "number", required: true },
+              { name: "status", label: "الحالة", type: "select", required: true, options: [
+                { value: "غير مدفوع", label: "غير مدفوع" }, { value: "مدفوع", label: "مدفوع" }, { value: "متأخر", label: "متأخر" },
+              ]},
+              { name: "paid_date", label: "تاريخ الدفع", type: "date" },
+              { name: "payment_method", label: "طريقة الدفع" },
+            ]}
+          />
+        </header>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[700px] text-right text-sm">
+          <table className="w-full min-w-[800px] text-right text-sm">
             <thead><tr className="bg-muted/40 text-[12px] font-bold text-muted-foreground">
               <th className="px-4 py-3">الاستحقاق</th><th className="px-4 py-3">العقار</th>
               <th className="px-4 py-3">الوحدة</th><th className="px-4 py-3">المستأجر</th>
               <th className="px-4 py-3">المبلغ</th><th className="px-4 py-3">الحالة</th>
-              <th className="px-4 py-3">إجراء</th>
+              <th className="px-4 py-3">إجراءات</th>
             </tr></thead>
             <tbody>
               {payments.map((p: any) => {
@@ -127,11 +150,29 @@ function PaymentsList() {
                     <td className="px-4 py-3 font-semibold">{Number(p.amount).toLocaleString()} ر.س</td>
                     <td className="px-4 py-3"><StatusPill tone={paymentTone(p.status)}>{p.status}</StatusPill></td>
                     <td className="px-4 py-3">
-                      {p.status !== "مدفوع" && (
-                        <button onClick={() => handlePay(p.id)} className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700">
-                          <CheckCircle2 className="h-3.5 w-3.5" /> تسجيل
-                        </button>
-                      )}
+                      <div className="flex flex-wrap gap-1">
+                        {p.status !== "مدفوع" && (
+                          <button onClick={() => handlePay(p.id)} className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1.5 text-xs font-bold text-white hover:bg-emerald-700">
+                            <CheckCircle2 className="h-3.5 w-3.5" /> دفع
+                          </button>
+                        )}
+                        <RecordDialog
+                          table="payments"
+                          title="تعديل الدفعة"
+                          initial={p}
+                          invalidate={INVALIDATE}
+                          fields={[
+                            { name: "due_date", label: "تاريخ الاستحقاق", type: "date", required: true },
+                            { name: "amount", label: "المبلغ (ر.س)", type: "number", required: true },
+                            { name: "status", label: "الحالة", type: "select", required: true, options: [
+                              { value: "غير مدفوع", label: "غير مدفوع" }, { value: "مدفوع", label: "مدفوع" }, { value: "متأخر", label: "متأخر" },
+                            ]},
+                            { name: "paid_date", label: "تاريخ الدفع", type: "date" },
+                            { name: "payment_method", label: "طريقة الدفع" },
+                          ]}
+                        />
+                        <DeleteButton table="payments" id={p.id} invalidate={INVALIDATE} />
+                      </div>
                     </td>
                   </tr>
                 );
