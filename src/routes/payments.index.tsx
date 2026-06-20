@@ -6,11 +6,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { markPaymentPaid, refreshLatePayments } from "@/lib/db";
 import { DollarSign, BellRing, CheckCircle2 } from "lucide-react";
 import { useEffect } from "react";
+import { RecordDialog, DeleteButton, type FieldDef } from "@/components/record-dialog";
 
 export const Route = createFileRoute("/payments/")({
   head: () => ({ meta: [{ title: "الدفعات | إدارة الأملاك" }] }),
   component: PaymentsList,
 });
+
+const INVALIDATE = [["payments-list"], ["dashboard"]];
 
 function PaymentsList() {
   const qc = useQueryClient();
