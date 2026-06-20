@@ -78,16 +78,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "إدارة الأملاك | نظام إدارة" },
-      { name: "description", content: "نظام احترافي لإدارة العقارات والوحدات والمستأجرين والعقود والدفعات المدير العام(حليمان)" },
-      { property: "og:title", content: "إدارة الأملاك | نظام إدارة" },
-      { name: "twitter:title", content: "إدارة الأملاك | نظام إدارة" },
-      { property: "og:description", content: "نظام احترافي لإدارة العقارات والوحدات والمستأجرين والعقود والدفعات المدير العام(حليمان)" },
-      { name: "twitter:description", content: "نظام احترافي لإدارة العقارات والوحدات والمستأجرين والعقود والدفعات المدير العام(حليمان)" },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/f6e441bf-d78c-4cc5-bfda-6f75b3e94fd7" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/f6e441bf-d78c-4cc5-bfda-6f75b3e94fd7" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:type", content: "website" },
+      { title: "إدارة الأملاك | نظام إدارة العقارات" },
+      { name: "description", content: "نظام احترافي لإدارة العقارات والوحدات والمستأجرين والعقود والدفعات" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
