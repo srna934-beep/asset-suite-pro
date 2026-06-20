@@ -14,6 +14,7 @@ import { Route as UnitsIndexRouteImport } from './routes/units.index'
 import { Route as TenantsIndexRouteImport } from './routes/tenants.index'
 import { Route as PropertiesIndexRouteImport } from './routes/properties.index'
 import { Route as PaymentsIndexRouteImport } from './routes/payments.index'
+import { Route as MaintenanceIndexRouteImport } from './routes/maintenance.index'
 import { Route as ContractsIndexRouteImport } from './routes/contracts.index'
 import { Route as UnitsIdRouteImport } from './routes/units.$id'
 import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
@@ -43,6 +44,11 @@ const PaymentsIndexRoute = PaymentsIndexRouteImport.update({
   path: '/payments/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MaintenanceIndexRoute = MaintenanceIndexRouteImport.update({
+  id: '/maintenance/',
+  path: '/maintenance/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContractsIndexRoute = ContractsIndexRouteImport.update({
   id: '/contracts/',
   path: '/contracts/',
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/properties/$id': typeof PropertiesIdRoute
   '/units/$id': typeof UnitsIdRoute
   '/contracts/': typeof ContractsIndexRoute
+  '/maintenance/': typeof MaintenanceIndexRoute
   '/payments/': typeof PaymentsIndexRoute
   '/properties/': typeof PropertiesIndexRoute
   '/tenants/': typeof TenantsIndexRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/properties/$id': typeof PropertiesIdRoute
   '/units/$id': typeof UnitsIdRoute
   '/contracts': typeof ContractsIndexRoute
+  '/maintenance': typeof MaintenanceIndexRoute
   '/payments': typeof PaymentsIndexRoute
   '/properties': typeof PropertiesIndexRoute
   '/tenants': typeof TenantsIndexRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/properties/$id': typeof PropertiesIdRoute
   '/units/$id': typeof UnitsIdRoute
   '/contracts/': typeof ContractsIndexRoute
+  '/maintenance/': typeof MaintenanceIndexRoute
   '/payments/': typeof PaymentsIndexRoute
   '/properties/': typeof PropertiesIndexRoute
   '/tenants/': typeof TenantsIndexRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/properties/$id'
     | '/units/$id'
     | '/contracts/'
+    | '/maintenance/'
     | '/payments/'
     | '/properties/'
     | '/tenants/'
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/properties/$id'
     | '/units/$id'
     | '/contracts'
+    | '/maintenance'
     | '/payments'
     | '/properties'
     | '/tenants'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/properties/$id'
     | '/units/$id'
     | '/contracts/'
+    | '/maintenance/'
     | '/payments/'
     | '/properties/'
     | '/tenants/'
@@ -128,6 +140,7 @@ export interface RootRouteChildren {
   PropertiesIdRoute: typeof PropertiesIdRoute
   UnitsIdRoute: typeof UnitsIdRoute
   ContractsIndexRoute: typeof ContractsIndexRoute
+  MaintenanceIndexRoute: typeof MaintenanceIndexRoute
   PaymentsIndexRoute: typeof PaymentsIndexRoute
   PropertiesIndexRoute: typeof PropertiesIndexRoute
   TenantsIndexRoute: typeof TenantsIndexRoute
@@ -171,6 +184,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PaymentsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/maintenance/': {
+      id: '/maintenance/'
+      path: '/maintenance'
+      fullPath: '/maintenance/'
+      preLoaderRoute: typeof MaintenanceIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contracts/': {
       id: '/contracts/'
       path: '/contracts'
@@ -200,6 +220,7 @@ const rootRouteChildren: RootRouteChildren = {
   PropertiesIdRoute: PropertiesIdRoute,
   UnitsIdRoute: UnitsIdRoute,
   ContractsIndexRoute: ContractsIndexRoute,
+  MaintenanceIndexRoute: MaintenanceIndexRoute,
   PaymentsIndexRoute: PaymentsIndexRoute,
   PropertiesIndexRoute: PropertiesIndexRoute,
   TenantsIndexRoute: TenantsIndexRoute,
