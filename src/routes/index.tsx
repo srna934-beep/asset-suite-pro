@@ -1,17 +1,18 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery, useQueryClient, queryOptions } from "@tanstack/react-query";
 import { DashboardLayout } from "@/components/dashboard-layout";
-import { properties, units, payments, stats, type PaymentStatus, type UnitStatus, type PropertyStatus } from "@/lib/mock-data";
+import { StatusPill, propertyTone, unitTone, paymentTone } from "@/components/status-pill";
+import { getDashboardData, refreshLatePayments } from "@/lib/db";
 import {
-  DollarSign,
-  AlertCircle,
-  Building2,
-  Home,
-  Users,
-  CalendarClock,
-  Plus,
-  Building,
+  DollarSign, AlertCircle, Building2, Home, Users, CalendarClock, Plus, Building, BellRing,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import { useEffect } from "react";
+
+const dashboardQuery = queryOptions({
+  queryKey: ["dashboard"],
+  queryFn: getDashboardData,
+});
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -23,16 +24,48 @@ export const Route = createFileRoute("/")({
   component: Dashboard,
 });
 
-const statCards = [
-  { key: "income", label: "إجمالي الدخل الشهري", value: `${stats.monthlyIncome.toLocaleString()} $`, icon: DollarSign, tint: "bg-stat-income", iconBg: "bg-emerald-500", text: "text-emerald-700" },
-  { key: "late", label: "إجمالي المتأخرات", value: `${stats.totalLate} $`, icon: AlertCircle, tint: "bg-stat-late", iconBg: "bg-rose-500", text: "text-rose-700" },
-  { key: "props", label: "عدد العقارات", value: stats.propertiesCount, icon: Building2, tint: "bg-stat-properties", iconBg: "bg-sky-500", text: "text-sky-700" },
-  { key: "units", label: "عدد الوحدات", value: stats.unitsCount, icon: Home, tint: "bg-stat-units", iconBg: "bg-amber-500", text: "text-amber-700" },
-  { key: "tenants", label: "عدد المستأجرين", value: stats.tenantsCount, icon: Users, tint: "bg-stat-tenants", iconBg: "bg-violet-500", text: "text-violet-700" },
-  { key: "contracts", label: "العقود التي ستنتهي قريباً", value: stats.expiringContracts, icon: CalendarClock, tint: "bg-stat-contracts", iconBg: "bg-emerald-600", text: "text-emerald-700" },
-];
-
 function Dashboard() {
+  const qc = useQueryClient();
+  const { data, isLoading } = useQuery(dashboardQuery);
+
+  useEffect(() => {
+    refreshLatePayments().then(() => qc.invalidateQueries({ queryKey: ["dashboard"] }));
+  }, [qc]);
+
+  if (isLoading || !data) return <LoadingShell />;
+
+  const { properties, units, tenants, contracts, payments } = data;
+  const propsById = Object.fromEntries(properties.map((p) => [p.id, p]));
+  const unitsById = Object.fromEntries(units.map((u) => [u.id, u]));
+  const tenantsById = Object.fromEntries(tenants.map((t) => [t.id, t]));
+  const contractsById = Object.fromEntries(contracts.map((c) => [c.id, c]));
+
+  const today = new Date();
+  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().slice(0, 10);
+  const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 1).toISOString().slice(0, 10);
+  const thisMonthPayments = payments.filter((p) => p.due_date >= monthStart && p.due_date < monthEnd);
+  const paidThisMonth = thisMonthPayments.filter((p) => p.status === "مدفوع").reduce((s, p) => s + Number(p.amount), 0);
+  const lateTotal = payments.filter((p) => p.status === "متأخر").reduce((s, p) => s + Number(p.amount), 0);
+  const unpaidTotal = payments.filter((p) => p.status === "غير مدفوع").reduce((s, p) => s + Number(p.amount), 0);
+  const monthlyIncome = contracts.filter((c) => c.status === "نشط").reduce((s, c) => s + Number(c.monthly_rent), 0);
+
+  // Expiring contracts in next 60 days
+  const in60 = new Date(today); in60.setDate(in60.getDate() + 60);
+  const expiringContracts = contracts.filter(
+    (c) => c.status === "نشط" && new Date(c.end_date) <= in60 && new Date(c.end_date) >= today,
+  );
+
+  const latePayments = payments.filter((p) => p.status === "متأخر").slice(0, 5);
+
+  const statCards = [
+    { label: "إجمالي الدخل الشهري", value: `${monthlyIncome.toLocaleString()} ر.س`, icon: DollarSign, tint: "bg-stat-income", iconBg: "bg-emerald-500", text: "text-emerald-700" },
+    { label: "إجمالي المتأخرات", value: `${lateTotal.toLocaleString()} ر.س`, icon: AlertCircle, tint: "bg-stat-late", iconBg: "bg-rose-500", text: "text-rose-700" },
+    { label: "عدد العقارات", value: properties.length, icon: Building2, tint: "bg-stat-properties", iconBg: "bg-sky-500", text: "text-sky-700" },
+    { label: "عدد الوحدات", value: units.length, icon: Home, tint: "bg-stat-units", iconBg: "bg-amber-500", text: "text-amber-700" },
+    { label: "عدد المستأجرين", value: tenants.length, icon: Users, tint: "bg-stat-tenants", iconBg: "bg-violet-500", text: "text-violet-700" },
+    { label: "العقود التي ستنتهي قريباً", value: expiringContracts.length, icon: CalendarClock, tint: "bg-stat-contracts", iconBg: "bg-emerald-600", text: "text-emerald-700" },
+  ];
+
   return (
     <DashboardLayout
       title="إدارة الأملاك"
@@ -42,20 +75,27 @@ function Dashboard() {
         </div>
       }
     >
+      {latePayments.length > 0 && (
+        <div className="mb-5 flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3">
+          <BellRing className="h-5 w-5 shrink-0 text-rose-600" />
+          <div className="min-w-0 flex-1 text-sm leading-relaxed">
+            <span className="font-bold text-rose-700">تنبيه: </span>
+            <span className="text-rose-700">
+              يوجد {latePayments.length} دفعات متأخرة بإجمالي {lateTotal.toLocaleString()} ر.س — راجع قسم الدفعات لاتخاذ الإجراء.
+            </span>
+          </div>
+        </div>
+      )}
+
       <section className="mb-6">
         <h2 className="mb-3 text-sm font-bold text-muted-foreground">لوحة التحكم</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {statCards.map((c) => {
             const Icon = c.icon;
             return (
-              <div
-                key={c.key}
-                className={`${c.tint} relative overflow-hidden rounded-2xl border border-border/60 p-4 shadow-sm transition hover:shadow-md`}
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${c.iconBg} text-white shadow`}>
-                    <Icon className="h-5 w-5" />
-                  </div>
+              <div key={c.label} className={`${c.tint} relative overflow-hidden rounded-2xl border border-border/60 p-4 shadow-sm transition hover:shadow-md`}>
+                <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${c.iconBg} text-white shadow`}>
+                  <Icon className="h-5 w-5" />
                 </div>
                 <div className="mt-3 text-[12px] font-medium text-foreground/70">{c.label}</div>
                 <div className={`mt-1 text-xl font-extrabold ${c.text}`}>{c.value}</div>
@@ -67,58 +107,82 @@ function Dashboard() {
 
       <Section title="العقارات" icon={<Building2 className="h-5 w-5 text-primary" />}>
         <Table headers={["اسم العقار", "النوع", "الموقع", "عدد الوحدات", "إجمالي الدخل الشهري", "الحالة"]}>
-          {properties.map((p) => (
-            <tr key={p.id} className="border-t border-border hover:bg-muted/40">
-              <td className="px-4 py-3"><a className="font-semibold text-primary hover:underline" href="#">{p.name}</a></td>
-              <td className="px-4 py-3 text-muted-foreground">{p.type}</td>
-              <td className="px-4 py-3 text-muted-foreground">{p.location}</td>
-              <td className="px-4 py-3 font-semibold">{p.units}</td>
-              <td className="px-4 py-3 font-semibold">{p.income ? `${p.income.toLocaleString()} $` : "—"}</td>
-              <td className="px-4 py-3"><StatusPill status={p.status} /></td>
-            </tr>
-          ))}
+          {properties.map((p) => {
+            const propUnits = units.filter((u) => u.property_id === p.id);
+            const income = contracts.filter((c) => c.status === "نشط" && propUnits.some((u) => u.id === c.unit_id))
+              .reduce((s, c) => s + Number(c.monthly_rent), 0);
+            return (
+              <tr key={p.id} className="border-t border-border hover:bg-muted/40">
+                <td className="px-4 py-3">
+                  <Link to="/properties/$id" params={{ id: p.id }} className="font-semibold text-primary hover:underline">{p.name}</Link>
+                </td>
+                <td className="px-4 py-3 text-muted-foreground">{p.type}</td>
+                <td className="px-4 py-3 text-muted-foreground">{p.location ?? "—"}</td>
+                <td className="px-4 py-3 font-semibold">{propUnits.length}</td>
+                <td className="px-4 py-3 font-semibold">{income ? `${income.toLocaleString()} ر.س` : "—"}</td>
+                <td className="px-4 py-3"><StatusPill tone={propertyTone(p.status)}>{p.status}</StatusPill></td>
+              </tr>
+            );
+          })}
         </Table>
       </Section>
 
       <Section title="الوحدات" icon={<Home className="h-5 w-5 text-amber-600" />}>
-        <Table headers={["العقار", "النوع", "الإيجار الشهري", "الحالة", "المستأجر"]}>
-          {units.map((u) => (
-            <tr key={u.id} className="border-t border-border hover:bg-muted/40">
-              <td className="px-4 py-3"><a className="font-semibold text-primary hover:underline" href="#">{u.property}</a></td>
-              <td className="px-4 py-3 text-muted-foreground">{u.type}</td>
-              <td className="px-4 py-3 font-semibold">{u.rent} $</td>
-              <td className="px-4 py-3"><UnitStatusPill status={u.status} /></td>
-              <td className="px-4 py-3 font-medium">{u.tenant ?? "—"}</td>
-            </tr>
-          ))}
+        <Table headers={["العقار", "الوحدة", "النوع", "الإيجار الشهري", "الحالة", "المستأجر"]}>
+          {units.slice(0, 8).map((u) => {
+            const contract = contracts.find((c) => c.unit_id === u.id && c.status === "نشط");
+            const tenant = contract ? tenantsById[contract.tenant_id] : null;
+            return (
+              <tr key={u.id} className="border-t border-border hover:bg-muted/40">
+                <td className="px-4 py-3">
+                  <Link to="/properties/$id" params={{ id: u.property_id }} className="font-semibold text-primary hover:underline">
+                    {propsById[u.property_id]?.name}
+                  </Link>
+                </td>
+                <td className="px-4 py-3">
+                  <Link to="/units/$id" params={{ id: u.id }} className="font-medium text-primary hover:underline">{u.unit_number}</Link>
+                </td>
+                <td className="px-4 py-3 text-muted-foreground">{u.type}</td>
+                <td className="px-4 py-3 font-semibold">{Number(u.rent_amount).toLocaleString()} ر.س</td>
+                <td className="px-4 py-3"><StatusPill tone={unitTone(u.status)}>{u.status}</StatusPill></td>
+                <td className="px-4 py-3">{tenant?.full_name ?? "—"}</td>
+              </tr>
+            );
+          })}
         </Table>
       </Section>
 
       <Section title="الدفعات الأخيرة" icon={<DollarSign className="h-5 w-5 text-emerald-600" />}>
-        <Table headers={["الحالة", "تاريخ", "العقار", "المبلغ", "المستأجر", "الشهر"]}>
-          {payments.map((p) => (
-            <tr key={p.id} className="border-t border-border hover:bg-muted/40">
-              <td className="px-4 py-3"><PaymentStatusPill status={p.status} /></td>
-              <td className="px-4 py-3 text-muted-foreground">{p.date}</td>
-              <td className="px-4 py-3 font-medium">{p.property}</td>
-              <td className="px-4 py-3 font-semibold">{p.amount} $</td>
-              <td className="px-4 py-3">{p.tenant}</td>
-              <td className="px-4 py-3 text-muted-foreground">{p.month}</td>
-            </tr>
-          ))}
+        <Table headers={["الحالة", "تاريخ الاستحقاق", "العقار", "المبلغ", "المستأجر", "الوحدة"]}>
+          {payments.slice(0, 8).map((p) => {
+            const contract = contractsById[p.contract_id];
+            const unit = contract ? unitsById[contract.unit_id] : null;
+            const property = unit ? propsById[unit.property_id] : null;
+            const tenant = contract ? tenantsById[contract.tenant_id] : null;
+            return (
+              <tr key={p.id} className="border-t border-border hover:bg-muted/40">
+                <td className="px-4 py-3"><StatusPill tone={paymentTone(p.status)}>{p.status}</StatusPill></td>
+                <td className="px-4 py-3 text-muted-foreground">{p.due_date}</td>
+                <td className="px-4 py-3 font-medium">{property?.name ?? "—"}</td>
+                <td className="px-4 py-3 font-semibold">{Number(p.amount).toLocaleString()} ر.س</td>
+                <td className="px-4 py-3">{tenant?.full_name ?? "—"}</td>
+                <td className="px-4 py-3 text-muted-foreground">{unit?.unit_number ?? "—"}</td>
+              </tr>
+            );
+          })}
         </Table>
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-muted/30 px-4 py-3 text-xs sm:text-sm">
           <div className="flex flex-wrap gap-4">
-            <Totals label="إجمالي المدفوع" value={`${stats.paidThisMonth.toLocaleString()} $`} tone="text-emerald-600" />
-            <Totals label="إجمالي المتأخرات" value={`${stats.totalLateAll} $`} tone="text-rose-600" />
-            <Totals label="مترلق عليّ" value={`${stats.owedTo} $`} tone="text-rose-600" />
+            <Totals label="إجمالي المدفوع هذا الشهر" value={`${paidThisMonth.toLocaleString()} ر.س`} tone="text-emerald-600" />
+            <Totals label="إجمالي المتأخرات" value={`${lateTotal.toLocaleString()} ر.س`} tone="text-rose-600" />
+            <Totals label="غير مدفوع" value={`${unpaidTotal.toLocaleString()} ر.س`} tone="text-amber-600" />
           </div>
-          <div className="text-muted-foreground">إجمالي هذا الشهر: <span className="font-bold text-foreground">1,900 $</span></div>
+          <Link to="/payments" className="font-semibold text-primary hover:underline">عرض كل الدفعات ←</Link>
         </div>
       </Section>
 
       <div className="mt-6 rounded-2xl border border-primary/20 bg-primary/5 px-5 py-4 text-center text-sm leading-relaxed text-foreground/80">
-        جميع الجداول مرتبطة مع بعضها (<span className="font-bold">Relations</span>) ويتم الحساب تلقائياً باستخدام (<span className="font-bold">Rollups</span>) للحصول على الدخل الإجمالي، المتأخرات، وعدد الوحدات وغيرها.
+        جميع الجداول مرتبطة بقاعدة البيانات تلقائياً — البيانات تتحدث مباشرة عند إضافة عقار أو وحدة أو تسجيل دفعة.
       </div>
     </DashboardLayout>
   );
@@ -128,10 +192,7 @@ function Section({ title, icon, children }: { title: string; icon: ReactNode; ch
   return (
     <section className="mb-6 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
       <header className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
-        <div className="flex items-center gap-2">
-          {icon}
-          <h3 className="text-base font-extrabold">{title}</h3>
-        </div>
+        <div className="flex items-center gap-2">{icon}<h3 className="text-base font-extrabold">{title}</h3></div>
         <button className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-border bg-background px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary">
           <Plus className="h-3.5 w-3.5" /> جديد
         </button>
@@ -146,9 +207,7 @@ function Table({ headers, children }: { headers: string[]; children: ReactNode }
     <table className="w-full min-w-[640px] text-right text-sm">
       <thead>
         <tr className="bg-muted/40 text-[12px] font-bold uppercase tracking-wide text-muted-foreground">
-          {headers.map((h) => (
-            <th key={h} className="px-4 py-3 font-bold">{h}</th>
-          ))}
+          {headers.map((h) => <th key={h} className="px-4 py-3 font-bold">{h}</th>)}
         </tr>
       </thead>
       <tbody>{children}</tbody>
@@ -157,37 +216,18 @@ function Table({ headers, children }: { headers: string[]; children: ReactNode }
 }
 
 function Totals({ label, value, tone }: { label: string; value: string; tone: string }) {
+  return <div className="flex items-center gap-1.5"><span className="text-muted-foreground">{label}:</span><span className={`font-bold ${tone}`}>{value}</span></div>;
+}
+
+function LoadingShell() {
   return (
-    <div className="flex items-center gap-1.5">
-      <span className="text-muted-foreground">{label}:</span>
-      <span className={`font-bold ${tone}`}>{value}</span>
-    </div>
+    <DashboardLayout title="إدارة الأملاك">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="h-28 animate-pulse rounded-2xl border border-border bg-card" />
+        ))}
+      </div>
+      <div className="mt-6 h-64 animate-pulse rounded-2xl border border-border bg-card" />
+    </DashboardLayout>
   );
-}
-
-function StatusPill({ status }: { status: PropertyStatus }) {
-  const map: Record<PropertyStatus, string> = {
-    "مؤجر": "bg-emerald-100 text-emerald-700",
-    "خاصة": "bg-slate-100 text-slate-700",
-    "متاح": "bg-sky-100 text-sky-700",
-  };
-  return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${map[status]}`}>{status}</span>;
-}
-
-function UnitStatusPill({ status }: { status: UnitStatus }) {
-  const map: Record<UnitStatus, string> = {
-    "مؤجرة": "bg-emerald-100 text-emerald-700",
-    "فارغة": "bg-amber-100 text-amber-700",
-    "صيانة": "bg-sky-100 text-sky-700",
-  };
-  return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${map[status]}`}>{status}</span>;
-}
-
-function PaymentStatusPill({ status }: { status: PaymentStatus }) {
-  const map: Record<PaymentStatus, string> = {
-    "مدفوع": "bg-emerald-100 text-emerald-700",
-    "متأخر": "bg-rose-100 text-rose-700",
-    "غير مدفوع": "bg-rose-100 text-rose-700",
-  };
-  return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${map[status]}`}>{status}</span>;
 }
