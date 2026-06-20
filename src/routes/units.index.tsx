@@ -4,11 +4,14 @@ import { DashboardLayout } from "@/components/dashboard-layout";
 import { StatusPill, unitTone } from "@/components/status-pill";
 import { supabase } from "@/integrations/supabase/client";
 import { Home } from "lucide-react";
+import { RecordDialog, DeleteButton, type FieldDef } from "@/components/record-dialog";
 
 export const Route = createFileRoute("/units/")({
   head: () => ({ meta: [{ title: "الوحدات | إدارة الأملاك" }] }),
   component: UnitsList,
 });
+
+const INVALIDATE = [["units-list"], ["dashboard"], ["properties-list"]];
 
 function UnitsList() {
   const { data } = useQuery(queryOptions({
@@ -24,14 +27,36 @@ function UnitsList() {
     },
   }));
 
+  const propOptions = (data?.properties ?? []).map((p: any) => ({ value: p.id, label: p.name }));
+  const unitFields: FieldDef[] = [
+    { name: "property_id", label: "العقار", type: "select", required: true, options: propOptions },
+    { name: "unit_number", label: "رقم الوحدة", required: true },
+    { name: "type", label: "النوع", type: "select", required: true, options: [
+      { value: "شقة", label: "شقة" }, { value: "محل", label: "محل" }, { value: "مكتب", label: "مكتب" },
+      { value: "مستودع", label: "مستودع" }, { value: "استوديو", label: "استوديو" },
+    ]},
+    { name: "rent_amount", label: "الإيجار الشهري (ر.س)", type: "number", required: true },
+    { name: "status", label: "الحالة", type: "select", required: true, options: [
+      { value: "فارغة", label: "فارغة" }, { value: "مؤجرة", label: "مؤجرة" }, { value: "صيانة", label: "صيانة" },
+    ]},
+    { name: "area_sqm", label: "المساحة (م²)", type: "number" },
+    { name: "bedrooms", label: "غرف النوم", type: "number" },
+    { name: "bathrooms", label: "دورات المياه", type: "number" },
+    { name: "notes", label: "ملاحظات", type: "textarea" },
+  ];
+
   return (
     <DashboardLayout title="الوحدات" icon={<div className="grid h-11 w-11 place-items-center rounded-2xl bg-amber-100 text-amber-700"><Home className="h-6 w-6" /></div>}>
+      <div className="mb-4 flex justify-end">
+        <RecordDialog table="units" title="إضافة وحدة جديدة" fields={unitFields} invalidate={INVALIDATE} />
+      </div>
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         <table className="w-full min-w-[700px] text-right text-sm">
           <thead><tr className="bg-muted/40 text-[12px] font-bold text-muted-foreground">
             <th className="px-4 py-3">الوحدة</th><th className="px-4 py-3">العقار</th>
             <th className="px-4 py-3">النوع</th><th className="px-4 py-3">الإيجار</th>
             <th className="px-4 py-3">الحالة</th><th className="px-4 py-3">المستأجر</th>
+            <th className="px-4 py-3">إجراءات</th>
           </tr></thead>
           <tbody>
             {data?.units.map((u: any) => {
@@ -46,6 +71,12 @@ function UnitsList() {
                   <td className="px-4 py-3 font-semibold">{Number(u.rent_amount).toLocaleString()} ر.س</td>
                   <td className="px-4 py-3"><StatusPill tone={unitTone(u.status)}>{u.status}</StatusPill></td>
                   <td className="px-4 py-3">{tenant?.full_name ?? "—"}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-1">
+                      <RecordDialog table="units" title="تعديل الوحدة" fields={unitFields} initial={u} invalidate={INVALIDATE} />
+                      <DeleteButton table="units" id={u.id} invalidate={INVALIDATE} />
+                    </div>
+                  </td>
                 </tr>
               );
             })}
