@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UnitsIndexRouteImport } from './routes/units.index'
 import { Route as TenantsIndexRouteImport } from './routes/tenants.index'
+import { Route as TasksIndexRouteImport } from './routes/tasks.index'
 import { Route as PropertiesIndexRouteImport } from './routes/properties.index'
 import { Route as PaymentsIndexRouteImport } from './routes/payments.index'
 import { Route as MaintenanceIndexRouteImport } from './routes/maintenance.index'
@@ -33,6 +34,11 @@ const UnitsIndexRoute = UnitsIndexRouteImport.update({
 const TenantsIndexRoute = TenantsIndexRouteImport.update({
   id: '/tenants/',
   path: '/tenants/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TasksIndexRoute = TasksIndexRouteImport.update({
+  id: '/tasks/',
+  path: '/tasks/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PropertiesIndexRoute = PropertiesIndexRouteImport.update({
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/maintenance/': typeof MaintenanceIndexRoute
   '/payments/': typeof PaymentsIndexRoute
   '/properties/': typeof PropertiesIndexRoute
+  '/tasks/': typeof TasksIndexRoute
   '/tenants/': typeof TenantsIndexRoute
   '/units/': typeof UnitsIndexRoute
 }
@@ -92,6 +99,7 @@ export interface FileRoutesByTo {
   '/maintenance': typeof MaintenanceIndexRoute
   '/payments': typeof PaymentsIndexRoute
   '/properties': typeof PropertiesIndexRoute
+  '/tasks': typeof TasksIndexRoute
   '/tenants': typeof TenantsIndexRoute
   '/units': typeof UnitsIndexRoute
 }
@@ -105,6 +113,7 @@ export interface FileRoutesById {
   '/maintenance/': typeof MaintenanceIndexRoute
   '/payments/': typeof PaymentsIndexRoute
   '/properties/': typeof PropertiesIndexRoute
+  '/tasks/': typeof TasksIndexRoute
   '/tenants/': typeof TenantsIndexRoute
   '/units/': typeof UnitsIndexRoute
 }
@@ -119,6 +128,7 @@ export interface FileRouteTypes {
     | '/maintenance/'
     | '/payments/'
     | '/properties/'
+    | '/tasks/'
     | '/tenants/'
     | '/units/'
   fileRoutesByTo: FileRoutesByTo
@@ -131,6 +141,7 @@ export interface FileRouteTypes {
     | '/maintenance'
     | '/payments'
     | '/properties'
+    | '/tasks'
     | '/tenants'
     | '/units'
   id:
@@ -143,6 +154,7 @@ export interface FileRouteTypes {
     | '/maintenance/'
     | '/payments/'
     | '/properties/'
+    | '/tasks/'
     | '/tenants/'
     | '/units/'
   fileRoutesById: FileRoutesById
@@ -156,6 +168,7 @@ export interface RootRouteChildren {
   MaintenanceIndexRoute: typeof MaintenanceIndexRoute
   PaymentsIndexRoute: typeof PaymentsIndexRoute
   PropertiesIndexRoute: typeof PropertiesIndexRoute
+  TasksIndexRoute: typeof TasksIndexRoute
   TenantsIndexRoute: typeof TenantsIndexRoute
   UnitsIndexRoute: typeof UnitsIndexRoute
 }
@@ -181,6 +194,13 @@ declare module '@tanstack/react-router' {
       path: '/tenants'
       fullPath: '/tenants/'
       preLoaderRoute: typeof TenantsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tasks/': {
+      id: '/tasks/'
+      path: '/tasks'
+      fullPath: '/tasks/'
+      preLoaderRoute: typeof TasksIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/properties/': {
@@ -244,6 +264,7 @@ const rootRouteChildren: RootRouteChildren = {
   MaintenanceIndexRoute: MaintenanceIndexRoute,
   PaymentsIndexRoute: PaymentsIndexRoute,
   PropertiesIndexRoute: PropertiesIndexRoute,
+  TasksIndexRoute: TasksIndexRoute,
   TenantsIndexRoute: TenantsIndexRoute,
   UnitsIndexRoute: UnitsIndexRoute,
 }
