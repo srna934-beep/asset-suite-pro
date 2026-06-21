@@ -40,7 +40,7 @@ export function ProfileMenu() {
           </div>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent dir="rtl" className="w-56" align="end">
+      <DropdownMenuContent className="w-56" align="end">
         <DropdownMenuLabel className="text-right">
           <div className="font-bold">{name}</div>
           <div className="text-[10px] font-normal text-muted-foreground">{user?.email}</div>
