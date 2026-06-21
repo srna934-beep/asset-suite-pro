@@ -23,9 +23,6 @@ export function DashboardLayout({
     if (!loading && !session) navigate({ to: "/auth", replace: true });
   }, [loading, session, navigate]);
 
-  if (loading || !session) {
-    return <div className="min-h-screen grid place-items-center bg-background"><div className="text-sm text-muted-foreground">جارٍ التحميل...</div></div>;
-  }
 
   return (
     <div className="min-h-screen bg-background">
