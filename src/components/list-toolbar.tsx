@@ -1,4 +1,4 @@
-import { Search, ArrowUpDown } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "./ui/input";
 
 type Props = {
