@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,13 +26,14 @@ type Props = {
   initial?: Record<string, any>;
   invalidate: string[][];
   trigger?: ReactNode;
+  defaults?: Record<string, any>;
 };
 
-export function RecordDialog({ table, title, fields, initial, invalidate, trigger }: Props) {
+export function RecordDialog({ table, title, fields, initial, invalidate, trigger, defaults }: Props) {
   const [open, setOpen] = useState(false);
   const [values, setValues] = useState<Record<string, any>>(() => {
     const v: Record<string, any> = {};
-    fields.forEach((f) => (v[f.name] = initial?.[f.name] ?? ""));
+    fields.forEach((f) => (v[f.name] = initial?.[f.name] ?? defaults?.[f.name] ?? ""));
     return v;
   });
   const [saving, setSaving] = useState(false);
@@ -55,11 +57,8 @@ export function RecordDialog({ table, title, fields, initial, invalidate, trigge
       ? await (supabase.from(table as any).update(payload).eq("id", initial.id))
       : await (supabase.from(table as any).insert(payload));
     setSaving(false);
-    if (q.error) {
-      toast.error(q.error.message);
-      return;
-    }
-    toast.success(initial?.id ? "تم التحديث" : "تمت الإضافة");
+    if (q.error) { toast.error(q.error.message); return; }
+    toast.success(initial?.id ? "تم التحديث بنجاح" : "تمت الإضافة بنجاح");
     invalidate.forEach((k) => qc.invalidateQueries({ queryKey: k }));
     setOpen(false);
   }
@@ -69,7 +68,7 @@ export function RecordDialog({ table, title, fields, initial, invalidate, trigge
       <DialogTrigger asChild>
         {trigger ?? (
           <Button size={initial ? "sm" : "default"} variant={initial ? "outline" : "default"}>
-            {initial ? <Pencil className="h-3.5 w-3.5" /> : <><Plus className="h-4 w-4" /> إضافة</>}
+            {initial ? <Pencil className="h-3.5 w-3.5" /> : <><Plus className="h-4 w-4 ml-1" /> إضافة جديد</>}
           </Button>
         )}
       </DialogTrigger>
@@ -112,16 +111,36 @@ export function RecordDialog({ table, title, fields, initial, invalidate, trigge
 
 export function DeleteButton({ table, id, invalidate, label = "حذف" }: { table: string; id: string; invalidate: string[][]; label?: string }) {
   const qc = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+
   async function handle() {
-    if (!confirm("هل أنت متأكد من الحذف؟")) return;
+    setBusy(true);
     const { error } = await supabase.from(table as any).delete().eq("id", id);
+    setBusy(false);
     if (error) return toast.error(error.message);
-    toast.success("تم الحذف");
+    toast.success("تم الحذف بنجاح");
     invalidate.forEach((k) => qc.invalidateQueries({ queryKey: k }));
+    setOpen(false);
   }
+
   return (
-    <Button size="sm" variant="outline" onClick={handle} className="text-rose-600 hover:bg-rose-50" title={label}>
-      <Trash2 className="h-3.5 w-3.5" />
-    </Button>
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
+        <Button size="sm" variant="outline" className="text-rose-600 hover:bg-rose-50" title={label}>
+          <Trash2 className="h-3.5 w-3.5" />
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent dir="rtl">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="text-right">تأكيد الحذف</AlertDialogTitle>
+          <AlertDialogDescription className="text-right">هذا الإجراء لا يمكن التراجع عنه. هل أنت متأكد من الحذف؟</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="gap-2">
+          <AlertDialogCancel>إلغاء</AlertDialogCancel>
+          <AlertDialogAction onClick={handle} disabled={busy} className="bg-rose-600 hover:bg-rose-700">{busy ? "..." : "حذف"}</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
