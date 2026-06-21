@@ -4,7 +4,7 @@ import { Input } from "./ui/input";
 type Props = {
   search: string;
   onSearch: (v: string) => void;
-  filters?: { value: string; label: string; onChange: (v: string) => void; options: { value: string; label: string }[]; placeholder: string }[];
+  filters?: { value: string; label?: string; onChange: (v: string) => void; options: { value: string; label: string }[]; placeholder: string }[];
   sort?: { value: string; onChange: (v: string) => void; options: { value: string; label: string }[] };
   children?: React.ReactNode;
 };
