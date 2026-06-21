@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, queryOptions } from "@tanstack/react-query";
+import { useState, useMemo } from "react";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { StatusPill, unitTone } from "@/components/status-pill";
 import { supabase } from "@/integrations/supabase/client";
 import { Home } from "lucide-react";
 import { RecordDialog, DeleteButton, type FieldDef } from "@/components/record-dialog";
+import { ListToolbar } from "@/components/list-toolbar";
 
 export const Route = createFileRoute("/units/")({
   head: () => ({ meta: [{ title: "الوحدات | إدارة الأملاك" }] }),
@@ -14,6 +16,10 @@ export const Route = createFileRoute("/units/")({
 const INVALIDATE = [["units-list"], ["dashboard"], ["properties-list"]];
 
 function UnitsList() {
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("");
+  const [propertyId, setPropertyId] = useState("");
+
   const { data } = useQuery(queryOptions({
     queryKey: ["units-list"],
     queryFn: async () => {
@@ -45,12 +51,29 @@ function UnitsList() {
     { name: "notes", label: "ملاحظات", type: "textarea" },
   ];
 
+  const filtered = useMemo(() => {
+    let r = data?.units ?? [];
+    if (search) { const s = search.toLowerCase(); r = r.filter((u: any) => u.unit_number?.toLowerCase().includes(s)); }
+    if (status) r = r.filter((u: any) => u.status === status);
+    if (propertyId) r = r.filter((u: any) => u.property_id === propertyId);
+    return r;
+  }, [data, search, status, propertyId]);
+
   return (
     <DashboardLayout title="الوحدات" icon={<div className="grid h-11 w-11 place-items-center rounded-2xl bg-amber-100 text-amber-700"><Home className="h-6 w-6" /></div>}>
-      <div className="mb-4 flex justify-end">
+      <ListToolbar
+        search={search} onSearch={setSearch}
+        filters={[
+          { value: status, onChange: setStatus, placeholder: "كل الحالات", options: [
+            { value: "فارغة", label: "فارغة" }, { value: "مؤجرة", label: "مؤجرة" }, { value: "صيانة", label: "صيانة" },
+          ]},
+          { value: propertyId, onChange: setPropertyId, placeholder: "كل العقارات", options: propOptions },
+        ]}
+      >
         <RecordDialog table="units" title="إضافة وحدة جديدة" fields={unitFields} invalidate={INVALIDATE} />
-      </div>
+      </ListToolbar>
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+        <div className="overflow-x-auto">
         <table className="w-full min-w-[700px] text-right text-sm">
           <thead><tr className="bg-muted/40 text-[12px] font-bold text-muted-foreground">
             <th className="px-4 py-3">الوحدة</th><th className="px-4 py-3">العقار</th>
@@ -59,10 +82,10 @@ function UnitsList() {
             <th className="px-4 py-3">إجراءات</th>
           </tr></thead>
           <tbody>
-            {data?.units.map((u: any) => {
-              const prop = data.properties.find((p: any) => p.id === u.property_id);
-              const contract = data.contracts.find((c: any) => c.unit_id === u.id && c.status === "نشط");
-              const tenant = contract ? data.tenants.find((t: any) => t.id === contract.tenant_id) : null;
+            {filtered.map((u: any) => {
+              const prop = data!.properties.find((p: any) => p.id === u.property_id);
+              const contract = data!.contracts.find((c: any) => c.unit_id === u.id && c.status === "نشط");
+              const tenant = contract ? data!.tenants.find((t: any) => t.id === contract.tenant_id) : null;
               return (
                 <tr key={u.id} className="border-t border-border hover:bg-muted/40">
                   <td className="px-4 py-3"><Link to="/units/$id" params={{ id: u.id }} className="font-semibold text-primary hover:underline">{u.unit_number}</Link></td>
@@ -80,8 +103,10 @@ function UnitsList() {
                 </tr>
               );
             })}
+            {filtered.length === 0 && <tr><td colSpan={7} className="py-12 text-center text-muted-foreground">لا توجد وحدات</td></tr>}
           </tbody>
         </table>
+        </div>
       </div>
     </DashboardLayout>
   );

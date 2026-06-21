@@ -1,10 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery, queryOptions } from "@tanstack/react-query";
+import { useQuery, useQueryClient, queryOptions } from "@tanstack/react-query";
+import { useState, useMemo } from "react";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { StatusPill, contractTone } from "@/components/status-pill";
 import { supabase } from "@/integrations/supabase/client";
-import { FileText, AlertTriangle } from "lucide-react";
+import { FileText, AlertTriangle, RefreshCcw, XCircle } from "lucide-react";
 import { RecordDialog, DeleteButton, type FieldDef } from "@/components/record-dialog";
+import { ListToolbar } from "@/components/list-toolbar";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/contracts/")({
   head: () => ({ meta: [{ title: "العقود | إدارة الأملاك" }] }),
@@ -18,6 +22,10 @@ function daysBetween(date: string) {
 }
 
 function ContractsList() {
+  const qc = useQueryClient();
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("");
+
   const { data } = useQuery(queryOptions({
     queryKey: ["contracts-list"],
     queryFn: async () => {
@@ -49,13 +57,48 @@ function ContractsList() {
     { name: "notes", label: "ملاحظات", type: "textarea" },
   ];
 
+  const filtered = useMemo(() => {
+    let r = data?.contracts ?? [];
+    if (status) r = r.filter((c: any) => c.status === status);
+    if (search) {
+      const s = search.toLowerCase();
+      r = r.filter((c: any) => {
+        const t = data!.tenants.find((tt: any) => tt.id === c.tenant_id);
+        const u = data!.units.find((uu: any) => uu.id === c.unit_id);
+        return t?.full_name?.toLowerCase().includes(s) || u?.unit_number?.toLowerCase().includes(s);
+      });
+    }
+    return r;
+  }, [data, search, status]);
+
+  async function renew(c: any) {
+    const newEnd = new Date(c.end_date); newEnd.setFullYear(newEnd.getFullYear() + 1);
+    const { error } = await supabase.from("contracts").update({ end_date: newEnd.toISOString().slice(0, 10), status: "نشط" }).eq("id", c.id);
+    if (error) return toast.error(error.message);
+    toast.success("تم تجديد العقد لسنة إضافية");
+    qc.invalidateQueries({ queryKey: ["contracts-list"] });
+  }
+  async function terminate(c: any) {
+    if (!confirm("إنهاء العقد؟")) return;
+    const { error } = await supabase.from("contracts").update({ status: "منتهي" }).eq("id", c.id);
+    if (error) return toast.error(error.message);
+    toast.success("تم إنهاء العقد");
+    qc.invalidateQueries({ queryKey: ["contracts-list"] });
+  }
+
   return (
     <DashboardLayout title="العقود" icon={<div className="grid h-11 w-11 place-items-center rounded-2xl bg-sky-100 text-sky-700"><FileText className="h-6 w-6" /></div>}>
-      <div className="mb-4 flex justify-end">
+      <ListToolbar
+        search={search} onSearch={setSearch}
+        filters={[{ value: status, onChange: setStatus, placeholder: "كل الحالات", options: [
+          { value: "نشط", label: "نشط" }, { value: "منتهي", label: "منتهي" }, { value: "ملغي", label: "ملغي" },
+        ]}]}
+      >
         <RecordDialog table="contracts" title="إضافة عقد جديد" fields={fields} invalidate={INVALIDATE} />
-      </div>
+      </ListToolbar>
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-        <table className="w-full min-w-[800px] text-right text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[900px] text-right text-sm">
           <thead><tr className="bg-muted/40 text-[12px] font-bold text-muted-foreground">
             <th className="px-4 py-3">المستأجر</th><th className="px-4 py-3">العقار / الوحدة</th>
             <th className="px-4 py-3">البداية</th><th className="px-4 py-3">النهاية</th>
@@ -63,10 +106,10 @@ function ContractsList() {
             <th className="px-4 py-3">تنبيه</th><th className="px-4 py-3">إجراءات</th>
           </tr></thead>
           <tbody>
-            {data?.contracts.map((c: any) => {
-              const u = data.units.find((uu: any) => uu.id === c.unit_id);
-              const pr = u ? data.properties.find((pp: any) => pp.id === u.property_id) : null;
-              const t = data.tenants.find((tt: any) => tt.id === c.tenant_id);
+            {filtered.map((c: any) => {
+              const u = data!.units.find((uu: any) => uu.id === c.unit_id);
+              const pr = u ? data!.properties.find((pp: any) => pp.id === u.property_id) : null;
+              const t = data!.tenants.find((tt: any) => tt.id === c.tenant_id);
               const days = daysBetween(c.end_date);
               const expiring = c.status === "نشط" && days <= 60 && days >= 0;
               return (
@@ -79,10 +122,12 @@ function ContractsList() {
                   <td className="px-4 py-3"><StatusPill tone={contractTone(c.status)}>{c.status}</StatusPill></td>
                   <td className="px-4 py-3">
                     {expiring && <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-700"><AlertTriangle className="h-3 w-3" /> {days} يوم</span>}
-                    {days < 0 && c.status === "نشط" && <span className="inline-flex rounded-full bg-rose-100 px-2.5 py-1 text-xs font-bold text-rose-700">منتهي</span>}
+                    {days < 0 && c.status === "نشط" && <span className="inline-flex rounded-full bg-rose-100 px-2.5 py-1 text-xs font-bold text-rose-700">انتهى</span>}
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex gap-1">
+                    <div className="flex flex-wrap gap-1">
+                      {c.status === "نشط" && <Button size="sm" variant="outline" onClick={() => renew(c)} title="تجديد"><RefreshCcw className="h-3.5 w-3.5" /></Button>}
+                      {c.status === "نشط" && <Button size="sm" variant="outline" onClick={() => terminate(c)} className="text-amber-700" title="إنهاء"><XCircle className="h-3.5 w-3.5" /></Button>}
                       <RecordDialog table="contracts" title="تعديل العقد" fields={fields} initial={c} invalidate={INVALIDATE} />
                       <DeleteButton table="contracts" id={c.id} invalidate={INVALIDATE} />
                     </div>
@@ -90,8 +135,10 @@ function ContractsList() {
                 </tr>
               );
             })}
+            {filtered.length === 0 && <tr><td colSpan={8} className="py-12 text-center text-muted-foreground">لا توجد عقود</td></tr>}
           </tbody>
         </table>
+        </div>
       </div>
     </DashboardLayout>
   );

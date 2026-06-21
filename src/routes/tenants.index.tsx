@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, queryOptions } from "@tanstack/react-query";
+import { useState, useMemo } from "react";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { supabase } from "@/integrations/supabase/client";
 import { Users, Phone, Mail } from "lucide-react";
 import { RecordDialog, DeleteButton, type FieldDef } from "@/components/record-dialog";
+import { ListToolbar } from "@/components/list-toolbar";
 
 export const Route = createFileRoute("/tenants/")({
   head: () => ({ meta: [{ title: "المستأجرين | إدارة الأملاك" }] }),
@@ -21,6 +23,7 @@ const TENANT_FIELDS: FieldDef[] = [
 const INVALIDATE = [["tenants-list"], ["dashboard"]];
 
 function TenantsList() {
+  const [search, setSearch] = useState("");
   const { data } = useQuery(queryOptions({
     queryKey: ["tenants-list"],
     queryFn: async () => {
@@ -32,14 +35,25 @@ function TenantsList() {
     },
   }));
 
+  const filtered = useMemo(() => {
+    if (!search) return data?.tenants ?? [];
+    const s = search.toLowerCase();
+    return (data?.tenants ?? []).filter((t: any) =>
+      t.full_name?.toLowerCase().includes(s) ||
+      t.phone?.includes(search) ||
+      t.email?.toLowerCase().includes(s) ||
+      t.national_id?.includes(search),
+    );
+  }, [data, search]);
+
   return (
     <DashboardLayout title="المستأجرين" icon={<div className="grid h-11 w-11 place-items-center rounded-2xl bg-violet-100 text-violet-700"><Users className="h-6 w-6" /></div>}>
-      <div className="mb-4 flex justify-end">
+      <ListToolbar search={search} onSearch={setSearch}>
         <RecordDialog table="tenants" title="إضافة مستأجر جديد" fields={TENANT_FIELDS} invalidate={INVALIDATE} />
-      </div>
+      </ListToolbar>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {data?.tenants.map((t: any) => {
-          const active = data.contracts.filter((c: any) => c.tenant_id === t.id && c.status === "نشط");
+        {filtered.map((t: any) => {
+          const active = data!.contracts.filter((c: any) => c.tenant_id === t.id && c.status === "نشط");
           const totalRent = active.reduce((s: number, c: any) => s + Number(c.monthly_rent), 0);
           return (
             <div key={t.id} className="rounded-2xl border border-border bg-card p-5 shadow-sm hover:shadow-md transition">
@@ -71,6 +85,7 @@ function TenantsList() {
             </div>
           );
         })}
+        {filtered.length === 0 && <div className="col-span-full py-12 text-center text-muted-foreground">لا يوجد مستأجرون</div>}
       </div>
     </DashboardLayout>
   );

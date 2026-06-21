@@ -58,12 +58,12 @@ function Dashboard() {
   const latePayments = payments.filter((p) => p.status === "متأخر").slice(0, 5);
 
   const statCards = [
-    { label: "إجمالي الدخل الشهري", value: `${monthlyIncome.toLocaleString()} ر.س`, icon: DollarSign, tint: "bg-stat-income", iconBg: "bg-emerald-500", text: "text-emerald-700" },
-    { label: "إجمالي المتأخرات", value: `${lateTotal.toLocaleString()} ر.س`, icon: AlertCircle, tint: "bg-stat-late", iconBg: "bg-rose-500", text: "text-rose-700" },
-    { label: "عدد العقارات", value: properties.length, icon: Building2, tint: "bg-stat-properties", iconBg: "bg-sky-500", text: "text-sky-700" },
-    { label: "عدد الوحدات", value: units.length, icon: Home, tint: "bg-stat-units", iconBg: "bg-amber-500", text: "text-amber-700" },
-    { label: "عدد المستأجرين", value: tenants.length, icon: Users, tint: "bg-stat-tenants", iconBg: "bg-violet-500", text: "text-violet-700" },
-    { label: "العقود التي ستنتهي قريباً", value: expiringContracts.length, icon: CalendarClock, tint: "bg-stat-contracts", iconBg: "bg-emerald-600", text: "text-emerald-700" },
+    { label: "إجمالي الدخل الشهري", value: `${monthlyIncome.toLocaleString()} ر.س`, icon: DollarSign, tint: "bg-stat-income", iconBg: "bg-emerald-500", text: "text-emerald-700", to: "/payments" as const },
+    { label: "إجمالي المتأخرات", value: `${lateTotal.toLocaleString()} ر.س`, icon: AlertCircle, tint: "bg-stat-late", iconBg: "bg-rose-500", text: "text-rose-700", to: "/payments" as const },
+    { label: "عدد العقارات", value: properties.length, icon: Building2, tint: "bg-stat-properties", iconBg: "bg-sky-500", text: "text-sky-700", to: "/properties" as const },
+    { label: "عدد الوحدات", value: units.length, icon: Home, tint: "bg-stat-units", iconBg: "bg-amber-500", text: "text-amber-700", to: "/units" as const },
+    { label: "عدد المستأجرين", value: tenants.length, icon: Users, tint: "bg-stat-tenants", iconBg: "bg-violet-500", text: "text-violet-700", to: "/tenants" as const },
+    { label: "العقود التي ستنتهي قريباً", value: expiringContracts.length, icon: CalendarClock, tint: "bg-stat-contracts", iconBg: "bg-emerald-600", text: "text-emerald-700", to: "/contracts" as const },
   ];
 
   return (
@@ -93,13 +93,13 @@ function Dashboard() {
           {statCards.map((c) => {
             const Icon = c.icon;
             return (
-              <div key={c.label} className={`${c.tint} relative overflow-hidden rounded-2xl border border-border/60 p-4 shadow-sm transition hover:shadow-md`}>
+              <Link key={c.label} to={c.to} className={`${c.tint} relative overflow-hidden rounded-2xl border border-border/60 p-4 shadow-sm transition hover:shadow-md hover:-translate-y-0.5`}>
                 <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${c.iconBg} text-white shadow`}>
                   <Icon className="h-5 w-5" />
                 </div>
                 <div className="mt-3 text-[12px] font-medium text-foreground/70">{c.label}</div>
                 <div className={`mt-1 text-xl font-extrabold ${c.text}`}>{c.value}</div>
-              </div>
+              </Link>
             );
           })}
         </div>
