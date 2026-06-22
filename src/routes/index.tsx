@@ -234,6 +234,14 @@ function Dashboard() {
   );
 }
 
+function SummaryTile({ icon: Icon, label, value, tint }: { icon: any; label: string; value: any; tint: string }) {
+  return (
+    <div className={`rounded-2xl border p-4 ${tint}`}>
+      <div className="flex items-center gap-2 text-xs font-bold opacity-90"><Icon className="h-4 w-4" /> {label}</div>
+      <div className="mt-2 text-xl font-extrabold">{value}</div>
+    </div>
+  );
+
 function Section({ title, icon, children }: { title: string; icon: ReactNode; children: ReactNode }) {
   return (
     <section className="mb-6 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
