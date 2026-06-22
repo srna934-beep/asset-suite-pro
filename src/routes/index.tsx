@@ -241,6 +241,8 @@ function SummaryTile({ icon: Icon, label, value, tint }: { icon: any; label: str
       <div className="mt-2 text-xl font-extrabold">{value}</div>
     </div>
   );
+}
+
 
 function Section({ title, icon, children }: { title: string; icon: ReactNode; children: ReactNode }) {
   return (
