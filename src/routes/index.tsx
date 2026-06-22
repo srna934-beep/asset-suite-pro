@@ -34,12 +34,15 @@ export const Route = createFileRoute("/")({
 function Dashboard() {
   const qc = useQueryClient();
   const { data, isLoading } = useQuery(dashboardQuery);
+  const { data: totals } = useQuery(totalsQuery);
 
   useEffect(() => {
     refreshLatePayments().then(() => qc.invalidateQueries({ queryKey: ["dashboard"] }));
   }, [qc]);
 
   if (isLoading || !data) return <LoadingShell />;
+
+  const t: any = totals ?? {};
 
   const { properties, units, tenants, contracts, payments } = data;
   const propsById = Object.fromEntries(properties.map((p) => [p.id, p]));
