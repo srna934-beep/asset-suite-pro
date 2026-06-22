@@ -76,9 +76,18 @@ function Dashboard() {
     { label: "العقود التي ستنتهي قريباً", value: expiringContracts.length, icon: CalendarClock, tint: "bg-stat-contracts", iconBg: "bg-emerald-600", text: "text-emerald-700", to: "/contracts" as const },
   ];
 
+  const quickAccess = [
+    { to: "/properties" as const, label: "العقارات", icon: Building2, color: "bg-sky-100 text-sky-700" },
+    { to: "/vehicles" as const, label: "المركبات", icon: Car, color: "bg-emerald-100 text-emerald-700" },
+    { to: "/lands" as const, label: "الأراضي", icon: Map, color: "bg-amber-100 text-amber-700" },
+    { to: "/employees" as const, label: "الموظفين", icon: UserCog, color: "bg-violet-100 text-violet-700" },
+    { to: "/accounts" as const, label: "الحسابات", icon: Wallet, color: "bg-rose-100 text-rose-700" },
+    { to: "/tasks" as const, label: "المهام", icon: ListChecks, color: "bg-indigo-100 text-indigo-700" },
+  ];
+
   return (
     <DashboardLayout
-      title="إدارة الأملاك"
+      title="منصة إدارة الأصول والأعمال"
       icon={
         <div className="grid h-11 w-11 place-items-center rounded-2xl bg-primary/10 text-primary">
           <Building className="h-6 w-6" />
