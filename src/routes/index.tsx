@@ -124,6 +124,33 @@ function Dashboard() {
         </div>
       </section>
 
+      <section className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <SummaryTile icon={Building2} label="إجمالي العقارات" value={t.properties_count ?? properties.length} tint="bg-sky-50 text-sky-700 border-sky-200" />
+        <SummaryTile icon={Car} label="إجمالي المركبات" value={t.vehicles_count ?? 0} tint="bg-emerald-50 text-emerald-700 border-emerald-200" />
+        <SummaryTile icon={Map} label="إجمالي الأراضي" value={t.lands_count ?? 0} tint="bg-amber-50 text-amber-700 border-amber-200" />
+        <SummaryTile icon={UserCog} label="إجمالي الموظفين" value={t.employees_count ?? 0} tint="bg-violet-50 text-violet-700 border-violet-200" />
+        <SummaryTile icon={TrendingUp} label="قيمة الأصول (مركبات+أراضي)" value={`${Number(t.assets_value ?? 0).toLocaleString()} ر.س`} tint="bg-primary/5 text-primary border-primary/30" />
+        <SummaryTile icon={DollarSign} label="إجمالي الإيرادات" value={`${Number(t.revenue_total ?? 0).toLocaleString()} ر.س`} tint="bg-emerald-50 text-emerald-700 border-emerald-200" />
+        <SummaryTile icon={AlertCircle} label="إجمالي المصاريف" value={`${Number(t.expense_total ?? 0).toLocaleString()} ر.س`} tint="bg-rose-50 text-rose-700 border-rose-200" />
+        <SummaryTile icon={ListChecks} label="مهام مفتوحة" value={t.open_tasks ?? 0} tint="bg-indigo-50 text-indigo-700 border-indigo-200" />
+      </section>
+
+      <section className="mb-6">
+        <h2 className="mb-3 text-sm font-bold text-muted-foreground">الوصول السريع</h2>
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+          {quickAccess.map((q) => {
+            const Icon = q.icon;
+            return (
+              <Link key={q.to} to={q.to} className="flex flex-col items-center justify-center rounded-2xl border border-border bg-card p-4 text-center shadow-sm hover:shadow-md hover:-translate-y-0.5 transition">
+                <div className={`grid h-11 w-11 place-items-center rounded-xl ${q.color}`}><Icon className="h-5 w-5" /></div>
+                <div className="mt-2 text-xs font-bold">{q.label}</div>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+
       <Section title="العقارات" icon={<Building2 className="h-5 w-5 text-primary" />}>
         <Table headers={["اسم العقار", "النوع", "الموقع", "عدد الوحدات", "إجمالي الدخل الشهري", "الحالة"]}>
           {properties.map((p) => {
