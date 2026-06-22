@@ -3,8 +3,10 @@ import { useQuery, useQueryClient, queryOptions } from "@tanstack/react-query";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { StatusPill, propertyTone, unitTone, paymentTone } from "@/components/status-pill";
 import { getDashboardData, refreshLatePayments } from "@/lib/db";
+import { supabase } from "@/integrations/supabase/client";
 import {
   DollarSign, AlertCircle, Building2, Home, Users, CalendarClock, Plus, Building, BellRing,
+  Car, Map, UserCog, ListChecks, Wallet, TrendingUp,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
@@ -12,6 +14,11 @@ import { useEffect } from "react";
 const dashboardQuery = queryOptions({
   queryKey: ["dashboard"],
   queryFn: getDashboardData,
+});
+
+const totalsQuery = queryOptions({
+  queryKey: ["dashboard-totals"],
+  queryFn: async () => ((await supabase.rpc("dashboard_totals" as any)).data ?? {}) as any,
 });
 
 export const Route = createFileRoute("/")({
