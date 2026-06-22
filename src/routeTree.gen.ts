@@ -13,16 +13,26 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as VehiclesIndexRouteImport } from './routes/vehicles.index'
 import { Route as UnitsIndexRouteImport } from './routes/units.index'
+import { Route as TransactionsIndexRouteImport } from './routes/transactions.index'
 import { Route as TenantsIndexRouteImport } from './routes/tenants.index'
 import { Route as TasksIndexRouteImport } from './routes/tasks.index'
+import { Route as SuperAdminIndexRouteImport } from './routes/super-admin.index'
 import { Route as SettingsIndexRouteImport } from './routes/settings.index'
 import { Route as ReportsIndexRouteImport } from './routes/reports.index'
 import { Route as PropertiesIndexRouteImport } from './routes/properties.index'
 import { Route as PaymentsIndexRouteImport } from './routes/payments.index'
+import { Route as NotificationsCenterIndexRouteImport } from './routes/notifications-center.index'
+import { Route as MessagesIndexRouteImport } from './routes/messages.index'
 import { Route as MaintenanceIndexRouteImport } from './routes/maintenance.index'
+import { Route as LandsIndexRouteImport } from './routes/lands.index'
+import { Route as EmployeesIndexRouteImport } from './routes/employees.index'
 import { Route as DocumentsIndexRouteImport } from './routes/documents.index'
+import { Route as DepartmentsIndexRouteImport } from './routes/departments.index'
 import { Route as ContractsIndexRouteImport } from './routes/contracts.index'
+import { Route as AuditLogsIndexRouteImport } from './routes/audit-logs.index'
+import { Route as AccountsIndexRouteImport } from './routes/accounts.index'
 import { Route as AccountingIndexRouteImport } from './routes/accounting.index'
 import { Route as UnitsIdRouteImport } from './routes/units.$id'
 import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
@@ -47,9 +57,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VehiclesIndexRoute = VehiclesIndexRouteImport.update({
+  id: '/vehicles/',
+  path: '/vehicles/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UnitsIndexRoute = UnitsIndexRouteImport.update({
   id: '/units/',
   path: '/units/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TransactionsIndexRoute = TransactionsIndexRouteImport.update({
+  id: '/transactions/',
+  path: '/transactions/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TenantsIndexRoute = TenantsIndexRouteImport.update({
@@ -60,6 +80,11 @@ const TenantsIndexRoute = TenantsIndexRouteImport.update({
 const TasksIndexRoute = TasksIndexRouteImport.update({
   id: '/tasks/',
   path: '/tasks/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperAdminIndexRoute = SuperAdminIndexRouteImport.update({
+  id: '/super-admin/',
+  path: '/super-admin/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsIndexRoute = SettingsIndexRouteImport.update({
@@ -82,9 +107,30 @@ const PaymentsIndexRoute = PaymentsIndexRouteImport.update({
   path: '/payments/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NotificationsCenterIndexRoute =
+  NotificationsCenterIndexRouteImport.update({
+    id: '/notifications-center/',
+    path: '/notifications-center/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const MessagesIndexRoute = MessagesIndexRouteImport.update({
+  id: '/messages/',
+  path: '/messages/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MaintenanceIndexRoute = MaintenanceIndexRouteImport.update({
   id: '/maintenance/',
   path: '/maintenance/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LandsIndexRoute = LandsIndexRouteImport.update({
+  id: '/lands/',
+  path: '/lands/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmployeesIndexRoute = EmployeesIndexRouteImport.update({
+  id: '/employees/',
+  path: '/employees/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DocumentsIndexRoute = DocumentsIndexRouteImport.update({
@@ -92,9 +138,24 @@ const DocumentsIndexRoute = DocumentsIndexRouteImport.update({
   path: '/documents/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DepartmentsIndexRoute = DepartmentsIndexRouteImport.update({
+  id: '/departments/',
+  path: '/departments/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContractsIndexRoute = ContractsIndexRouteImport.update({
   id: '/contracts/',
   path: '/contracts/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuditLogsIndexRoute = AuditLogsIndexRouteImport.update({
+  id: '/audit-logs/',
+  path: '/audit-logs/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountsIndexRoute = AccountsIndexRouteImport.update({
+  id: '/accounts/',
+  path: '/accounts/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AccountingIndexRoute = AccountingIndexRouteImport.update({
@@ -121,16 +182,26 @@ export interface FileRoutesByFullPath {
   '/properties/$id': typeof PropertiesIdRoute
   '/units/$id': typeof UnitsIdRoute
   '/accounting/': typeof AccountingIndexRoute
+  '/accounts/': typeof AccountsIndexRoute
+  '/audit-logs/': typeof AuditLogsIndexRoute
   '/contracts/': typeof ContractsIndexRoute
+  '/departments/': typeof DepartmentsIndexRoute
   '/documents/': typeof DocumentsIndexRoute
+  '/employees/': typeof EmployeesIndexRoute
+  '/lands/': typeof LandsIndexRoute
   '/maintenance/': typeof MaintenanceIndexRoute
+  '/messages/': typeof MessagesIndexRoute
+  '/notifications-center/': typeof NotificationsCenterIndexRoute
   '/payments/': typeof PaymentsIndexRoute
   '/properties/': typeof PropertiesIndexRoute
   '/reports/': typeof ReportsIndexRoute
   '/settings/': typeof SettingsIndexRoute
+  '/super-admin/': typeof SuperAdminIndexRoute
   '/tasks/': typeof TasksIndexRoute
   '/tenants/': typeof TenantsIndexRoute
+  '/transactions/': typeof TransactionsIndexRoute
   '/units/': typeof UnitsIndexRoute
+  '/vehicles/': typeof VehiclesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -140,16 +211,26 @@ export interface FileRoutesByTo {
   '/properties/$id': typeof PropertiesIdRoute
   '/units/$id': typeof UnitsIdRoute
   '/accounting': typeof AccountingIndexRoute
+  '/accounts': typeof AccountsIndexRoute
+  '/audit-logs': typeof AuditLogsIndexRoute
   '/contracts': typeof ContractsIndexRoute
+  '/departments': typeof DepartmentsIndexRoute
   '/documents': typeof DocumentsIndexRoute
+  '/employees': typeof EmployeesIndexRoute
+  '/lands': typeof LandsIndexRoute
   '/maintenance': typeof MaintenanceIndexRoute
+  '/messages': typeof MessagesIndexRoute
+  '/notifications-center': typeof NotificationsCenterIndexRoute
   '/payments': typeof PaymentsIndexRoute
   '/properties': typeof PropertiesIndexRoute
   '/reports': typeof ReportsIndexRoute
   '/settings': typeof SettingsIndexRoute
+  '/super-admin': typeof SuperAdminIndexRoute
   '/tasks': typeof TasksIndexRoute
   '/tenants': typeof TenantsIndexRoute
+  '/transactions': typeof TransactionsIndexRoute
   '/units': typeof UnitsIndexRoute
+  '/vehicles': typeof VehiclesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -160,16 +241,26 @@ export interface FileRoutesById {
   '/properties/$id': typeof PropertiesIdRoute
   '/units/$id': typeof UnitsIdRoute
   '/accounting/': typeof AccountingIndexRoute
+  '/accounts/': typeof AccountsIndexRoute
+  '/audit-logs/': typeof AuditLogsIndexRoute
   '/contracts/': typeof ContractsIndexRoute
+  '/departments/': typeof DepartmentsIndexRoute
   '/documents/': typeof DocumentsIndexRoute
+  '/employees/': typeof EmployeesIndexRoute
+  '/lands/': typeof LandsIndexRoute
   '/maintenance/': typeof MaintenanceIndexRoute
+  '/messages/': typeof MessagesIndexRoute
+  '/notifications-center/': typeof NotificationsCenterIndexRoute
   '/payments/': typeof PaymentsIndexRoute
   '/properties/': typeof PropertiesIndexRoute
   '/reports/': typeof ReportsIndexRoute
   '/settings/': typeof SettingsIndexRoute
+  '/super-admin/': typeof SuperAdminIndexRoute
   '/tasks/': typeof TasksIndexRoute
   '/tenants/': typeof TenantsIndexRoute
+  '/transactions/': typeof TransactionsIndexRoute
   '/units/': typeof UnitsIndexRoute
+  '/vehicles/': typeof VehiclesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -181,16 +272,26 @@ export interface FileRouteTypes {
     | '/properties/$id'
     | '/units/$id'
     | '/accounting/'
+    | '/accounts/'
+    | '/audit-logs/'
     | '/contracts/'
+    | '/departments/'
     | '/documents/'
+    | '/employees/'
+    | '/lands/'
     | '/maintenance/'
+    | '/messages/'
+    | '/notifications-center/'
     | '/payments/'
     | '/properties/'
     | '/reports/'
     | '/settings/'
+    | '/super-admin/'
     | '/tasks/'
     | '/tenants/'
+    | '/transactions/'
     | '/units/'
+    | '/vehicles/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -200,16 +301,26 @@ export interface FileRouteTypes {
     | '/properties/$id'
     | '/units/$id'
     | '/accounting'
+    | '/accounts'
+    | '/audit-logs'
     | '/contracts'
+    | '/departments'
     | '/documents'
+    | '/employees'
+    | '/lands'
     | '/maintenance'
+    | '/messages'
+    | '/notifications-center'
     | '/payments'
     | '/properties'
     | '/reports'
     | '/settings'
+    | '/super-admin'
     | '/tasks'
     | '/tenants'
+    | '/transactions'
     | '/units'
+    | '/vehicles'
   id:
     | '__root__'
     | '/'
@@ -219,16 +330,26 @@ export interface FileRouteTypes {
     | '/properties/$id'
     | '/units/$id'
     | '/accounting/'
+    | '/accounts/'
+    | '/audit-logs/'
     | '/contracts/'
+    | '/departments/'
     | '/documents/'
+    | '/employees/'
+    | '/lands/'
     | '/maintenance/'
+    | '/messages/'
+    | '/notifications-center/'
     | '/payments/'
     | '/properties/'
     | '/reports/'
     | '/settings/'
+    | '/super-admin/'
     | '/tasks/'
     | '/tenants/'
+    | '/transactions/'
     | '/units/'
+    | '/vehicles/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -239,16 +360,26 @@ export interface RootRouteChildren {
   PropertiesIdRoute: typeof PropertiesIdRoute
   UnitsIdRoute: typeof UnitsIdRoute
   AccountingIndexRoute: typeof AccountingIndexRoute
+  AccountsIndexRoute: typeof AccountsIndexRoute
+  AuditLogsIndexRoute: typeof AuditLogsIndexRoute
   ContractsIndexRoute: typeof ContractsIndexRoute
+  DepartmentsIndexRoute: typeof DepartmentsIndexRoute
   DocumentsIndexRoute: typeof DocumentsIndexRoute
+  EmployeesIndexRoute: typeof EmployeesIndexRoute
+  LandsIndexRoute: typeof LandsIndexRoute
   MaintenanceIndexRoute: typeof MaintenanceIndexRoute
+  MessagesIndexRoute: typeof MessagesIndexRoute
+  NotificationsCenterIndexRoute: typeof NotificationsCenterIndexRoute
   PaymentsIndexRoute: typeof PaymentsIndexRoute
   PropertiesIndexRoute: typeof PropertiesIndexRoute
   ReportsIndexRoute: typeof ReportsIndexRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
+  SuperAdminIndexRoute: typeof SuperAdminIndexRoute
   TasksIndexRoute: typeof TasksIndexRoute
   TenantsIndexRoute: typeof TenantsIndexRoute
+  TransactionsIndexRoute: typeof TransactionsIndexRoute
   UnitsIndexRoute: typeof UnitsIndexRoute
+  VehiclesIndexRoute: typeof VehiclesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -281,11 +412,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/vehicles/': {
+      id: '/vehicles/'
+      path: '/vehicles'
+      fullPath: '/vehicles/'
+      preLoaderRoute: typeof VehiclesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/units/': {
       id: '/units/'
       path: '/units'
       fullPath: '/units/'
       preLoaderRoute: typeof UnitsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/transactions/': {
+      id: '/transactions/'
+      path: '/transactions'
+      fullPath: '/transactions/'
+      preLoaderRoute: typeof TransactionsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tenants/': {
@@ -300,6 +445,13 @@ declare module '@tanstack/react-router' {
       path: '/tasks'
       fullPath: '/tasks/'
       preLoaderRoute: typeof TasksIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/super-admin/': {
+      id: '/super-admin/'
+      path: '/super-admin'
+      fullPath: '/super-admin/'
+      preLoaderRoute: typeof SuperAdminIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings/': {
@@ -330,11 +482,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PaymentsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/notifications-center/': {
+      id: '/notifications-center/'
+      path: '/notifications-center'
+      fullPath: '/notifications-center/'
+      preLoaderRoute: typeof NotificationsCenterIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/messages/': {
+      id: '/messages/'
+      path: '/messages'
+      fullPath: '/messages/'
+      preLoaderRoute: typeof MessagesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/maintenance/': {
       id: '/maintenance/'
       path: '/maintenance'
       fullPath: '/maintenance/'
       preLoaderRoute: typeof MaintenanceIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lands/': {
+      id: '/lands/'
+      path: '/lands'
+      fullPath: '/lands/'
+      preLoaderRoute: typeof LandsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/employees/': {
+      id: '/employees/'
+      path: '/employees'
+      fullPath: '/employees/'
+      preLoaderRoute: typeof EmployeesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/documents/': {
@@ -344,11 +524,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocumentsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/departments/': {
+      id: '/departments/'
+      path: '/departments'
+      fullPath: '/departments/'
+      preLoaderRoute: typeof DepartmentsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contracts/': {
       id: '/contracts/'
       path: '/contracts'
       fullPath: '/contracts/'
       preLoaderRoute: typeof ContractsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/audit-logs/': {
+      id: '/audit-logs/'
+      path: '/audit-logs'
+      fullPath: '/audit-logs/'
+      preLoaderRoute: typeof AuditLogsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounts/': {
+      id: '/accounts/'
+      path: '/accounts'
+      fullPath: '/accounts/'
+      preLoaderRoute: typeof AccountsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/accounting/': {
@@ -383,27 +584,27 @@ const rootRouteChildren: RootRouteChildren = {
   PropertiesIdRoute: PropertiesIdRoute,
   UnitsIdRoute: UnitsIdRoute,
   AccountingIndexRoute: AccountingIndexRoute,
+  AccountsIndexRoute: AccountsIndexRoute,
+  AuditLogsIndexRoute: AuditLogsIndexRoute,
   ContractsIndexRoute: ContractsIndexRoute,
+  DepartmentsIndexRoute: DepartmentsIndexRoute,
   DocumentsIndexRoute: DocumentsIndexRoute,
+  EmployeesIndexRoute: EmployeesIndexRoute,
+  LandsIndexRoute: LandsIndexRoute,
   MaintenanceIndexRoute: MaintenanceIndexRoute,
+  MessagesIndexRoute: MessagesIndexRoute,
+  NotificationsCenterIndexRoute: NotificationsCenterIndexRoute,
   PaymentsIndexRoute: PaymentsIndexRoute,
   PropertiesIndexRoute: PropertiesIndexRoute,
   ReportsIndexRoute: ReportsIndexRoute,
   SettingsIndexRoute: SettingsIndexRoute,
+  SuperAdminIndexRoute: SuperAdminIndexRoute,
   TasksIndexRoute: TasksIndexRoute,
   TenantsIndexRoute: TenantsIndexRoute,
+  TransactionsIndexRoute: TransactionsIndexRoute,
   UnitsIndexRoute: UnitsIndexRoute,
+  VehiclesIndexRoute: VehiclesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

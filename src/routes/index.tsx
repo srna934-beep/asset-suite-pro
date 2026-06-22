@@ -3,8 +3,10 @@ import { useQuery, useQueryClient, queryOptions } from "@tanstack/react-query";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { StatusPill, propertyTone, unitTone, paymentTone } from "@/components/status-pill";
 import { getDashboardData, refreshLatePayments } from "@/lib/db";
+import { supabase } from "@/integrations/supabase/client";
 import {
   DollarSign, AlertCircle, Building2, Home, Users, CalendarClock, Plus, Building, BellRing,
+  Car, Map, UserCog, ListChecks, Wallet, TrendingUp,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
@@ -12,6 +14,11 @@ import { useEffect } from "react";
 const dashboardQuery = queryOptions({
   queryKey: ["dashboard"],
   queryFn: getDashboardData,
+});
+
+const totalsQuery = queryOptions({
+  queryKey: ["dashboard-totals"],
+  queryFn: async () => ((await supabase.rpc("dashboard_totals" as any)).data ?? {}) as any,
 });
 
 export const Route = createFileRoute("/")({
@@ -27,12 +34,15 @@ export const Route = createFileRoute("/")({
 function Dashboard() {
   const qc = useQueryClient();
   const { data, isLoading } = useQuery(dashboardQuery);
+  const { data: totals } = useQuery(totalsQuery);
 
   useEffect(() => {
     refreshLatePayments().then(() => qc.invalidateQueries({ queryKey: ["dashboard"] }));
   }, [qc]);
 
   if (isLoading || !data) return <LoadingShell />;
+
+  const t: any = totals ?? {};
 
   const { properties, units, tenants, contracts, payments } = data;
   const propsById = Object.fromEntries(properties.map((p) => [p.id, p]));
@@ -66,9 +76,18 @@ function Dashboard() {
     { label: "العقود التي ستنتهي قريباً", value: expiringContracts.length, icon: CalendarClock, tint: "bg-stat-contracts", iconBg: "bg-emerald-600", text: "text-emerald-700", to: "/contracts" as const },
   ];
 
+  const quickAccess = [
+    { to: "/properties" as const, label: "العقارات", icon: Building2, color: "bg-sky-100 text-sky-700" },
+    { to: "/vehicles" as const, label: "المركبات", icon: Car, color: "bg-emerald-100 text-emerald-700" },
+    { to: "/lands" as const, label: "الأراضي", icon: Map, color: "bg-amber-100 text-amber-700" },
+    { to: "/employees" as const, label: "الموظفين", icon: UserCog, color: "bg-violet-100 text-violet-700" },
+    { to: "/accounts" as const, label: "الحسابات", icon: Wallet, color: "bg-rose-100 text-rose-700" },
+    { to: "/tasks" as const, label: "المهام", icon: ListChecks, color: "bg-indigo-100 text-indigo-700" },
+  ];
+
   return (
     <DashboardLayout
-      title="إدارة الأملاك"
+      title="منصة إدارة الأصول والأعمال"
       icon={
         <div className="grid h-11 w-11 place-items-center rounded-2xl bg-primary/10 text-primary">
           <Building className="h-6 w-6" />
@@ -104,6 +123,33 @@ function Dashboard() {
           })}
         </div>
       </section>
+
+      <section className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <SummaryTile icon={Building2} label="إجمالي العقارات" value={t.properties_count ?? properties.length} tint="bg-sky-50 text-sky-700 border-sky-200" />
+        <SummaryTile icon={Car} label="إجمالي المركبات" value={t.vehicles_count ?? 0} tint="bg-emerald-50 text-emerald-700 border-emerald-200" />
+        <SummaryTile icon={Map} label="إجمالي الأراضي" value={t.lands_count ?? 0} tint="bg-amber-50 text-amber-700 border-amber-200" />
+        <SummaryTile icon={UserCog} label="إجمالي الموظفين" value={t.employees_count ?? 0} tint="bg-violet-50 text-violet-700 border-violet-200" />
+        <SummaryTile icon={TrendingUp} label="قيمة الأصول (مركبات+أراضي)" value={`${Number(t.assets_value ?? 0).toLocaleString()} ر.س`} tint="bg-primary/5 text-primary border-primary/30" />
+        <SummaryTile icon={DollarSign} label="إجمالي الإيرادات" value={`${Number(t.revenue_total ?? 0).toLocaleString()} ر.س`} tint="bg-emerald-50 text-emerald-700 border-emerald-200" />
+        <SummaryTile icon={AlertCircle} label="إجمالي المصاريف" value={`${Number(t.expense_total ?? 0).toLocaleString()} ر.س`} tint="bg-rose-50 text-rose-700 border-rose-200" />
+        <SummaryTile icon={ListChecks} label="مهام مفتوحة" value={t.open_tasks ?? 0} tint="bg-indigo-50 text-indigo-700 border-indigo-200" />
+      </section>
+
+      <section className="mb-6">
+        <h2 className="mb-3 text-sm font-bold text-muted-foreground">الوصول السريع</h2>
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+          {quickAccess.map((q) => {
+            const Icon = q.icon;
+            return (
+              <Link key={q.to} to={q.to} className="flex flex-col items-center justify-center rounded-2xl border border-border bg-card p-4 text-center shadow-sm hover:shadow-md hover:-translate-y-0.5 transition">
+                <div className={`grid h-11 w-11 place-items-center rounded-xl ${q.color}`}><Icon className="h-5 w-5" /></div>
+                <div className="mt-2 text-xs font-bold">{q.label}</div>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
 
       <Section title="العقارات" icon={<Building2 className="h-5 w-5 text-primary" />}>
         <Table headers={["اسم العقار", "النوع", "الموقع", "عدد الوحدات", "إجمالي الدخل الشهري", "الحالة"]}>
@@ -187,6 +233,16 @@ function Dashboard() {
     </DashboardLayout>
   );
 }
+
+function SummaryTile({ icon: Icon, label, value, tint }: { icon: any; label: string; value: any; tint: string }) {
+  return (
+    <div className={`rounded-2xl border p-4 ${tint}`}>
+      <div className="flex items-center gap-2 text-xs font-bold opacity-90"><Icon className="h-4 w-4" /> {label}</div>
+      <div className="mt-2 text-xl font-extrabold">{value}</div>
+    </div>
+  );
+}
+
 
 function Section({ title, icon, children }: { title: string; icon: ReactNode; children: ReactNode }) {
   return (
