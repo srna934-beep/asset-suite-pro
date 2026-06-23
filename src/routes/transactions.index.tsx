@@ -7,6 +7,7 @@ import { sb } from "@/lib/sb";
 import { Calculator, TrendingUp, TrendingDown } from "lucide-react";
 import { RecordDialog, DeleteButton, type FieldDef } from "@/components/record-dialog";
 import { ListToolbar } from "@/components/list-toolbar";
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Legend, CartesianGrid } from "recharts";
 
 export const Route = createFileRoute("/transactions/")({
   head: () => ({ meta: [{ title: "الحركات المالية | منصة الأصول" }] }),
@@ -56,6 +57,18 @@ function TransactionsPage() {
   const totalIn = filtered.filter((t: any) => t.txn_type === "إيراد").reduce((s, t: any) => s + Number(t.amount), 0);
   const totalOut = filtered.filter((t: any) => t.txn_type === "مصروف").reduce((s, t: any) => s + Number(t.amount), 0);
 
+  const monthly = useMemo(() => {
+    const map: Record<string, { month: string; إيراد: number; مصروف: number }> = {};
+    for (const t of filtered as any[]) {
+      const m = (t.txn_date ?? "").slice(0, 7);
+      if (!m) continue;
+      if (!map[m]) map[m] = { month: m, إيراد: 0, مصروف: 0 };
+      if (t.txn_type === "إيراد") map[m]["إيراد"] += Number(t.amount);
+      else if (t.txn_type === "مصروف") map[m]["مصروف"] += Number(t.amount);
+    }
+    return Object.values(map).sort((a, b) => a.month.localeCompare(b.month)).slice(-12);
+  }, [filtered]);
+
   return (
     <DashboardLayout title="الحركات المالية" icon={<div className="grid h-11 w-11 place-items-center rounded-2xl bg-emerald-100 text-emerald-700"><Calculator className="h-6 w-6" /></div>}>
       <div className="mb-5 grid gap-3 sm:grid-cols-3">
@@ -83,7 +96,27 @@ function TransactionsPage() {
           defaults={{ txn_date: new Date().toISOString().slice(0, 10) }} />
       </ListToolbar>
 
+      {monthly.length > 0 && (
+        <div className="mb-5 rounded-2xl border border-border bg-card p-4">
+          <h3 className="mb-3 text-sm font-extrabold">الإيرادات والمصاريف الشهرية</h3>
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={monthly}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="month" fontSize={11} />
+                <YAxis fontSize={11} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="إيراد" fill="#10b981" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="مصروف" fill="#f43f5e" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+
         <div className="overflow-x-auto">
           <table className="w-full min-w-[800px] text-right text-sm">
             <thead><tr className="bg-muted/40 text-[12px] font-bold text-muted-foreground">

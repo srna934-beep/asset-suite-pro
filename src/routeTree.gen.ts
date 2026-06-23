@@ -26,12 +26,15 @@ import { Route as PaymentsIndexRouteImport } from './routes/payments.index'
 import { Route as NotificationsCenterIndexRouteImport } from './routes/notifications-center.index'
 import { Route as MessagesIndexRouteImport } from './routes/messages.index'
 import { Route as MaintenanceIndexRouteImport } from './routes/maintenance.index'
+import { Route as LeavesIndexRouteImport } from './routes/leaves.index'
 import { Route as LandsIndexRouteImport } from './routes/lands.index'
+import { Route as EmploymentContractsIndexRouteImport } from './routes/employment-contracts.index'
 import { Route as EmployeesIndexRouteImport } from './routes/employees.index'
 import { Route as DocumentsIndexRouteImport } from './routes/documents.index'
 import { Route as DepartmentsIndexRouteImport } from './routes/departments.index'
 import { Route as ContractsIndexRouteImport } from './routes/contracts.index'
 import { Route as AuditLogsIndexRouteImport } from './routes/audit-logs.index'
+import { Route as AttendanceIndexRouteImport } from './routes/attendance.index'
 import { Route as AccountsIndexRouteImport } from './routes/accounts.index'
 import { Route as AccountingIndexRouteImport } from './routes/accounting.index'
 import { Route as UnitsIdRouteImport } from './routes/units.$id'
@@ -123,11 +126,22 @@ const MaintenanceIndexRoute = MaintenanceIndexRouteImport.update({
   path: '/maintenance/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LeavesIndexRoute = LeavesIndexRouteImport.update({
+  id: '/leaves/',
+  path: '/leaves/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LandsIndexRoute = LandsIndexRouteImport.update({
   id: '/lands/',
   path: '/lands/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmploymentContractsIndexRoute =
+  EmploymentContractsIndexRouteImport.update({
+    id: '/employment-contracts/',
+    path: '/employment-contracts/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const EmployeesIndexRoute = EmployeesIndexRouteImport.update({
   id: '/employees/',
   path: '/employees/',
@@ -151,6 +165,11 @@ const ContractsIndexRoute = ContractsIndexRouteImport.update({
 const AuditLogsIndexRoute = AuditLogsIndexRouteImport.update({
   id: '/audit-logs/',
   path: '/audit-logs/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AttendanceIndexRoute = AttendanceIndexRouteImport.update({
+  id: '/attendance/',
+  path: '/attendance/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AccountsIndexRoute = AccountsIndexRouteImport.update({
@@ -183,12 +202,15 @@ export interface FileRoutesByFullPath {
   '/units/$id': typeof UnitsIdRoute
   '/accounting/': typeof AccountingIndexRoute
   '/accounts/': typeof AccountsIndexRoute
+  '/attendance/': typeof AttendanceIndexRoute
   '/audit-logs/': typeof AuditLogsIndexRoute
   '/contracts/': typeof ContractsIndexRoute
   '/departments/': typeof DepartmentsIndexRoute
   '/documents/': typeof DocumentsIndexRoute
   '/employees/': typeof EmployeesIndexRoute
+  '/employment-contracts/': typeof EmploymentContractsIndexRoute
   '/lands/': typeof LandsIndexRoute
+  '/leaves/': typeof LeavesIndexRoute
   '/maintenance/': typeof MaintenanceIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/notifications-center/': typeof NotificationsCenterIndexRoute
@@ -212,12 +234,15 @@ export interface FileRoutesByTo {
   '/units/$id': typeof UnitsIdRoute
   '/accounting': typeof AccountingIndexRoute
   '/accounts': typeof AccountsIndexRoute
+  '/attendance': typeof AttendanceIndexRoute
   '/audit-logs': typeof AuditLogsIndexRoute
   '/contracts': typeof ContractsIndexRoute
   '/departments': typeof DepartmentsIndexRoute
   '/documents': typeof DocumentsIndexRoute
   '/employees': typeof EmployeesIndexRoute
+  '/employment-contracts': typeof EmploymentContractsIndexRoute
   '/lands': typeof LandsIndexRoute
+  '/leaves': typeof LeavesIndexRoute
   '/maintenance': typeof MaintenanceIndexRoute
   '/messages': typeof MessagesIndexRoute
   '/notifications-center': typeof NotificationsCenterIndexRoute
@@ -242,12 +267,15 @@ export interface FileRoutesById {
   '/units/$id': typeof UnitsIdRoute
   '/accounting/': typeof AccountingIndexRoute
   '/accounts/': typeof AccountsIndexRoute
+  '/attendance/': typeof AttendanceIndexRoute
   '/audit-logs/': typeof AuditLogsIndexRoute
   '/contracts/': typeof ContractsIndexRoute
   '/departments/': typeof DepartmentsIndexRoute
   '/documents/': typeof DocumentsIndexRoute
   '/employees/': typeof EmployeesIndexRoute
+  '/employment-contracts/': typeof EmploymentContractsIndexRoute
   '/lands/': typeof LandsIndexRoute
+  '/leaves/': typeof LeavesIndexRoute
   '/maintenance/': typeof MaintenanceIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/notifications-center/': typeof NotificationsCenterIndexRoute
@@ -273,12 +301,15 @@ export interface FileRouteTypes {
     | '/units/$id'
     | '/accounting/'
     | '/accounts/'
+    | '/attendance/'
     | '/audit-logs/'
     | '/contracts/'
     | '/departments/'
     | '/documents/'
     | '/employees/'
+    | '/employment-contracts/'
     | '/lands/'
+    | '/leaves/'
     | '/maintenance/'
     | '/messages/'
     | '/notifications-center/'
@@ -302,12 +333,15 @@ export interface FileRouteTypes {
     | '/units/$id'
     | '/accounting'
     | '/accounts'
+    | '/attendance'
     | '/audit-logs'
     | '/contracts'
     | '/departments'
     | '/documents'
     | '/employees'
+    | '/employment-contracts'
     | '/lands'
+    | '/leaves'
     | '/maintenance'
     | '/messages'
     | '/notifications-center'
@@ -331,12 +365,15 @@ export interface FileRouteTypes {
     | '/units/$id'
     | '/accounting/'
     | '/accounts/'
+    | '/attendance/'
     | '/audit-logs/'
     | '/contracts/'
     | '/departments/'
     | '/documents/'
     | '/employees/'
+    | '/employment-contracts/'
     | '/lands/'
+    | '/leaves/'
     | '/maintenance/'
     | '/messages/'
     | '/notifications-center/'
@@ -361,12 +398,15 @@ export interface RootRouteChildren {
   UnitsIdRoute: typeof UnitsIdRoute
   AccountingIndexRoute: typeof AccountingIndexRoute
   AccountsIndexRoute: typeof AccountsIndexRoute
+  AttendanceIndexRoute: typeof AttendanceIndexRoute
   AuditLogsIndexRoute: typeof AuditLogsIndexRoute
   ContractsIndexRoute: typeof ContractsIndexRoute
   DepartmentsIndexRoute: typeof DepartmentsIndexRoute
   DocumentsIndexRoute: typeof DocumentsIndexRoute
   EmployeesIndexRoute: typeof EmployeesIndexRoute
+  EmploymentContractsIndexRoute: typeof EmploymentContractsIndexRoute
   LandsIndexRoute: typeof LandsIndexRoute
+  LeavesIndexRoute: typeof LeavesIndexRoute
   MaintenanceIndexRoute: typeof MaintenanceIndexRoute
   MessagesIndexRoute: typeof MessagesIndexRoute
   NotificationsCenterIndexRoute: typeof NotificationsCenterIndexRoute
@@ -503,11 +543,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MaintenanceIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/leaves/': {
+      id: '/leaves/'
+      path: '/leaves'
+      fullPath: '/leaves/'
+      preLoaderRoute: typeof LeavesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lands/': {
       id: '/lands/'
       path: '/lands'
       fullPath: '/lands/'
       preLoaderRoute: typeof LandsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/employment-contracts/': {
+      id: '/employment-contracts/'
+      path: '/employment-contracts'
+      fullPath: '/employment-contracts/'
+      preLoaderRoute: typeof EmploymentContractsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/employees/': {
@@ -543,6 +597,13 @@ declare module '@tanstack/react-router' {
       path: '/audit-logs'
       fullPath: '/audit-logs/'
       preLoaderRoute: typeof AuditLogsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/attendance/': {
+      id: '/attendance/'
+      path: '/attendance'
+      fullPath: '/attendance/'
+      preLoaderRoute: typeof AttendanceIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/accounts/': {
@@ -585,12 +646,15 @@ const rootRouteChildren: RootRouteChildren = {
   UnitsIdRoute: UnitsIdRoute,
   AccountingIndexRoute: AccountingIndexRoute,
   AccountsIndexRoute: AccountsIndexRoute,
+  AttendanceIndexRoute: AttendanceIndexRoute,
   AuditLogsIndexRoute: AuditLogsIndexRoute,
   ContractsIndexRoute: ContractsIndexRoute,
   DepartmentsIndexRoute: DepartmentsIndexRoute,
   DocumentsIndexRoute: DocumentsIndexRoute,
   EmployeesIndexRoute: EmployeesIndexRoute,
+  EmploymentContractsIndexRoute: EmploymentContractsIndexRoute,
   LandsIndexRoute: LandsIndexRoute,
+  LeavesIndexRoute: LeavesIndexRoute,
   MaintenanceIndexRoute: MaintenanceIndexRoute,
   MessagesIndexRoute: MessagesIndexRoute,
   NotificationsCenterIndexRoute: NotificationsCenterIndexRoute,
