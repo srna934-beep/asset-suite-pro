@@ -7,6 +7,7 @@ import { sb } from "@/lib/sb";
 import { Calculator, TrendingUp, TrendingDown } from "lucide-react";
 import { RecordDialog, DeleteButton, type FieldDef } from "@/components/record-dialog";
 import { ListToolbar } from "@/components/list-toolbar";
+import { ExportCsvButton } from "@/components/export-csv-button";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Legend, CartesianGrid } from "recharts";
 
 export const Route = createFileRoute("/transactions/")({
@@ -92,6 +93,11 @@ function TransactionsPage() {
           { value: "إيراد", label: "إيراد" }, { value: "مصروف", label: "مصروف" }, { value: "تحويل", label: "تحويل" },
         ]}]}
       >
+        <ExportCsvButton rows={filtered} filename="transactions" columns={[
+          { key: "txn_date", label: "التاريخ" }, { key: "txn_type", label: "النوع" },
+          { key: "category", label: "التصنيف" }, { key: "description", label: "الوصف" },
+          { key: "amount", label: "المبلغ" },
+        ]} />
         <RecordDialog table="transactions" title="إضافة حركة مالية" fields={FIELDS} invalidate={INV}
           defaults={{ txn_date: new Date().toISOString().slice(0, 10) }} />
       </ListToolbar>
