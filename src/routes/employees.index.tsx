@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { UserCog } from "lucide-react";
 import { RecordDialog, DeleteButton, type FieldDef } from "@/components/record-dialog";
 import { ListToolbar } from "@/components/list-toolbar";
+import { AttachmentsButton } from "@/components/attachments-panel";
+import { ExportCsvButton } from "@/components/export-csv-button";
 
 export const Route = createFileRoute("/employees/")({
   head: () => ({ meta: [{ title: "الموظفين | منصة الأصول" }] }),
@@ -64,6 +66,11 @@ function EmployeesList() {
           { value: "نشط", label: "نشط" }, { value: "إجازة", label: "إجازة" }, { value: "موقوف", label: "موقوف" }, { value: "منتهي", label: "منتهي" },
         ]}]}
       >
+        <ExportCsvButton rows={filtered} filename="employees" columns={[
+          { key: "full_name", label: "الاسم" }, { key: "position", label: "المسمى" },
+          { key: "phone", label: "الجوال" }, { key: "email", label: "البريد" },
+          { key: "basic_salary", label: "الراتب" }, { key: "status", label: "الحالة" },
+        ]} />
         <RecordDialog table="employees" title="إضافة موظف" fields={FIELDS} invalidate={INV} />
       </ListToolbar>
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
@@ -85,6 +92,7 @@ function EmployeesList() {
                   <td className="px-4 py-3 font-semibold">{e.basic_salary ? `${Number(e.basic_salary).toLocaleString()} ر.س` : "—"}</td>
                   <td className="px-4 py-3"><StatusPill tone={e.status === "نشط" ? "success" : e.status === "إجازة" ? "info" : e.status === "موقوف" ? "warning" : "muted"}>{e.status}</StatusPill></td>
                   <td className="px-4 py-3"><div className="flex gap-1">
+                    <AttachmentsButton entityType="employee" entityId={e.id} />
                     <RecordDialog table="employees" title="تعديل الموظف" fields={FIELDS} initial={e} invalidate={INV} />
                     <DeleteButton table="employees" id={e.id} invalidate={INV} />
                   </div></td>

@@ -7,6 +7,7 @@ import { sb } from "@/lib/sb";
 import { Calculator, TrendingUp, TrendingDown } from "lucide-react";
 import { RecordDialog, DeleteButton, type FieldDef } from "@/components/record-dialog";
 import { ListToolbar } from "@/components/list-toolbar";
+import { ExportCsvButton } from "@/components/export-csv-button";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Legend, CartesianGrid } from "recharts";
 
 export const Route = createFileRoute("/transactions/")({

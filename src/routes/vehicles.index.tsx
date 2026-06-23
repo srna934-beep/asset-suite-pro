@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Car } from "lucide-react";
 import { RecordDialog, DeleteButton, type FieldDef } from "@/components/record-dialog";
 import { ListToolbar } from "@/components/list-toolbar";
+import { AttachmentsButton } from "@/components/attachments-panel";
+import { ExportCsvButton } from "@/components/export-csv-button";
 
 export const Route = createFileRoute("/vehicles/")({
   head: () => ({ meta: [{ title: "المركبات | منصة الأصول" }] }),
@@ -63,6 +65,12 @@ function VehiclesList() {
           { value: "نشط", label: "نشط" }, { value: "صيانة", label: "صيانة" }, { value: "متوقف", label: "متوقف" },
         ]}]}
       >
+        <ExportCsvButton rows={filtered} filename="vehicles" columns={[
+          { key: "name", label: "المركبة" }, { key: "plate_number", label: "اللوحة" },
+          { key: "brand", label: "الماركة" }, { key: "model", label: "الموديل" },
+          { key: "driver_name", label: "السائق" }, { key: "insurance_expiry", label: "انتهاء التأمين" },
+          { key: "current_value", label: "القيمة" }, { key: "status", label: "الحالة" },
+        ]} />
         <RecordDialog table="vehicles" title="إضافة مركبة" fields={FIELDS} invalidate={INV} />
       </ListToolbar>
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
@@ -87,6 +95,7 @@ function VehiclesList() {
                   <td className="px-4 py-3 font-semibold">{v.current_value ? `${Number(v.current_value).toLocaleString()} ر.س` : "—"}</td>
                   <td className="px-4 py-3"><StatusPill tone={v.status === "نشط" ? "success" : v.status === "صيانة" ? "info" : "muted"}>{v.status}</StatusPill></td>
                   <td className="px-4 py-3"><div className="flex gap-1">
+                    <AttachmentsButton entityType="vehicle" entityId={v.id} />
                     <RecordDialog table="vehicles" title="تعديل المركبة" fields={FIELDS} initial={v} invalidate={INV} />
                     <DeleteButton table="vehicles" id={v.id} invalidate={INV} />
                   </div></td>
