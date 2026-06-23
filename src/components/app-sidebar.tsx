@@ -3,6 +3,7 @@ import {
   LayoutDashboard, Building2, Home, Users, FileText, DollarSign, Wrench, FolderOpen,
   Bell, Calculator, BarChart3, Settings, Building, MousePointerClick,
   Car, Map, UserCog, ListChecks, MessageSquare, Wallet, ShieldCheck, History,
+  CalendarCheck, Plane, FileSignature,
 } from "lucide-react";
 
 const sections = [
@@ -42,6 +43,9 @@ const sections = [
     items: [
       { to: "/employees", label: "الموظفين", icon: UserCog },
       { to: "/departments", label: "الأقسام", icon: Building },
+      { to: "/employment-contracts", label: "عقود الموظفين", icon: FileSignature },
+      { to: "/attendance", label: "الحضور والانصراف", icon: CalendarCheck },
+      { to: "/leaves", label: "الإجازات", icon: Plane },
     ],
   },
   {
