@@ -1,4 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
+import { useQuery, queryOptions } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { sb } from "@/lib/sb";
+import { useAuth } from "@/hooks/use-auth";
 import {
   LayoutDashboard, Building2, Home, Users, FileText, DollarSign, Wrench, FolderOpen,
   Bell, Calculator, BarChart3, Settings, Building, MousePointerClick,
@@ -69,6 +73,27 @@ const sections = [
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { user } = useAuth();
+  const { data: roleData } = useQuery(queryOptions({
+    queryKey: ["my-role", user?.id],
+    queryFn: async () => {
+      if (!user) return { role: "user", vis: [] as any[] };
+      const [{ data: r }, { data: v }] = await Promise.all([
+        supabase.from("user_roles").select("role").eq("user_id", user.id).maybeSingle(),
+        sb("module_visibility").select("*"),
+      ]);
+      return { role: (r as any)?.role ?? "user", vis: (v ?? []) as any[] };
+    },
+    enabled: !!user,
+  }));
+  const role = roleData?.role ?? "user";
+  const vis = roleData?.vis ?? [];
+  const isAdmin = role === "admin" || role === "super_admin";
+  const canSee = (to: string) => {
+    if (isAdmin) return true;
+    const row = vis.find((x: any) => x.module_key === to && x.role === role);
+    return row ? row.visible : true;
+  };
   return (
     <aside className="fixed inset-y-0 right-0 z-30 hidden w-64 flex-col border-l border-sidebar-border bg-sidebar text-sidebar-foreground lg:flex">
       <div className="flex items-center gap-3 px-5 py-5 border-b border-sidebar-border">
@@ -82,33 +107,38 @@ export function AppSidebar() {
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4">
-        {sections.map((sec) => (
-          <div key={sec.label} className="mb-4">
-            <div className="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-sidebar-muted">
-              {sec.label}
+        {sections.map((sec) => {
+          const visibleItems = sec.items.filter((i) => canSee(i.to));
+          if (visibleItems.length === 0) return null;
+          return (
+            <div key={sec.label} className="mb-4">
+              <div className="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-sidebar-muted">
+                {sec.label}
+              </div>
+              <ul className="space-y-0.5">
+                {visibleItems.map((item) => {
+                  const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
+                  const Icon = item.icon;
+                  return (
+                    <li key={item.to}>
+                      <Link
+                        to={item.to}
+                        className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                          active ? "bg-sidebar-active text-white shadow-sm" : "text-sidebar-foreground/85 hover:bg-white/5 hover:text-white"
+                        }`}
+                      >
+                        <Icon className="h-[18px] w-[18px] shrink-0" />
+                        <span className="truncate">{item.label}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
-            <ul className="space-y-0.5">
-              {sec.items.map((item) => {
-                const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
-                const Icon = item.icon;
-                return (
-                  <li key={item.to}>
-                    <Link
-                      to={item.to}
-                      className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                        active ? "bg-sidebar-active text-white shadow-sm" : "text-sidebar-foreground/85 hover:bg-white/5 hover:text-white"
-                      }`}
-                    >
-                      <Icon className="h-[18px] w-[18px] shrink-0" />
-                      <span className="truncate">{item.label}</span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
+          );
+        })}
       </nav>
+
 
       <div className="m-3 rounded-xl border border-sidebar-border/60 bg-white/5 p-3 text-center">
         <div className="mb-1 text-xs font-bold">نظام موحد</div>

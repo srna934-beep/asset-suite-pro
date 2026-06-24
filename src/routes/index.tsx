@@ -21,6 +21,22 @@ const totalsQuery = queryOptions({
   queryFn: async () => ((await supabase.rpc("dashboard_totals" as any)).data ?? {}) as any,
 });
 
+const expiringQuery = queryOptions({
+  queryKey: ["expiring-assets"],
+  queryFn: async () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const in30 = new Date(); in30.setDate(in30.getDate() + 30);
+    const end = in30.toISOString().slice(0, 10);
+    const [{ data: v1 }, { data: v2 }, { data: ec }] = await Promise.all([
+      supabase.from("vehicles" as any).select("id,name,plate_number,insurance_expiry").gte("insurance_expiry", today).lte("insurance_expiry", end),
+      supabase.from("vehicles" as any).select("id,name,plate_number,license_expiry").gte("license_expiry", today).lte("license_expiry", end),
+      supabase.from("employment_contracts" as any).select("id,end_date,employee_id").gte("end_date", today).lte("end_date", end).eq("status", "نشط"),
+    ]);
+    return { insurance: (v1 ?? []) as any[], license: (v2 ?? []) as any[], empContracts: (ec ?? []) as any[] };
+  },
+});
+
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -35,6 +51,8 @@ function Dashboard() {
   const qc = useQueryClient();
   const { data, isLoading } = useQuery(dashboardQuery);
   const { data: totals } = useQuery(totalsQuery);
+  const { data: expiring } = useQuery(expiringQuery);
+
 
   useEffect(() => {
     refreshLatePayments().then(() => qc.invalidateQueries({ queryKey: ["dashboard"] }));
@@ -150,8 +168,45 @@ function Dashboard() {
         </div>
       </section>
 
+      {(expiring && (expiring.insurance.length + expiring.license.length + expiring.empContracts.length > 0)) && (
+        <section className="mb-6 rounded-2xl border border-amber-200 bg-amber-50/60 p-5">
+          <h2 className="mb-3 flex items-center gap-2 text-sm font-extrabold text-amber-800">
+            <BellRing className="h-4 w-4" /> تنبيهات انتهاء خلال 30 يوم
+          </h2>
+          <div className="grid gap-3 md:grid-cols-3 text-sm">
+            <div className="rounded-xl bg-white p-3 border border-amber-200">
+              <div className="text-xs font-bold text-amber-700 mb-2">تأمين مركبات ({expiring.insurance.length})</div>
+              {expiring.insurance.slice(0, 5).map((v: any) => (
+                <Link key={v.id} to="/vehicles" className="block py-1 text-xs hover:text-primary">
+                  {v.name} {v.plate_number ? `(${v.plate_number})` : ""} — {v.insurance_expiry}
+                </Link>
+              ))}
+              {expiring.insurance.length === 0 && <div className="text-xs text-muted-foreground">لا يوجد</div>}
+            </div>
+            <div className="rounded-xl bg-white p-3 border border-amber-200">
+              <div className="text-xs font-bold text-amber-700 mb-2">استمارة مركبات ({expiring.license.length})</div>
+              {expiring.license.slice(0, 5).map((v: any) => (
+                <Link key={v.id} to="/vehicles" className="block py-1 text-xs hover:text-primary">
+                  {v.name} {v.plate_number ? `(${v.plate_number})` : ""} — {v.license_expiry}
+                </Link>
+              ))}
+              {expiring.license.length === 0 && <div className="text-xs text-muted-foreground">لا يوجد</div>}
+            </div>
+            <div className="rounded-xl bg-white p-3 border border-amber-200">
+              <div className="text-xs font-bold text-amber-700 mb-2">عقود موظفين ({expiring.empContracts.length})</div>
+              {expiring.empContracts.slice(0, 5).map((c: any) => (
+                <Link key={c.id} to="/employment-contracts" className="block py-1 text-xs hover:text-primary">
+                  عقد ينتهي — {c.end_date}
+                </Link>
+              ))}
+              {expiring.empContracts.length === 0 && <div className="text-xs text-muted-foreground">لا يوجد</div>}
+            </div>
+          </div>
+        </section>
+      )}
 
       <Section title="العقارات" icon={<Building2 className="h-5 w-5 text-primary" />}>
+
         <Table headers={["اسم العقار", "النوع", "الموقع", "عدد الوحدات", "إجمالي الدخل الشهري", "الحالة"]}>
           {properties.map((p) => {
             const propUnits = units.filter((u) => u.property_id === p.id);
