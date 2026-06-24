@@ -21,6 +21,22 @@ const totalsQuery = queryOptions({
   queryFn: async () => ((await supabase.rpc("dashboard_totals" as any)).data ?? {}) as any,
 });
 
+const expiringQuery = queryOptions({
+  queryKey: ["expiring-assets"],
+  queryFn: async () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const in30 = new Date(); in30.setDate(in30.getDate() + 30);
+    const end = in30.toISOString().slice(0, 10);
+    const [{ data: v1 }, { data: v2 }, { data: ec }] = await Promise.all([
+      supabase.from("vehicles" as any).select("id,name,plate_number,insurance_expiry").gte("insurance_expiry", today).lte("insurance_expiry", end),
+      supabase.from("vehicles" as any).select("id,name,plate_number,license_expiry").gte("license_expiry", today).lte("license_expiry", end),
+      supabase.from("employment_contracts" as any).select("id,end_date,employee_id").gte("end_date", today).lte("end_date", end).eq("status", "نشط"),
+    ]);
+    return { insurance: (v1 ?? []) as any[], license: (v2 ?? []) as any[], empContracts: (ec ?? []) as any[] };
+  },
+});
+
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
