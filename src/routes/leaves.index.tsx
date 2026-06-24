@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Plane } from "lucide-react";
 import { RecordDialog, DeleteButton, type FieldDef } from "@/components/record-dialog";
 import { ListToolbar } from "@/components/list-toolbar";
+import { ApprovalButtons } from "@/components/approval-buttons";
 
 export const Route = createFileRoute("/leaves/")({
   head: () => ({ meta: [{ title: "الإجازات | منصة الأصول" }] }),
@@ -81,7 +82,8 @@ function LeavesPage() {
                   <td className="px-4 py-3 text-muted-foreground">{r.start_date}</td>
                   <td className="px-4 py-3 text-muted-foreground">{r.end_date}</td>
                   <td className="px-4 py-3"><StatusPill tone={r.status === "موافق عليها" ? "success" : r.status === "مرفوضة" ? "danger" : "warning"}>{r.status}</StatusPill></td>
-                  <td className="px-4 py-3"><div className="flex gap-1">
+                  <td className="px-4 py-3"><div className="flex flex-wrap gap-1">
+                    <ApprovalButtons table="leaves" id={r.id} current={r.status} invalidate={INV} />
                     <RecordDialog table="leaves" title="تعديل الإجازة" fields={FIELDS} initial={r} invalidate={INV} />
                     <DeleteButton table="leaves" id={r.id} invalidate={INV} />
                   </div></td>
