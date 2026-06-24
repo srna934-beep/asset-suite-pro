@@ -111,48 +111,34 @@ export function AppSidebar() {
           const visibleItems = sec.items.filter((i) => canSee(i.to));
           if (visibleItems.length === 0) return null;
           return (
-          <div key={sec.label} className="mb-4">
-            <div className="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-sidebar-muted">
-              {sec.label}
+            <div key={sec.label} className="mb-4">
+              <div className="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-sidebar-muted">
+                {sec.label}
+              </div>
+              <ul className="space-y-0.5">
+                {visibleItems.map((item) => {
+                  const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
+                  const Icon = item.icon;
+                  return (
+                    <li key={item.to}>
+                      <Link
+                        to={item.to}
+                        className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                          active ? "bg-sidebar-active text-white shadow-sm" : "text-sidebar-foreground/85 hover:bg-white/5 hover:text-white"
+                        }`}
+                      >
+                        <Icon className="h-[18px] w-[18px] shrink-0" />
+                        <span className="truncate">{item.label}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
-            <ul className="space-y-0.5">
-              {visibleItems.map((item) => {
-          <Building className="h-5 w-5" />
-        </div>
-        <div className="leading-tight">
-          <div className="text-base font-extrabold">منصة الأصول</div>
-          <div className="text-[11px] text-sidebar-muted">Enterprise ERP</div>
-        </div>
-      </div>
-
-      <nav className="flex-1 overflow-y-auto px-3 py-4">
-        {sections.map((sec) => (
-          <div key={sec.label} className="mb-4">
-            <div className="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-sidebar-muted">
-              {sec.label}
-            </div>
-            <ul className="space-y-0.5">
-              {sec.items.map((item) => {
-                const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
-                const Icon = item.icon;
-                return (
-                  <li key={item.to}>
-                    <Link
-                      to={item.to}
-                      className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                        active ? "bg-sidebar-active text-white shadow-sm" : "text-sidebar-foreground/85 hover:bg-white/5 hover:text-white"
-                      }`}
-                    >
-                      <Icon className="h-[18px] w-[18px] shrink-0" />
-                      <span className="truncate">{item.label}</span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
+          );
+        })}
       </nav>
+
 
       <div className="m-3 rounded-xl border border-sidebar-border/60 bg-white/5 p-3 text-center">
         <div className="mb-1 text-xs font-bold">نظام موحد</div>
