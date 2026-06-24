@@ -1,4 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
+import { useQuery, queryOptions } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { sb } from "@/lib/sb";
+import { useAuth } from "@/hooks/use-auth";
 import {
   LayoutDashboard, Building2, Home, Users, FileText, DollarSign, Wrench, FolderOpen,
   Bell, Calculator, BarChart3, Settings, Building, MousePointerClick,
