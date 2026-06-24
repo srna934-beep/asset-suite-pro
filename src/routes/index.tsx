@@ -51,6 +51,8 @@ function Dashboard() {
   const qc = useQueryClient();
   const { data, isLoading } = useQuery(dashboardQuery);
   const { data: totals } = useQuery(totalsQuery);
+  const { data: expiring } = useQuery(expiringQuery);
+
 
   useEffect(() => {
     refreshLatePayments().then(() => qc.invalidateQueries({ queryKey: ["dashboard"] }));
