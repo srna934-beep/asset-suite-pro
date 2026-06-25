@@ -154,18 +154,32 @@ function Dashboard() {
       </section>
 
       <section className="mb-6">
-        <h2 className="mb-3 text-sm font-bold text-muted-foreground">الوصول السريع</h2>
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
-          {quickAccess.map((q) => {
-            const Icon = q.icon;
+        <h2 className="mb-3 text-sm font-bold text-muted-foreground">مركز إدارة الأصول</h2>
+        <div className="grid gap-3 md:grid-cols-3">
+          {[
+            { to: "/properties-dashboard" as const, label: "العقارات", icon: Building2, count: t.properties_count ?? properties.length, color: "from-orange-500 to-amber-500", tint: "bg-orange-50 border-orange-200 text-orange-900" },
+            { to: "/vehicles-dashboard" as const, label: "المركبات", icon: Car, count: t.vehicles_count ?? 0, color: "from-sky-500 to-blue-600", tint: "bg-sky-50 border-sky-200 text-sky-900" },
+            { to: "/lands-dashboard" as const, label: "الأراضي", icon: Map, count: t.lands_count ?? 0, color: "from-emerald-500 to-green-600", tint: "bg-emerald-50 border-emerald-200 text-emerald-900" },
+          ].map((c) => {
+            const Icon = c.icon;
             return (
-              <Link key={q.to} to={q.to} className="flex flex-col items-center justify-center rounded-2xl border border-border bg-card p-4 text-center shadow-sm hover:shadow-md hover:-translate-y-0.5 transition">
-                <div className={`grid h-11 w-11 place-items-center rounded-xl ${q.color}`}><Icon className="h-5 w-5" /></div>
-                <div className="mt-2 text-xs font-bold">{q.label}</div>
+              <Link key={c.to} to={c.to} className={`group rounded-2xl border p-4 shadow-sm transition hover:shadow-md hover:-translate-y-0.5 ${c.tint}`}>
+                <div className="flex items-center justify-between">
+                  <div className={`grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br ${c.color} text-white shadow`}>
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <div className="text-3xl font-extrabold">{c.count}</div>
+                </div>
+                <div className="mt-3 text-sm font-bold">{c.label}</div>
+                <div className="mt-1 text-xs opacity-80">افتح اللوحة الكاملة ←</div>
               </Link>
             );
           })}
         </div>
+      </section>
+
+      <section className="mb-6">
+        <QuickAccessPanel />
       </section>
 
       {(expiring && (expiring.insurance.length + expiring.license.length + expiring.empContracts.length > 0)) && (
