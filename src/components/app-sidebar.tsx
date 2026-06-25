@@ -58,6 +58,7 @@ const sections = [
   {
     label: "المالية",
     items: [
+      { to: "/finance-dashboard", label: "لوحة المالية", icon: LayoutDashboard },
       { to: "/accounts", label: "الحسابات", icon: Wallet },
       { to: "/transactions", label: "الحركات المالية", icon: Calculator },
       { to: "/accounting", label: "المحاسبة", icon: DollarSign },
