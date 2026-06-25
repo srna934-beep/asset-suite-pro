@@ -14,6 +14,7 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as VehiclesIndexRouteImport } from './routes/vehicles.index'
+import { Route as VehiclesDashboardIndexRouteImport } from './routes/vehicles-dashboard.index'
 import { Route as UnitsIndexRouteImport } from './routes/units.index'
 import { Route as TransactionsIndexRouteImport } from './routes/transactions.index'
 import { Route as TenantsIndexRouteImport } from './routes/tenants.index'
@@ -22,12 +23,15 @@ import { Route as SuperAdminIndexRouteImport } from './routes/super-admin.index'
 import { Route as SettingsIndexRouteImport } from './routes/settings.index'
 import { Route as ReportsIndexRouteImport } from './routes/reports.index'
 import { Route as PropertiesIndexRouteImport } from './routes/properties.index'
+import { Route as PropertiesDashboardIndexRouteImport } from './routes/properties-dashboard.index'
 import { Route as PaymentsIndexRouteImport } from './routes/payments.index'
 import { Route as NotificationsCenterIndexRouteImport } from './routes/notifications-center.index'
 import { Route as MessagesIndexRouteImport } from './routes/messages.index'
 import { Route as MaintenanceIndexRouteImport } from './routes/maintenance.index'
 import { Route as LeavesIndexRouteImport } from './routes/leaves.index'
 import { Route as LandsIndexRouteImport } from './routes/lands.index'
+import { Route as LandsDashboardIndexRouteImport } from './routes/lands-dashboard.index'
+import { Route as FinanceDashboardIndexRouteImport } from './routes/finance-dashboard.index'
 import { Route as EmploymentContractsIndexRouteImport } from './routes/employment-contracts.index'
 import { Route as EmployeesIndexRouteImport } from './routes/employees.index'
 import { Route as DocumentsIndexRouteImport } from './routes/documents.index'
@@ -63,6 +67,11 @@ const IndexRoute = IndexRouteImport.update({
 const VehiclesIndexRoute = VehiclesIndexRouteImport.update({
   id: '/vehicles/',
   path: '/vehicles/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VehiclesDashboardIndexRoute = VehiclesDashboardIndexRouteImport.update({
+  id: '/vehicles-dashboard/',
+  path: '/vehicles-dashboard/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UnitsIndexRoute = UnitsIndexRouteImport.update({
@@ -105,6 +114,12 @@ const PropertiesIndexRoute = PropertiesIndexRouteImport.update({
   path: '/properties/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PropertiesDashboardIndexRoute =
+  PropertiesDashboardIndexRouteImport.update({
+    id: '/properties-dashboard/',
+    path: '/properties-dashboard/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const PaymentsIndexRoute = PaymentsIndexRouteImport.update({
   id: '/payments/',
   path: '/payments/',
@@ -134,6 +149,16 @@ const LeavesIndexRoute = LeavesIndexRouteImport.update({
 const LandsIndexRoute = LandsIndexRouteImport.update({
   id: '/lands/',
   path: '/lands/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LandsDashboardIndexRoute = LandsDashboardIndexRouteImport.update({
+  id: '/lands-dashboard/',
+  path: '/lands-dashboard/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FinanceDashboardIndexRoute = FinanceDashboardIndexRouteImport.update({
+  id: '/finance-dashboard/',
+  path: '/finance-dashboard/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EmploymentContractsIndexRoute =
@@ -209,12 +234,15 @@ export interface FileRoutesByFullPath {
   '/documents/': typeof DocumentsIndexRoute
   '/employees/': typeof EmployeesIndexRoute
   '/employment-contracts/': typeof EmploymentContractsIndexRoute
+  '/finance-dashboard/': typeof FinanceDashboardIndexRoute
+  '/lands-dashboard/': typeof LandsDashboardIndexRoute
   '/lands/': typeof LandsIndexRoute
   '/leaves/': typeof LeavesIndexRoute
   '/maintenance/': typeof MaintenanceIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/notifications-center/': typeof NotificationsCenterIndexRoute
   '/payments/': typeof PaymentsIndexRoute
+  '/properties-dashboard/': typeof PropertiesDashboardIndexRoute
   '/properties/': typeof PropertiesIndexRoute
   '/reports/': typeof ReportsIndexRoute
   '/settings/': typeof SettingsIndexRoute
@@ -223,6 +251,7 @@ export interface FileRoutesByFullPath {
   '/tenants/': typeof TenantsIndexRoute
   '/transactions/': typeof TransactionsIndexRoute
   '/units/': typeof UnitsIndexRoute
+  '/vehicles-dashboard/': typeof VehiclesDashboardIndexRoute
   '/vehicles/': typeof VehiclesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -241,12 +270,15 @@ export interface FileRoutesByTo {
   '/documents': typeof DocumentsIndexRoute
   '/employees': typeof EmployeesIndexRoute
   '/employment-contracts': typeof EmploymentContractsIndexRoute
+  '/finance-dashboard': typeof FinanceDashboardIndexRoute
+  '/lands-dashboard': typeof LandsDashboardIndexRoute
   '/lands': typeof LandsIndexRoute
   '/leaves': typeof LeavesIndexRoute
   '/maintenance': typeof MaintenanceIndexRoute
   '/messages': typeof MessagesIndexRoute
   '/notifications-center': typeof NotificationsCenterIndexRoute
   '/payments': typeof PaymentsIndexRoute
+  '/properties-dashboard': typeof PropertiesDashboardIndexRoute
   '/properties': typeof PropertiesIndexRoute
   '/reports': typeof ReportsIndexRoute
   '/settings': typeof SettingsIndexRoute
@@ -255,6 +287,7 @@ export interface FileRoutesByTo {
   '/tenants': typeof TenantsIndexRoute
   '/transactions': typeof TransactionsIndexRoute
   '/units': typeof UnitsIndexRoute
+  '/vehicles-dashboard': typeof VehiclesDashboardIndexRoute
   '/vehicles': typeof VehiclesIndexRoute
 }
 export interface FileRoutesById {
@@ -274,12 +307,15 @@ export interface FileRoutesById {
   '/documents/': typeof DocumentsIndexRoute
   '/employees/': typeof EmployeesIndexRoute
   '/employment-contracts/': typeof EmploymentContractsIndexRoute
+  '/finance-dashboard/': typeof FinanceDashboardIndexRoute
+  '/lands-dashboard/': typeof LandsDashboardIndexRoute
   '/lands/': typeof LandsIndexRoute
   '/leaves/': typeof LeavesIndexRoute
   '/maintenance/': typeof MaintenanceIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/notifications-center/': typeof NotificationsCenterIndexRoute
   '/payments/': typeof PaymentsIndexRoute
+  '/properties-dashboard/': typeof PropertiesDashboardIndexRoute
   '/properties/': typeof PropertiesIndexRoute
   '/reports/': typeof ReportsIndexRoute
   '/settings/': typeof SettingsIndexRoute
@@ -288,6 +324,7 @@ export interface FileRoutesById {
   '/tenants/': typeof TenantsIndexRoute
   '/transactions/': typeof TransactionsIndexRoute
   '/units/': typeof UnitsIndexRoute
+  '/vehicles-dashboard/': typeof VehiclesDashboardIndexRoute
   '/vehicles/': typeof VehiclesIndexRoute
 }
 export interface FileRouteTypes {
@@ -308,12 +345,15 @@ export interface FileRouteTypes {
     | '/documents/'
     | '/employees/'
     | '/employment-contracts/'
+    | '/finance-dashboard/'
+    | '/lands-dashboard/'
     | '/lands/'
     | '/leaves/'
     | '/maintenance/'
     | '/messages/'
     | '/notifications-center/'
     | '/payments/'
+    | '/properties-dashboard/'
     | '/properties/'
     | '/reports/'
     | '/settings/'
@@ -322,6 +362,7 @@ export interface FileRouteTypes {
     | '/tenants/'
     | '/transactions/'
     | '/units/'
+    | '/vehicles-dashboard/'
     | '/vehicles/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -340,12 +381,15 @@ export interface FileRouteTypes {
     | '/documents'
     | '/employees'
     | '/employment-contracts'
+    | '/finance-dashboard'
+    | '/lands-dashboard'
     | '/lands'
     | '/leaves'
     | '/maintenance'
     | '/messages'
     | '/notifications-center'
     | '/payments'
+    | '/properties-dashboard'
     | '/properties'
     | '/reports'
     | '/settings'
@@ -354,6 +398,7 @@ export interface FileRouteTypes {
     | '/tenants'
     | '/transactions'
     | '/units'
+    | '/vehicles-dashboard'
     | '/vehicles'
   id:
     | '__root__'
@@ -372,12 +417,15 @@ export interface FileRouteTypes {
     | '/documents/'
     | '/employees/'
     | '/employment-contracts/'
+    | '/finance-dashboard/'
+    | '/lands-dashboard/'
     | '/lands/'
     | '/leaves/'
     | '/maintenance/'
     | '/messages/'
     | '/notifications-center/'
     | '/payments/'
+    | '/properties-dashboard/'
     | '/properties/'
     | '/reports/'
     | '/settings/'
@@ -386,6 +434,7 @@ export interface FileRouteTypes {
     | '/tenants/'
     | '/transactions/'
     | '/units/'
+    | '/vehicles-dashboard/'
     | '/vehicles/'
   fileRoutesById: FileRoutesById
 }
@@ -405,12 +454,15 @@ export interface RootRouteChildren {
   DocumentsIndexRoute: typeof DocumentsIndexRoute
   EmployeesIndexRoute: typeof EmployeesIndexRoute
   EmploymentContractsIndexRoute: typeof EmploymentContractsIndexRoute
+  FinanceDashboardIndexRoute: typeof FinanceDashboardIndexRoute
+  LandsDashboardIndexRoute: typeof LandsDashboardIndexRoute
   LandsIndexRoute: typeof LandsIndexRoute
   LeavesIndexRoute: typeof LeavesIndexRoute
   MaintenanceIndexRoute: typeof MaintenanceIndexRoute
   MessagesIndexRoute: typeof MessagesIndexRoute
   NotificationsCenterIndexRoute: typeof NotificationsCenterIndexRoute
   PaymentsIndexRoute: typeof PaymentsIndexRoute
+  PropertiesDashboardIndexRoute: typeof PropertiesDashboardIndexRoute
   PropertiesIndexRoute: typeof PropertiesIndexRoute
   ReportsIndexRoute: typeof ReportsIndexRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
@@ -419,6 +471,7 @@ export interface RootRouteChildren {
   TenantsIndexRoute: typeof TenantsIndexRoute
   TransactionsIndexRoute: typeof TransactionsIndexRoute
   UnitsIndexRoute: typeof UnitsIndexRoute
+  VehiclesDashboardIndexRoute: typeof VehiclesDashboardIndexRoute
   VehiclesIndexRoute: typeof VehiclesIndexRoute
 }
 
@@ -457,6 +510,13 @@ declare module '@tanstack/react-router' {
       path: '/vehicles'
       fullPath: '/vehicles/'
       preLoaderRoute: typeof VehiclesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vehicles-dashboard/': {
+      id: '/vehicles-dashboard/'
+      path: '/vehicles-dashboard'
+      fullPath: '/vehicles-dashboard/'
+      preLoaderRoute: typeof VehiclesDashboardIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/units/': {
@@ -515,6 +575,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PropertiesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/properties-dashboard/': {
+      id: '/properties-dashboard/'
+      path: '/properties-dashboard'
+      fullPath: '/properties-dashboard/'
+      preLoaderRoute: typeof PropertiesDashboardIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/payments/': {
       id: '/payments/'
       path: '/payments'
@@ -555,6 +622,20 @@ declare module '@tanstack/react-router' {
       path: '/lands'
       fullPath: '/lands/'
       preLoaderRoute: typeof LandsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lands-dashboard/': {
+      id: '/lands-dashboard/'
+      path: '/lands-dashboard'
+      fullPath: '/lands-dashboard/'
+      preLoaderRoute: typeof LandsDashboardIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/finance-dashboard/': {
+      id: '/finance-dashboard/'
+      path: '/finance-dashboard'
+      fullPath: '/finance-dashboard/'
+      preLoaderRoute: typeof FinanceDashboardIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/employment-contracts/': {
@@ -653,12 +734,15 @@ const rootRouteChildren: RootRouteChildren = {
   DocumentsIndexRoute: DocumentsIndexRoute,
   EmployeesIndexRoute: EmployeesIndexRoute,
   EmploymentContractsIndexRoute: EmploymentContractsIndexRoute,
+  FinanceDashboardIndexRoute: FinanceDashboardIndexRoute,
+  LandsDashboardIndexRoute: LandsDashboardIndexRoute,
   LandsIndexRoute: LandsIndexRoute,
   LeavesIndexRoute: LeavesIndexRoute,
   MaintenanceIndexRoute: MaintenanceIndexRoute,
   MessagesIndexRoute: MessagesIndexRoute,
   NotificationsCenterIndexRoute: NotificationsCenterIndexRoute,
   PaymentsIndexRoute: PaymentsIndexRoute,
+  PropertiesDashboardIndexRoute: PropertiesDashboardIndexRoute,
   PropertiesIndexRoute: PropertiesIndexRoute,
   ReportsIndexRoute: ReportsIndexRoute,
   SettingsIndexRoute: SettingsIndexRoute,
@@ -667,6 +751,7 @@ const rootRouteChildren: RootRouteChildren = {
   TenantsIndexRoute: TenantsIndexRoute,
   TransactionsIndexRoute: TransactionsIndexRoute,
   UnitsIndexRoute: UnitsIndexRoute,
+  VehiclesDashboardIndexRoute: VehiclesDashboardIndexRoute,
   VehiclesIndexRoute: VehiclesIndexRoute,
 }
 export const routeTree = rootRouteImport
