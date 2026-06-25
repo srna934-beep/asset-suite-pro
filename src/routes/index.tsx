@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient, queryOptions } from "@tanstack/react-query";
 import { DashboardLayout } from "@/components/dashboard-layout";
+import { QuickAccessPanel } from "@/components/quick-access-panel";
 import { StatusPill, propertyTone, unitTone, paymentTone } from "@/components/status-pill";
 import { getDashboardData, refreshLatePayments } from "@/lib/db";
 import { supabase } from "@/integrations/supabase/client";
