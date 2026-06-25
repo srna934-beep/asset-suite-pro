@@ -18,9 +18,12 @@ const sections = [
   {
     label: "الأصول",
     items: [
+      { to: "/properties-dashboard", label: "لوحة العقارات", icon: LayoutDashboard },
       { to: "/properties", label: "العقارات", icon: Building2 },
       { to: "/units", label: "الوحدات", icon: Home },
+      { to: "/vehicles-dashboard", label: "لوحة المركبات", icon: LayoutDashboard },
       { to: "/vehicles", label: "المركبات", icon: Car },
+      { to: "/lands-dashboard", label: "لوحة الأراضي", icon: LayoutDashboard },
       { to: "/lands", label: "الأراضي", icon: Map },
     ],
   },
