@@ -78,8 +78,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "إدارة الأملاك | نظام إدارة العقارات" },
-      { name: "description", content: "نظام احترافي لإدارة العقارات والوحدات والمستأجرين والعقود والدفعات" },
+      { title: "لوحة التحكم | إدارة الأصول والأعمال" },
+      { name: "description", content: "منصة احترافية لإدارة الأصول والأعمال — عقارات، مركبات، أراضٍ، مالية وموارد بشرية" },
+      { property: "og:title", content: "لوحة التحكم | إدارة الأصول والأعمال" },
+      { name: "twitter:title", content: "لوحة التحكم | إدارة الأصول والأعمال" },
+      { property: "og:description", content: "منصة احترافية لإدارة الأصول والأعمال — عقارات، مركبات، أراضٍ، مالية وموارد بشرية" },
+      { name: "twitter:description", content: "منصة احترافية لإدارة الأصول والأعمال — عقارات، مركبات، أراضٍ، مالية وموارد بشرية" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/EED2rCU4QybzwKBlclXTNvvdEoF3/social-images/social-1783284348444-1000247782.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/EED2rCU4QybzwKBlclXTNvvdEoF3/social-images/social-1783284348444-1000247782.webp" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:type", content: "website" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
