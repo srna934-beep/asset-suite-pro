@@ -81,21 +81,23 @@ function Dashboard() {
 
   // Chart data — group txns by month
   const chartData = useMemo(() => {
-    const buckets = new Map<string, { m: string; rev: number; exp: number }>();
+    const buckets: Record<string, { m: string; rev: number; exp: number }> = {};
+    const order: string[] = [];
     const now = new Date();
     for (let i = 5; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const key = d.toISOString().slice(0, 7);
-      buckets.set(key, { m: d.toLocaleDateString("ar", { month: "short" }), rev: 0, exp: 0 });
+      buckets[key] = { m: d.toLocaleDateString("ar", { month: "short" }), rev: 0, exp: 0 };
+      order.push(key);
     }
     for (const x of txns) {
       const key = String(x.txn_date ?? "").slice(0, 7);
-      const b = buckets.get(key);
+      const b = buckets[key];
       if (!b) continue;
       if (x.txn_type === "إيراد") b.rev += Number(x.amount);
       else b.exp += Number(x.amount);
     }
-    return Array.from(buckets.values()).map((b) => ({ ...b, profit: b.rev - b.exp }));
+    return order.map((k) => ({ ...buckets[k], profit: buckets[k].rev - buckets[k].exp }));
   }, [txns]);
 
   // Unit status distribution
