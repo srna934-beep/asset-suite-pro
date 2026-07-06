@@ -9,17 +9,19 @@ import { RecordDialog, DeleteButton, type FieldDef } from "@/components/record-d
 import { ListToolbar } from "@/components/list-toolbar";
 import { ExportCsvButton } from "@/components/export-csv-button";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Legend, CartesianGrid } from "recharts";
+import { useAssetOptions } from "@/lib/asset-options";
 
 export const Route = createFileRoute("/transactions/")({
   head: () => ({ meta: [{ title: "الحركات المالية | منصة الأصول" }] }),
   component: TransactionsPage,
 });
 
-const INV = [["transactions-list"], ["accounts-list"], ["dashboard-totals"]];
+const INV = [["transactions-list"], ["accounts-list"], ["dashboard-totals"], ["asset-finance"]];
 
 function TransactionsPage() {
   const [search, setSearch] = useState("");
   const [type, setType] = useState("");
+  const { employeeOpts, assetTypeOptions, assetOptionsMap, assetLabel } = useAssetOptions();
 
   const { data } = useQuery(queryOptions({
     queryKey: ["transactions-list"],
@@ -41,12 +43,20 @@ function TransactionsPage() {
     { name: "account_id", label: "الحساب", type: "select", required: true,
       options: accs.map((a: any) => ({ value: a.id, label: a.name })) },
     { name: "txn_type", label: "نوع الحركة", type: "select", required: true, options: [
-      { value: "إيراد", label: "إيراد" }, { value: "مصروف", label: "مصروف" }, { value: "تحويل", label: "تحويل" },
+      { value: "إيراد", label: "إيراد" }, { value: "مصروف", label: "مصروف" },
+      { value: "راتب موظف", label: "راتب موظف" }, { value: "تحويل", label: "تحويل" },
     ]},
+    { name: "employee_id", label: "الموظف (للرواتب)", type: "select", options: employeeOpts,
+      showWhen: { field: "txn_type", equals: ["راتب موظف"] } },
+    { name: "entity_type", label: "ربط بالأصل — النوع", type: "select", options: assetTypeOptions,
+      showWhen: { field: "txn_type", equals: ["إيراد", "مصروف"] } },
+    { name: "entity_id", label: "الأصل المرتبط", type: "select", optionsBy: "entity_type", optionsMap: assetOptionsMap,
+      showWhen: { field: "txn_type", equals: ["إيراد", "مصروف"] } },
     { name: "category", label: "التصنيف", placeholder: "مثل: إيجار، رواتب، صيانة" },
     { name: "amount", label: "المبلغ", type: "number", required: true },
     { name: "description", label: "الوصف", type: "textarea" },
-  ], [accs]);
+  ], [accs, employeeOpts, assetTypeOptions, assetOptionsMap]);
+
 
   const filtered = useMemo(() => {
     let r = txns;
