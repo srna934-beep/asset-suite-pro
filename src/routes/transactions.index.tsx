@@ -134,10 +134,11 @@ function TransactionsPage() {
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[800px] text-right text-sm">
+          <table className="w-full min-w-[900px] text-right text-sm">
             <thead><tr className="bg-muted/40 text-[12px] font-bold text-muted-foreground">
               <th className="px-4 py-3">التاريخ</th><th className="px-4 py-3">النوع</th>
-              <th className="px-4 py-3">الحساب</th><th className="px-4 py-3">التصنيف</th>
+              <th className="px-4 py-3">الحساب</th><th className="px-4 py-3">الأصل / الموظف</th>
+              <th className="px-4 py-3">التصنيف</th>
               <th className="px-4 py-3">الوصف</th><th className="px-4 py-3">المبلغ</th>
               <th className="px-4 py-3">إجراءات</th>
             </tr></thead>
@@ -145,18 +146,20 @@ function TransactionsPage() {
               {filtered.map((t: any) => (
                 <tr key={t.id} className="border-t border-border hover:bg-muted/40">
                   <td className="px-4 py-3 text-muted-foreground">{t.txn_date}</td>
-                  <td className="px-4 py-3"><StatusPill tone={t.txn_type === "إيراد" ? "success" : t.txn_type === "مصروف" ? "danger" : "info"}>{t.txn_type}</StatusPill></td>
+                  <td className="px-4 py-3"><StatusPill tone={t.txn_type === "إيراد" ? "success" : t.txn_type === "راتب موظف" ? "warning" : t.txn_type === "مصروف" ? "danger" : "info"}>{t.txn_type}</StatusPill></td>
                   <td className="px-4 py-3">{accName(t.account_id)}</td>
+                  <td className="px-4 py-3 text-xs">{t.employee_id ? `موظف: ${assetLabel("employee" as any, t.employee_id).replace("employee: ", "")}` : assetLabel(t.entity_type, t.entity_id)}</td>
                   <td className="px-4 py-3 text-muted-foreground">{t.category ?? "—"}</td>
                   <td className="px-4 py-3">{t.description ?? "—"}</td>
-                  <td className={`px-4 py-3 font-bold ${t.txn_type === "إيراد" ? "text-emerald-600" : t.txn_type === "مصروف" ? "text-rose-600" : ""}`}>{Number(t.amount).toLocaleString()} ر.س</td>
+                  <td className={`px-4 py-3 font-bold ${t.txn_type === "إيراد" ? "text-emerald-600" : "text-rose-600"}`}>{Number(t.amount).toLocaleString()} ر.س</td>
                   <td className="px-4 py-3"><div className="flex gap-1">
                     <RecordDialog table="transactions" title="تعديل الحركة" fields={FIELDS} initial={t} invalidate={INV} />
                     <DeleteButton table="transactions" id={t.id} invalidate={INV} />
                   </div></td>
                 </tr>
               ))}
-              {filtered.length === 0 && <tr><td colSpan={7} className="py-12 text-center text-muted-foreground">لا توجد حركات. أضف أول حركة مالية.</td></tr>}
+              {filtered.length === 0 && <tr><td colSpan={8} className="py-12 text-center text-muted-foreground">لا توجد حركات. أضف أول حركة مالية.</td></tr>}
+
             </tbody>
           </table>
         </div>
