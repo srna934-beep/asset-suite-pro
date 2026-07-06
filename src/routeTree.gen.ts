@@ -41,8 +41,10 @@ import { Route as AuditLogsIndexRouteImport } from './routes/audit-logs.index'
 import { Route as AttendanceIndexRouteImport } from './routes/attendance.index'
 import { Route as AccountsIndexRouteImport } from './routes/accounts.index'
 import { Route as AccountingIndexRouteImport } from './routes/accounting.index'
+import { Route as VehiclesIdRouteImport } from './routes/vehicles.$id'
 import { Route as UnitsIdRouteImport } from './routes/units.$id'
 import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
+import { Route as LandsIdRouteImport } from './routes/lands.$id'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -207,6 +209,11 @@ const AccountingIndexRoute = AccountingIndexRouteImport.update({
   path: '/accounting/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VehiclesIdRoute = VehiclesIdRouteImport.update({
+  id: '/vehicles/$id',
+  path: '/vehicles/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UnitsIdRoute = UnitsIdRouteImport.update({
   id: '/units/$id',
   path: '/units/$id',
@@ -217,14 +224,21 @@ const PropertiesIdRoute = PropertiesIdRouteImport.update({
   path: '/properties/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LandsIdRoute = LandsIdRouteImport.update({
+  id: '/lands/$id',
+  path: '/lands/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/lands/$id': typeof LandsIdRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/units/$id': typeof UnitsIdRoute
+  '/vehicles/$id': typeof VehiclesIdRoute
   '/accounting/': typeof AccountingIndexRoute
   '/accounts/': typeof AccountsIndexRoute
   '/attendance/': typeof AttendanceIndexRoute
@@ -259,8 +273,10 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/lands/$id': typeof LandsIdRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/units/$id': typeof UnitsIdRoute
+  '/vehicles/$id': typeof VehiclesIdRoute
   '/accounting': typeof AccountingIndexRoute
   '/accounts': typeof AccountsIndexRoute
   '/attendance': typeof AttendanceIndexRoute
@@ -296,8 +312,10 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/lands/$id': typeof LandsIdRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/units/$id': typeof UnitsIdRoute
+  '/vehicles/$id': typeof VehiclesIdRoute
   '/accounting/': typeof AccountingIndexRoute
   '/accounts/': typeof AccountsIndexRoute
   '/attendance/': typeof AttendanceIndexRoute
@@ -334,8 +352,10 @@ export interface FileRouteTypes {
     | '/auth'
     | '/profile'
     | '/reset-password'
+    | '/lands/$id'
     | '/properties/$id'
     | '/units/$id'
+    | '/vehicles/$id'
     | '/accounting/'
     | '/accounts/'
     | '/attendance/'
@@ -370,8 +390,10 @@ export interface FileRouteTypes {
     | '/auth'
     | '/profile'
     | '/reset-password'
+    | '/lands/$id'
     | '/properties/$id'
     | '/units/$id'
+    | '/vehicles/$id'
     | '/accounting'
     | '/accounts'
     | '/attendance'
@@ -406,8 +428,10 @@ export interface FileRouteTypes {
     | '/auth'
     | '/profile'
     | '/reset-password'
+    | '/lands/$id'
     | '/properties/$id'
     | '/units/$id'
+    | '/vehicles/$id'
     | '/accounting/'
     | '/accounts/'
     | '/attendance/'
@@ -443,8 +467,10 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ProfileRoute: typeof ProfileRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  LandsIdRoute: typeof LandsIdRoute
   PropertiesIdRoute: typeof PropertiesIdRoute
   UnitsIdRoute: typeof UnitsIdRoute
+  VehiclesIdRoute: typeof VehiclesIdRoute
   AccountingIndexRoute: typeof AccountingIndexRoute
   AccountsIndexRoute: typeof AccountsIndexRoute
   AttendanceIndexRoute: typeof AttendanceIndexRoute
@@ -701,6 +727,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountingIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/vehicles/$id': {
+      id: '/vehicles/$id'
+      path: '/vehicles/$id'
+      fullPath: '/vehicles/$id'
+      preLoaderRoute: typeof VehiclesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/units/$id': {
       id: '/units/$id'
       path: '/units/$id'
@@ -715,6 +748,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PropertiesIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lands/$id': {
+      id: '/lands/$id'
+      path: '/lands/$id'
+      fullPath: '/lands/$id'
+      preLoaderRoute: typeof LandsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -723,8 +763,10 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ProfileRoute: ProfileRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  LandsIdRoute: LandsIdRoute,
   PropertiesIdRoute: PropertiesIdRoute,
   UnitsIdRoute: UnitsIdRoute,
+  VehiclesIdRoute: VehiclesIdRoute,
   AccountingIndexRoute: AccountingIndexRoute,
   AccountsIndexRoute: AccountsIndexRoute,
   AttendanceIndexRoute: AttendanceIndexRoute,
@@ -757,13 +799,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -351,6 +351,47 @@ export type Database = {
           },
         ]
       }
+      employee_assets: {
+        Row: {
+          asset_id: string
+          asset_type: string
+          created_at: string
+          employee_id: string
+          id: string
+          notes: string | null
+          role: string | null
+          updated_at: string
+        }
+        Insert: {
+          asset_id: string
+          asset_type: string
+          created_at?: string
+          employee_id: string
+          id?: string
+          notes?: string | null
+          role?: string | null
+          updated_at?: string
+        }
+        Update: {
+          asset_id?: string
+          asset_type?: string
+          created_at?: string
+          employee_id?: string
+          id?: string
+          notes?: string | null
+          role?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_assets_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employees: {
         Row: {
           address: string | null
@@ -475,6 +516,9 @@ export type Database = {
           category: string
           created_at: string
           description: string | null
+          employee_id: string | null
+          entity_id: string | null
+          entity_type: string | null
           expense_date: string
           id: string
           property_id: string | null
@@ -484,6 +528,9 @@ export type Database = {
           category: string
           created_at?: string
           description?: string | null
+          employee_id?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
           expense_date?: string
           id?: string
           property_id?: string | null
@@ -493,11 +540,21 @@ export type Database = {
           category?: string
           created_at?: string
           description?: string | null
+          employee_id?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
           expense_date?: string
           id?: string
           property_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "expenses_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "expenses_property_id_fkey"
             columns: ["property_id"]
@@ -526,6 +583,7 @@ export type Database = {
           purchase_date: string | null
           purchase_value: number | null
           region: string | null
+          responsible_employee_id: string | null
           status: string
           updated_at: string
         }
@@ -547,6 +605,7 @@ export type Database = {
           purchase_date?: string | null
           purchase_value?: number | null
           region?: string | null
+          responsible_employee_id?: string | null
           status?: string
           updated_at?: string
         }
@@ -568,10 +627,19 @@ export type Database = {
           purchase_date?: string | null
           purchase_value?: number | null
           region?: string | null
+          responsible_employee_id?: string | null
           status?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "lands_responsible_employee_id_fkey"
+            columns: ["responsible_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       leaves: {
         Row: {
@@ -624,6 +692,7 @@ export type Database = {
           cost: number | null
           created_at: string
           description: string | null
+          employee_id: string | null
           entity_id: string | null
           entity_type: string | null
           id: string
@@ -640,6 +709,7 @@ export type Database = {
           cost?: number | null
           created_at?: string
           description?: string | null
+          employee_id?: string | null
           entity_id?: string | null
           entity_type?: string | null
           id?: string
@@ -656,6 +726,7 @@ export type Database = {
           cost?: number | null
           created_at?: string
           description?: string | null
+          employee_id?: string | null
           entity_id?: string | null
           entity_type?: string | null
           id?: string
@@ -667,6 +738,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "maintenance_requests_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "maintenance_requests_property_id_fkey"
             columns: ["property_id"]
@@ -850,6 +928,7 @@ export type Database = {
           location: string | null
           name: string
           photos: string[] | null
+          responsible_employee_id: string | null
           status: Database["public"]["Enums"]["property_status"]
           type: Database["public"]["Enums"]["property_type"]
           updated_at: string
@@ -862,6 +941,7 @@ export type Database = {
           location?: string | null
           name: string
           photos?: string[] | null
+          responsible_employee_id?: string | null
           status?: Database["public"]["Enums"]["property_status"]
           type?: Database["public"]["Enums"]["property_type"]
           updated_at?: string
@@ -874,11 +954,20 @@ export type Database = {
           location?: string | null
           name?: string
           photos?: string[] | null
+          responsible_employee_id?: string | null
           status?: Database["public"]["Enums"]["property_status"]
           type?: Database["public"]["Enums"]["property_type"]
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "properties_responsible_employee_id_fkey"
+            columns: ["responsible_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       quick_access_items: {
         Row: {
@@ -1035,6 +1124,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           description: string | null
+          employee_id: string | null
           entity_id: string | null
           entity_type: string | null
           id: string
@@ -1050,6 +1140,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          employee_id?: string | null
           entity_id?: string | null
           entity_type?: string | null
           id?: string
@@ -1065,6 +1156,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          employee_id?: string | null
           entity_id?: string | null
           entity_type?: string | null
           id?: string
@@ -1079,6 +1171,13 @@ export type Database = {
             columns: ["account_id"]
             isOneToOne: false
             referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
@@ -1101,6 +1200,7 @@ export type Database = {
           photos: string[] | null
           property_id: string
           rent_amount: number
+          responsible_employee_id: string | null
           status: Database["public"]["Enums"]["unit_status"]
           type: Database["public"]["Enums"]["unit_type"]
           unit_number: string
@@ -1116,6 +1216,7 @@ export type Database = {
           photos?: string[] | null
           property_id: string
           rent_amount?: number
+          responsible_employee_id?: string | null
           status?: Database["public"]["Enums"]["unit_status"]
           type?: Database["public"]["Enums"]["unit_type"]
           unit_number: string
@@ -1131,6 +1232,7 @@ export type Database = {
           photos?: string[] | null
           property_id?: string
           rent_amount?: number
+          responsible_employee_id?: string | null
           status?: Database["public"]["Enums"]["unit_status"]
           type?: Database["public"]["Enums"]["unit_type"]
           unit_number?: string
@@ -1142,6 +1244,13 @@ export type Database = {
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "units_responsible_employee_id_fkey"
+            columns: ["responsible_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
         ]
@@ -1188,6 +1297,7 @@ export type Database = {
           plate_number: string | null
           purchase_date: string | null
           purchase_value: number | null
+          responsible_employee_id: string | null
           status: string
           updated_at: string
           vehicle_type: string | null
@@ -1213,6 +1323,7 @@ export type Database = {
           plate_number?: string | null
           purchase_date?: string | null
           purchase_value?: number | null
+          responsible_employee_id?: string | null
           status?: string
           updated_at?: string
           vehicle_type?: string | null
@@ -1238,12 +1349,21 @@ export type Database = {
           plate_number?: string | null
           purchase_date?: string | null
           purchase_value?: number | null
+          responsible_employee_id?: string | null
           status?: string
           updated_at?: string
           vehicle_type?: string | null
           year?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "vehicles_responsible_employee_id_fkey"
+            columns: ["responsible_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

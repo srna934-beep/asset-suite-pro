@@ -17,7 +17,14 @@ export type FieldDef = {
   required?: boolean;
   options?: { value: string; label: string }[];
   placeholder?: string;
+  /** Field name whose value determines this field's options (dependent select) */
+  optionsBy?: string;
+  /** Map of depending value → options for this field */
+  optionsMap?: Record<string, { value: string; label: string }[]>;
+  /** Show this field only when another field equals one of these values */
+  showWhen?: { field: string; equals: string[] };
 };
+
 
 type Props = {
   table: string;
@@ -43,9 +50,10 @@ export function RecordDialog({ table, title, fields, initial, invalidate, trigge
     setSaving(true);
     const payload: Record<string, any> = {};
     for (const f of fields) {
-      let v = values[f.name];
+      const hidden = f.showWhen && !f.showWhen.equals.includes(String(values[f.showWhen.field] ?? ""));
+      let v = hidden ? null : values[f.name];
       if (v === "" || v === undefined) v = null;
-      if (f.required && (v === null || v === "")) {
+      if (!hidden && f.required && (v === null || v === "")) {
         toast.error(`الحقل "${f.label}" مطلوب`);
         setSaving(false);
         return;
@@ -59,6 +67,7 @@ export function RecordDialog({ table, title, fields, initial, invalidate, trigge
     setSaving(false);
     if (q.error) { toast.error(q.error.message); return; }
     toast.success(initial?.id ? "تم التحديث بنجاح" : "تمت الإضافة بنجاح");
+
     invalidate.forEach((k) => qc.invalidateQueries({ queryKey: k }));
     setOpen(false);
   }
@@ -75,7 +84,12 @@ export function RecordDialog({ table, title, fields, initial, invalidate, trigge
       <DialogContent className="max-w-lg" dir="rtl">
         <DialogHeader><DialogTitle className="text-right">{title}</DialogTitle></DialogHeader>
         <div className="grid gap-3 max-h-[60vh] overflow-y-auto pr-1">
-          {fields.map((f) => (
+          {fields.map((f) => {
+            if (f.showWhen && !f.showWhen.equals.includes(String(values[f.showWhen.field] ?? ""))) return null;
+            const opts = f.optionsBy
+              ? (f.optionsMap?.[String(values[f.optionsBy] ?? "")] ?? [])
+              : (f.options ?? []);
+            return (
             <div key={f.name} className="space-y-1.5">
               <Label className="text-right block text-xs font-bold">{f.label}{f.required && <span className="text-rose-600"> *</span>}</Label>
               {f.type === "textarea" ? (
@@ -87,7 +101,7 @@ export function RecordDialog({ table, title, fields, initial, invalidate, trigge
                   onChange={(e) => setValues({ ...values, [f.name]: e.target.value })}
                 >
                   <option value="">— اختر —</option>
-                  {f.options?.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  {opts.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
               ) : (
                 <Input
@@ -98,7 +112,8 @@ export function RecordDialog({ table, title, fields, initial, invalidate, trigge
                 />
               )}
             </div>
-          ))}
+          );})}
+
         </div>
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => setOpen(false)}>إلغاء</Button>
