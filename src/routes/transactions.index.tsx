@@ -9,17 +9,19 @@ import { RecordDialog, DeleteButton, type FieldDef } from "@/components/record-d
 import { ListToolbar } from "@/components/list-toolbar";
 import { ExportCsvButton } from "@/components/export-csv-button";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Legend, CartesianGrid } from "recharts";
+import { useAssetOptions } from "@/lib/asset-options";
 
 export const Route = createFileRoute("/transactions/")({
   head: () => ({ meta: [{ title: "الحركات المالية | منصة الأصول" }] }),
   component: TransactionsPage,
 });
 
-const INV = [["transactions-list"], ["accounts-list"], ["dashboard-totals"]];
+const INV = [["transactions-list"], ["accounts-list"], ["dashboard-totals"], ["asset-finance"]];
 
 function TransactionsPage() {
   const [search, setSearch] = useState("");
   const [type, setType] = useState("");
+  const { employeeOpts, assetTypeOptions, assetOptionsMap, assetLabel } = useAssetOptions();
 
   const { data } = useQuery(queryOptions({
     queryKey: ["transactions-list"],
@@ -41,12 +43,20 @@ function TransactionsPage() {
     { name: "account_id", label: "الحساب", type: "select", required: true,
       options: accs.map((a: any) => ({ value: a.id, label: a.name })) },
     { name: "txn_type", label: "نوع الحركة", type: "select", required: true, options: [
-      { value: "إيراد", label: "إيراد" }, { value: "مصروف", label: "مصروف" }, { value: "تحويل", label: "تحويل" },
+      { value: "إيراد", label: "إيراد" }, { value: "مصروف", label: "مصروف" },
+      { value: "راتب موظف", label: "راتب موظف" }, { value: "تحويل", label: "تحويل" },
     ]},
+    { name: "employee_id", label: "الموظف (للرواتب)", type: "select", options: employeeOpts,
+      showWhen: { field: "txn_type", equals: ["راتب موظف"] } },
+    { name: "entity_type", label: "ربط بالأصل — النوع", type: "select", options: assetTypeOptions,
+      showWhen: { field: "txn_type", equals: ["إيراد", "مصروف"] } },
+    { name: "entity_id", label: "الأصل المرتبط", type: "select", optionsBy: "entity_type", optionsMap: assetOptionsMap,
+      showWhen: { field: "txn_type", equals: ["إيراد", "مصروف"] } },
     { name: "category", label: "التصنيف", placeholder: "مثل: إيجار، رواتب، صيانة" },
     { name: "amount", label: "المبلغ", type: "number", required: true },
     { name: "description", label: "الوصف", type: "textarea" },
-  ], [accs]);
+  ], [accs, employeeOpts, assetTypeOptions, assetOptionsMap]);
+
 
   const filtered = useMemo(() => {
     let r = txns;
@@ -124,10 +134,11 @@ function TransactionsPage() {
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[800px] text-right text-sm">
+          <table className="w-full min-w-[900px] text-right text-sm">
             <thead><tr className="bg-muted/40 text-[12px] font-bold text-muted-foreground">
               <th className="px-4 py-3">التاريخ</th><th className="px-4 py-3">النوع</th>
-              <th className="px-4 py-3">الحساب</th><th className="px-4 py-3">التصنيف</th>
+              <th className="px-4 py-3">الحساب</th><th className="px-4 py-3">الأصل / الموظف</th>
+              <th className="px-4 py-3">التصنيف</th>
               <th className="px-4 py-3">الوصف</th><th className="px-4 py-3">المبلغ</th>
               <th className="px-4 py-3">إجراءات</th>
             </tr></thead>
@@ -135,18 +146,20 @@ function TransactionsPage() {
               {filtered.map((t: any) => (
                 <tr key={t.id} className="border-t border-border hover:bg-muted/40">
                   <td className="px-4 py-3 text-muted-foreground">{t.txn_date}</td>
-                  <td className="px-4 py-3"><StatusPill tone={t.txn_type === "إيراد" ? "success" : t.txn_type === "مصروف" ? "danger" : "info"}>{t.txn_type}</StatusPill></td>
+                  <td className="px-4 py-3"><StatusPill tone={t.txn_type === "إيراد" ? "success" : t.txn_type === "راتب موظف" ? "warning" : t.txn_type === "مصروف" ? "danger" : "info"}>{t.txn_type}</StatusPill></td>
                   <td className="px-4 py-3">{accName(t.account_id)}</td>
+                  <td className="px-4 py-3 text-xs">{t.employee_id ? `موظف: ${assetLabel("employee" as any, t.employee_id).replace("employee: ", "")}` : assetLabel(t.entity_type, t.entity_id)}</td>
                   <td className="px-4 py-3 text-muted-foreground">{t.category ?? "—"}</td>
                   <td className="px-4 py-3">{t.description ?? "—"}</td>
-                  <td className={`px-4 py-3 font-bold ${t.txn_type === "إيراد" ? "text-emerald-600" : t.txn_type === "مصروف" ? "text-rose-600" : ""}`}>{Number(t.amount).toLocaleString()} ر.س</td>
+                  <td className={`px-4 py-3 font-bold ${t.txn_type === "إيراد" ? "text-emerald-600" : "text-rose-600"}`}>{Number(t.amount).toLocaleString()} ر.س</td>
                   <td className="px-4 py-3"><div className="flex gap-1">
                     <RecordDialog table="transactions" title="تعديل الحركة" fields={FIELDS} initial={t} invalidate={INV} />
                     <DeleteButton table="transactions" id={t.id} invalidate={INV} />
                   </div></td>
                 </tr>
               ))}
-              {filtered.length === 0 && <tr><td colSpan={7} className="py-12 text-center text-muted-foreground">لا توجد حركات. أضف أول حركة مالية.</td></tr>}
+              {filtered.length === 0 && <tr><td colSpan={8} className="py-12 text-center text-muted-foreground">لا توجد حركات. أضف أول حركة مالية.</td></tr>}
+
             </tbody>
           </table>
         </div>
