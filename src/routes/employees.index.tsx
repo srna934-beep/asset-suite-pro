@@ -86,13 +86,14 @@ function EmployeesList() {
             <tbody>
               {filtered.map((e: any) => (
                 <tr key={e.id} className="border-t border-border hover:bg-muted/40">
-                  <td className="px-4 py-3 font-semibold">{e.full_name}</td>
+                  <td className="px-4 py-3 font-semibold"><Link to="/employees/$id" params={{ id: e.id }} className="text-primary hover:underline">{e.full_name}</Link></td>
                   <td className="px-4 py-3 text-muted-foreground">{e.position ?? "—"}</td>
                   <td className="px-4 py-3">{deptById[e.department_id] ?? "—"}</td>
                   <td className="px-4 py-3">{e.phone ?? "—"}</td>
                   <td className="px-4 py-3 font-semibold">{e.basic_salary ? `${Number(e.basic_salary).toLocaleString()} ر.س` : "—"}</td>
                   <td className="px-4 py-3"><StatusPill tone={e.status === "نشط" ? "success" : e.status === "إجازة" ? "info" : e.status === "موقوف" ? "warning" : "muted"}>{e.status}</StatusPill></td>
                   <td className="px-4 py-3"><div className="flex gap-1">
+                    <Link to="/employees/$id" params={{ id: e.id }}><Button size="sm" variant="outline" title="عرض الملف"><Eye className="h-3.5 w-3.5" /></Button></Link>
                     <AttachmentsButton entityType="employee" entityId={e.id} />
                     <RecordDialog table="employees" title="تعديل الموظف" fields={FIELDS} initial={e} invalidate={INV} />
                     <DeleteButton table="employees" id={e.id} invalidate={INV} />
