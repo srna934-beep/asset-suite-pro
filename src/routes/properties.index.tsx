@@ -1,13 +1,14 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, queryOptions } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { DashboardLayout } from "@/components/dashboard-layout";
-import { StatusPill, propertyTone } from "@/components/status-pill";
+import { propertyTone } from "@/components/status-pill";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2 } from "lucide-react";
+import { Building2, MapPin } from "lucide-react";
 import { RecordDialog, DeleteButton, type FieldDef } from "@/components/record-dialog";
 import { ListToolbar } from "@/components/list-toolbar";
 import { useAssetOptions } from "@/lib/asset-options";
+import { AssetCard, CardsGrid } from "@/components/asset-card";
 
 export const Route = createFileRoute("/properties/")({
   head: () => ({ meta: [{ title: "العقارات | إدارة الأملاك" }] }),
@@ -36,7 +37,6 @@ function PropertiesList() {
     { name: "address", label: "العنوان" },
     { name: "description", label: "الوصف", type: "textarea" },
   ], [employeeOpts]);
-
 
   const { data } = useQuery(queryOptions({
     queryKey: ["properties-list"],
@@ -69,42 +69,48 @@ function PropertiesList() {
       >
         <RecordDialog table="properties" title="إضافة عقار جديد" fields={PROPERTY_FIELDS} invalidate={INVALIDATE} />
       </ListToolbar>
-      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-        <div className="overflow-x-auto">
-        <table className="w-full min-w-[700px] text-right text-sm">
-          <thead><tr className="bg-muted/40 text-[12px] font-bold text-muted-foreground">
-            <th className="px-4 py-3">اسم العقار</th><th className="px-4 py-3">النوع</th>
-            <th className="px-4 py-3">الموقع</th><th className="px-4 py-3">الوحدات</th>
-            <th className="px-4 py-3">الدخل الشهري</th><th className="px-4 py-3">الحالة</th>
-            <th className="px-4 py-3">إجراءات</th>
-          </tr></thead>
-          <tbody>
-            {filtered.map((p: any) => {
-              const propUnits = data!.units.filter((u: any) => u.property_id === p.id);
-              const income = data!.contracts.filter((c: any) => c.status === "نشط" && propUnits.some((u: any) => u.id === c.unit_id))
-                .reduce((s: number, c: any) => s + Number(c.monthly_rent), 0);
-              return (
-                <tr key={p.id} className="border-t border-border hover:bg-muted/40">
-                  <td className="px-4 py-3"><Link to="/properties/$id" params={{ id: p.id }} className="font-semibold text-primary hover:underline">{p.name}</Link></td>
-                  <td className="px-4 py-3 text-muted-foreground">{p.type}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{p.location ?? "—"}</td>
-                  <td className="px-4 py-3 font-semibold">{propUnits.length}</td>
-                  <td className="px-4 py-3 font-semibold">{income ? `${income.toLocaleString()} ر.س` : "—"}</td>
-                  <td className="px-4 py-3"><StatusPill tone={propertyTone(p.status)}>{p.status}</StatusPill></td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-1">
-                      <RecordDialog table="properties" title="تعديل العقار" fields={PROPERTY_FIELDS} initial={p} invalidate={INVALIDATE} />
-                      <DeleteButton table="properties" id={p.id} invalidate={INVALIDATE} />
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-            {filtered.length === 0 && <tr><td colSpan={7} className="py-12 text-center text-muted-foreground">لا توجد عقارات</td></tr>}
-          </tbody>
-        </table>
-        </div>
-      </div>
+
+      <CardsGrid empty={filtered.length === 0}>
+        {filtered.map((p: any) => {
+          const propUnits = data!.units.filter((u: any) => u.property_id === p.id);
+          const income = data!.contracts
+            .filter((c: any) => c.status === "نشط" && propUnits.some((u: any) => u.id === c.unit_id))
+            .reduce((s: number, c: any) => s + Number(c.monthly_rent), 0);
+          const occupied = propUnits.filter((u: any) => u.status === "مؤجرة").length;
+          return (
+            <AssetCard
+              key={p.id}
+              to="/properties/$id"
+              params={{ id: p.id }}
+              hero={
+                <div className="grid h-full w-full place-items-center bg-gradient-to-br from-primary/15 via-sky-100 to-amber-50">
+                  <Building2 className="h-16 w-16 text-primary/40" />
+                </div>
+              }
+              title={p.name}
+              subtitle={
+                <span className="inline-flex items-center gap-1">
+                  <MapPin className="h-3 w-3" /> {p.location ?? "—"} · {p.type}
+                </span> as any
+              }
+              statusLabel={p.status}
+              statusTone={propertyTone(p.status)}
+              stats={[
+                { label: "الوحدات", value: `${occupied}/${propUnits.length}` },
+                { label: "الدخل الشهري", value: income ? `${income.toLocaleString()} ر.س` : "—" },
+                { label: "المسؤول", value: p.responsible_employee_id ? (nameById[p.responsible_employee_id] ?? "—") : "—" },
+                { label: "النوع", value: p.type },
+              ]}
+              actions={
+                <div className="flex gap-1">
+                  <RecordDialog table="properties" title="تعديل العقار" fields={PROPERTY_FIELDS} initial={p} invalidate={INVALIDATE} />
+                  <DeleteButton table="properties" id={p.id} invalidate={INVALIDATE} />
+                </div>
+              }
+            />
+          );
+        })}
+      </CardsGrid>
     </DashboardLayout>
   );
 }
