@@ -1,16 +1,15 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, queryOptions } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { DashboardLayout } from "@/components/dashboard-layout";
-import { StatusPill } from "@/components/status-pill";
 import { supabase } from "@/integrations/supabase/client";
-import { Car, Eye } from "lucide-react";
+import { Car } from "lucide-react";
 import { RecordDialog, DeleteButton, type FieldDef } from "@/components/record-dialog";
 import { ListToolbar } from "@/components/list-toolbar";
 import { AttachmentsButton } from "@/components/attachments-panel";
 import { ExportCsvButton } from "@/components/export-csv-button";
 import { useAssetOptions } from "@/lib/asset-options";
-import { Button } from "@/components/ui/button";
+import { AssetCard, CardsGrid } from "@/components/asset-card";
 
 export const Route = createFileRoute("/vehicles/")({
   head: () => ({ meta: [{ title: "المركبات | منصة الأصول" }] }),
@@ -75,40 +74,38 @@ function VehiclesList() {
         ]} />
         <RecordDialog table="vehicles" title="إضافة مركبة" fields={FIELDS} invalidate={INV} />
       </ListToolbar>
-      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[960px] text-right text-sm">
-            <thead><tr className="bg-muted/40 text-[12px] font-bold text-muted-foreground">
-              <th className="px-4 py-3">المركبة</th><th className="px-4 py-3">اللوحة</th>
-              <th className="px-4 py-3">الماركة/الموديل</th>
-              <th className="px-4 py-3">المسؤول</th>
-              <th className="px-4 py-3">انتهاء التأمين</th>
-              <th className="px-4 py-3">القيمة الحالية</th><th className="px-4 py-3">الحالة</th>
-              <th className="px-4 py-3">إجراءات</th>
-            </tr></thead>
-            <tbody>
-              {filtered.map((v: any) => (
-                <tr key={v.id} className="border-t border-border hover:bg-muted/40">
-                  <td className="px-4 py-3 font-semibold"><Link to="/vehicles/$id" params={{ id: v.id }} className="text-primary hover:underline">{v.name}</Link></td>
-                  <td className="px-4 py-3">{v.plate_number ?? "—"}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{[v.brand, v.model, v.year].filter(Boolean).join(" ")}</td>
-                  <td className="px-4 py-3">{v.responsible_employee_id ? nameById[v.responsible_employee_id] ?? "—" : "—"}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{v.insurance_expiry ?? "—"}</td>
-                  <td className="px-4 py-3 font-semibold">{v.current_value ? `${Number(v.current_value).toLocaleString()} ر.س` : "—"}</td>
-                  <td className="px-4 py-3"><StatusPill tone={v.status === "نشط" ? "success" : v.status === "صيانة" ? "info" : "muted"}>{v.status}</StatusPill></td>
-                  <td className="px-4 py-3"><div className="flex gap-1">
-                    <Link to="/vehicles/$id" params={{ id: v.id }}><Button size="sm" variant="outline" title="عرض التفاصيل"><Eye className="h-3.5 w-3.5" /></Button></Link>
-                    <AttachmentsButton entityType="vehicle" entityId={v.id} />
-                    <RecordDialog table="vehicles" title="تعديل المركبة" fields={FIELDS} initial={v} invalidate={INV} />
-                    <DeleteButton table="vehicles" id={v.id} invalidate={INV} />
-                  </div></td>
-                </tr>
-              ))}
-              {filtered.length === 0 && <tr><td colSpan={8} className="py-12 text-center text-muted-foreground">لا توجد مركبات. أضف أول مركبة باستخدام الزر أعلاه.</td></tr>}
-            </tbody>
-          </table>
-        </div>
-      </div>
+
+      <CardsGrid empty={filtered.length === 0}>
+        {filtered.map((v: any) => (
+          <AssetCard
+            key={v.id}
+            to="/vehicles/$id"
+            params={{ id: v.id }}
+            hero={
+              <div className="grid h-full w-full place-items-center bg-gradient-to-br from-sky-100 via-blue-50 to-cyan-50">
+                <Car className="h-16 w-16 text-sky-500/50" />
+              </div>
+            }
+            title={v.name}
+            subtitle={[v.brand, v.model, v.year].filter(Boolean).join(" ") || v.vehicle_type || "—"}
+            statusLabel={v.status}
+            statusTone={v.status === "نشط" ? "success" : v.status === "صيانة" ? "info" : "muted"}
+            stats={[
+              { label: "اللوحة", value: v.plate_number ?? "—" },
+              { label: "السائق", value: v.driver_name ?? "—" },
+              { label: "المسؤول", value: v.responsible_employee_id ? nameById[v.responsible_employee_id] ?? "—" : "—" },
+              { label: "القيمة", value: v.current_value ? `${Number(v.current_value).toLocaleString()} ر.س` : "—" },
+            ]}
+            actions={
+              <div className="flex gap-1">
+                <AttachmentsButton entityType="vehicle" entityId={v.id} />
+                <RecordDialog table="vehicles" title="تعديل المركبة" fields={FIELDS} initial={v} invalidate={INV} />
+                <DeleteButton table="vehicles" id={v.id} invalidate={INV} />
+              </div>
+            }
+          />
+        ))}
+      </CardsGrid>
     </DashboardLayout>
   );
 }
