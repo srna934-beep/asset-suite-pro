@@ -1,14 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, queryOptions } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { StatusPill } from "@/components/status-pill";
 import { supabase } from "@/integrations/supabase/client";
-import { UserCog } from "lucide-react";
+import { UserCog, Eye } from "lucide-react";
 import { RecordDialog, DeleteButton, type FieldDef } from "@/components/record-dialog";
 import { ListToolbar } from "@/components/list-toolbar";
 import { AttachmentsButton } from "@/components/attachments-panel";
 import { ExportCsvButton } from "@/components/export-csv-button";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/employees/")({
   head: () => ({ meta: [{ title: "الموظفين | منصة الأصول" }] }),
