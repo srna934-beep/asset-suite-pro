@@ -45,6 +45,7 @@ import { Route as VehiclesIdRouteImport } from './routes/vehicles.$id'
 import { Route as UnitsIdRouteImport } from './routes/units.$id'
 import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
 import { Route as LandsIdRouteImport } from './routes/lands.$id'
+import { Route as EmployeesIdRouteImport } from './routes/employees.$id'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -229,12 +230,18 @@ const LandsIdRoute = LandsIdRouteImport.update({
   path: '/lands/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmployeesIdRoute = EmployeesIdRouteImport.update({
+  id: '/employees/$id',
+  path: '/employees/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/employees/$id': typeof EmployeesIdRoute
   '/lands/$id': typeof LandsIdRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/units/$id': typeof UnitsIdRoute
@@ -273,6 +280,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/employees/$id': typeof EmployeesIdRoute
   '/lands/$id': typeof LandsIdRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/units/$id': typeof UnitsIdRoute
@@ -312,6 +320,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/employees/$id': typeof EmployeesIdRoute
   '/lands/$id': typeof LandsIdRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/units/$id': typeof UnitsIdRoute
@@ -352,6 +361,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/profile'
     | '/reset-password'
+    | '/employees/$id'
     | '/lands/$id'
     | '/properties/$id'
     | '/units/$id'
@@ -390,6 +400,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/profile'
     | '/reset-password'
+    | '/employees/$id'
     | '/lands/$id'
     | '/properties/$id'
     | '/units/$id'
@@ -428,6 +439,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/profile'
     | '/reset-password'
+    | '/employees/$id'
     | '/lands/$id'
     | '/properties/$id'
     | '/units/$id'
@@ -467,6 +479,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ProfileRoute: typeof ProfileRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  EmployeesIdRoute: typeof EmployeesIdRoute
   LandsIdRoute: typeof LandsIdRoute
   PropertiesIdRoute: typeof PropertiesIdRoute
   UnitsIdRoute: typeof UnitsIdRoute
@@ -755,6 +768,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LandsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/employees/$id': {
+      id: '/employees/$id'
+      path: '/employees/$id'
+      fullPath: '/employees/$id'
+      preLoaderRoute: typeof EmployeesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -763,6 +783,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ProfileRoute: ProfileRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  EmployeesIdRoute: EmployeesIdRoute,
   LandsIdRoute: LandsIdRoute,
   PropertiesIdRoute: PropertiesIdRoute,
   UnitsIdRoute: UnitsIdRoute,
