@@ -3,7 +3,8 @@ import { useQuery, useQueryClient, queryOptions } from "@tanstack/react-query";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { StatusPill, unitTone, paymentTone, contractTone } from "@/components/status-pill";
 import { getUnitDetail, markPaymentPaid } from "@/lib/db";
-import { Home, Building2, User, FileText, CheckCircle2 } from "lucide-react";
+import { Home, User, FileText, CheckCircle2 } from "lucide-react";
+import { BackNav, Section, AssetFinanceTabs, AssetDocsAndActivity } from "@/components/asset-detail";
 
 export const Route = createFileRoute("/units/$id")({
   head: ({ params }) => ({ meta: [{ title: `تفاصيل الوحدة | ${params.id.slice(0, 8)}` }] }),
@@ -35,16 +36,16 @@ function UnitDetail() {
       title={`الوحدة ${unit.unit_number}`}
       icon={<div className="grid h-11 w-11 place-items-center rounded-2xl bg-amber-100 text-amber-700"><Home className="h-6 w-6" /></div>}
     >
-      <nav className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
-        <Link to="/" className="hover:text-primary">لوحة التحكم</Link><span>/</span>
-        {property && <><Link to="/properties/$id" params={{ id: property.id }} className="hover:text-primary">{property.name}</Link><span>/</span></>}
-        <span className="font-medium text-foreground">الوحدة {unit.unit_number}</span>
-      </nav>
+      <BackNav links={[
+        { to: "/", label: "لوحة التحكم" },
+        ...(property ? [{ to: "/properties/$id", params: { id: property.id }, label: property.name }] : []),
+        { to: "/units/$id", params: { id }, label: `الوحدة ${unit.unit_number}` },
+      ]} />
 
       <div className="mb-6 grid gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2 overflow-hidden rounded-2xl border border-border bg-card">
-          <div className="grid h-56 place-items-center bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50">
-            <Home className="h-20 w-20 text-amber-500/40" />
+          <div className="grid h-56 place-items-center bg-gradient-to-br from-amber-100 via-orange-50 to-rose-50">
+            <Home className="h-24 w-24 text-amber-500/50" />
           </div>
           <div className="grid gap-3 p-5 sm:grid-cols-2">
             <Info label="رقم الوحدة" value={unit.unit_number} />
@@ -53,6 +54,8 @@ function UnitDetail() {
             <Info label="الحالة" value={<StatusPill tone={unitTone(unit.status)}>{unit.status}</StatusPill>} />
             <Info label="المساحة" value={unit.area_sqm ? `${unit.area_sqm} م²` : "—"} />
             <Info label="الغرف" value={unit.bedrooms ?? "—"} />
+            <Info label="دورات المياه" value={unit.bathrooms ?? "—"} />
+            <Info label="العقار" value={property ? <Link to="/properties/$id" params={{ id: property.id }} className="text-primary hover:underline">{property.name}</Link> : "—"} />
           </div>
         </div>
 
@@ -81,42 +84,46 @@ function UnitDetail() {
         </div>
       </div>
 
-      <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-        <header className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
-          <h3 className="text-base font-extrabold">سجل الدفعات</h3>
-          <div className="flex gap-4 text-sm">
-            <span className="text-muted-foreground">المدفوع: <span className="font-bold text-emerald-600">{totalPaid.toLocaleString()} ر.س</span></span>
-            <span className="text-muted-foreground">المتأخر: <span className="font-bold text-rose-600">{totalLate.toLocaleString()} ر.س</span></span>
-          </div>
-        </header>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] text-right text-sm">
-            <thead><tr className="bg-muted/40 text-[12px] font-bold text-muted-foreground">
-              <th className="px-4 py-3">الاستحقاق</th><th className="px-4 py-3">تاريخ الدفع</th>
-              <th className="px-4 py-3">المبلغ</th><th className="px-4 py-3">الحالة</th>
-              <th className="px-4 py-3">إجراء</th>
-            </tr></thead>
-            <tbody>
-              {payments.map((p) => (
-                <tr key={p.id} className="border-t border-border">
-                  <td className="px-4 py-3 font-medium">{p.due_date}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{p.paid_date ?? "—"}</td>
-                  <td className="px-4 py-3 font-semibold">{Number(p.amount).toLocaleString()} ر.س</td>
-                  <td className="px-4 py-3"><StatusPill tone={paymentTone(p.status)}>{p.status}</StatusPill></td>
-                  <td className="px-4 py-3">
-                    {p.status !== "مدفوع" && (
-                      <button onClick={() => handlePay(p.id)} className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700">
-                        <CheckCircle2 className="h-3.5 w-3.5" /> تسجيل دفع
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-              {payments.length === 0 && <tr><td colSpan={5} className="px-4 py-6 text-center text-muted-foreground">لا توجد دفعات</td></tr>}
-            </tbody>
-          </table>
+      <Section title="سجل الدفعات" action={
+        <div className="flex gap-4 text-sm">
+          <span className="text-muted-foreground">المدفوع: <span className="font-bold text-emerald-600">{totalPaid.toLocaleString()} ر.س</span></span>
+          <span className="text-muted-foreground">المتأخر: <span className="font-bold text-rose-600">{totalLate.toLocaleString()} ر.س</span></span>
         </div>
-      </section>
+      }>
+        <table className="w-full min-w-[640px] text-right text-sm">
+          <thead><tr className="bg-muted/40 text-[12px] font-bold text-muted-foreground">
+            <th className="px-4 py-3">الاستحقاق</th><th className="px-4 py-3">تاريخ الدفع</th>
+            <th className="px-4 py-3">المبلغ</th><th className="px-4 py-3">الحالة</th>
+            <th className="px-4 py-3">إجراء</th>
+          </tr></thead>
+          <tbody>
+            {payments.map((p) => (
+              <tr key={p.id} className="border-t border-border">
+                <td className="px-4 py-3 font-medium">{p.due_date}</td>
+                <td className="px-4 py-3 text-muted-foreground">{p.paid_date ?? "—"}</td>
+                <td className="px-4 py-3 font-semibold">{Number(p.amount).toLocaleString()} ر.س</td>
+                <td className="px-4 py-3"><StatusPill tone={paymentTone(p.status)}>{p.status}</StatusPill></td>
+                <td className="px-4 py-3">
+                  {p.status !== "مدفوع" && (
+                    <button onClick={() => handlePay(p.id)} className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700">
+                      <CheckCircle2 className="h-3.5 w-3.5" /> تسجيل دفع
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+            {payments.length === 0 && <tr><td colSpan={5} className="px-4 py-6 text-center text-muted-foreground">لا توجد دفعات</td></tr>}
+          </tbody>
+        </table>
+      </Section>
+
+      <div className="mt-5">
+        <AssetFinanceTabs assetType="unit" assetId={id} />
+      </div>
+
+      <div className="mt-5">
+        <AssetDocsAndActivity entityType="unit" entityId={id} />
+      </div>
     </DashboardLayout>
   );
 }
