@@ -14,24 +14,41 @@ function VehiclesDashboard() {
   const { data } = useQuery(queryOptions({
     queryKey: ["dash-vehicles"],
     queryFn: async () => {
-      const [v, t, m] = await Promise.all([
+      const [v, t, m, e] = await Promise.all([
         (supabase as any).from("vehicles").select("*").eq("archived", false),
-        (supabase as any).from("transactions").select("amount,txn_type,category").eq("entity_type", "vehicle"),
-        (supabase as any).from("maintenance_requests").select("cost"),
+        (supabase as any).from("transactions").select("amount,txn_type,category,txn_date").eq("entity_type", "vehicle"),
+        (supabase as any).from("maintenance_requests").select("cost,reported_at,completed_at,entity_type").eq("entity_type", "vehicle"),
+        (supabase as any).from("expenses").select("amount,expense_date,entity_type").eq("entity_type", "vehicle"),
       ]);
-      return { vehicles: v.data ?? [], txns: t.data ?? [], maint: m.data ?? [] };
+      return { vehicles: v.data ?? [], txns: t.data ?? [], maint: m.data ?? [], expenses: e.data ?? [] };
     },
   }));
   const d: any = data ?? {};
-  const vehicles = d.vehicles ?? []; const txns = d.txns ?? [];
+  const vehicles = d.vehicles ?? []; const txns = d.txns ?? []; const expenses = d.expenses ?? []; const maint = d.maint ?? [];
   const active = vehicles.filter((x: any) => x.status === "نشط" || x.status === "يعمل").length;
   const inactive = vehicles.length - active;
-  const revenue = txns.filter((x: any) => x.txn_type === "إيراد").reduce((s: number, x: any) => s + Number(x.amount || 0), 0);
-  const sum = (cat: string) => txns.filter((x: any) => x.txn_type === "مصروف" && (x.category || "").includes(cat)).reduce((s: number, x: any) => s + Number(x.amount || 0), 0);
-  const fuel = sum("وقود"); const insurance = sum("تأمين"); const license = sum("استمارة") + sum("ترخيص"); const salaries = sum("راتب") + sum("رواتب");
-  const maintCost = (d.maint ?? []).reduce((s: number, x: any) => s + Number(x.cost || 0), 0);
-  const totalExp = txns.filter((x: any) => x.txn_type === "مصروف").reduce((s: number, x: any) => s + Number(x.amount || 0), 0);
-  const net = revenue - totalExp - maintCost;
+
+  const now = new Date();
+  const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const inMonth = (dt?: string | null) => !!dt && dt.startsWith(ym);
+  const sumF = (arr: any[], f: (x: any) => number) => arr.reduce((s, x) => s + f(x), 0);
+
+  const incomeAll = sumF(txns.filter((x: any) => x.txn_type === "إيراد"), (x) => Number(x.amount || 0));
+  const incomeMonth = sumF(txns.filter((x: any) => x.txn_type === "إيراد" && inMonth(x.txn_date)), (x) => Number(x.amount || 0));
+  const txnExpAll = sumF(txns.filter((x: any) => x.txn_type === "مصروف"), (x) => Number(x.amount || 0));
+  const txnExpMonth = sumF(txns.filter((x: any) => x.txn_type === "مصروف" && inMonth(x.txn_date)), (x) => Number(x.amount || 0));
+  const expAll = sumF(expenses, (x) => Number(x.amount || 0));
+  const expMonth = sumF(expenses.filter((x: any) => inMonth(x.expense_date)), (x) => Number(x.amount || 0));
+  const maintAll = sumF(maint, (x) => Number(x.cost || 0));
+  const maintMonth = sumF(maint.filter((x: any) => inMonth(x.completed_at) || inMonth(x.reported_at)), (x) => Number(x.cost || 0));
+
+  const expensesMonth = txnExpMonth + expMonth + maintMonth;
+  const expensesAll = txnExpAll + expAll + maintAll;
+  const netMonth = incomeMonth - expensesMonth;
+  const netAll = incomeAll - expensesAll;
+
+  const sumCat = (cat: string) => txns.filter((x: any) => x.txn_type === "مصروف" && (x.category || "").includes(cat)).reduce((s: number, x: any) => s + Number(x.amount || 0), 0);
+  const fuel = sumCat("وقود"); const insurance = sumCat("تأمين"); const license = sumCat("استمارة") + sumCat("ترخيص"); const salaries = sumCat("راتب") + sumCat("رواتب");
   const today = new Date().toISOString().slice(0, 10);
   const in30 = new Date(); in30.setDate(in30.getDate() + 30);
   const exp30 = in30.toISOString().slice(0, 10);
