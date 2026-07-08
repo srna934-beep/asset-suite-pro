@@ -30,10 +30,24 @@ function LandsDashboard() {
   const leased = lands.filter((x: any) => (x.status || "").includes("مؤجر")).length;
   const active = lands.filter((x: any) => (x.status || "").includes("تشغيل") || (x.status || "").includes("نشط")).length;
   const unused = lands.filter((x: any) => (x.status || "").includes("غير")).length;
-  const revenue = txns.filter((x: any) => x.txn_type === "إيراد").reduce((s: number, x: any) => s + Number(x.amount || 0), 0);
-  const expenses = txns.filter((x: any) => x.txn_type === "مصروف").reduce((s: number, x: any) => s + Number(x.amount || 0), 0);
-  const salaries = txns.filter((x: any) => x.txn_type === "مصروف" && ((x.category || "").includes("راتب") || (x.category || "").includes("رواتب"))).reduce((s: number, x: any) => s + Number(x.amount || 0), 0);
-  const net = revenue - expenses;
+  const now = new Date();
+  const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const inMonth = (dt?: string | null) => !!dt && dt.startsWith(ym);
+  const sumF = (arr: any[], f: (x: any) => number) => arr.reduce((s, x) => s + f(x), 0);
+
+  const revenue = sumF(txns.filter((x: any) => x.txn_type === "إيراد"), (x) => Number(x.amount || 0));
+  const incomeMonth = sumF(txns.filter((x: any) => x.txn_type === "إيراد" && inMonth(x.txn_date)), (x) => Number(x.amount || 0));
+  const txnExpAll = sumF(txns.filter((x: any) => x.txn_type === "مصروف"), (x) => Number(x.amount || 0));
+  const txnExpMonth = sumF(txns.filter((x: any) => x.txn_type === "مصروف" && inMonth(x.txn_date)), (x) => Number(x.amount || 0));
+  const expAll = sumF(expenses, (x) => Number(x.amount || 0));
+  const expMonth = sumF(expenses.filter((x: any) => inMonth(x.expense_date)), (x) => Number(x.amount || 0));
+  const maintAll = sumF(maint, (x) => Number(x.cost || 0));
+  const maintMonth = sumF(maint.filter((x: any) => inMonth(x.completed_at) || inMonth(x.reported_at)), (x) => Number(x.cost || 0));
+  const expensesMonth = txnExpMonth + expMonth + maintMonth;
+  const expensesAll = txnExpAll + expAll + maintAll;
+  const netMonth = incomeMonth - expensesMonth;
+  const netAll = revenue - expensesAll;
+  const salaries = sumF(txns.filter((x: any) => x.txn_type === "مصروف" && ((x.category || "").includes("راتب") || (x.category || "").includes("رواتب"))), (x) => Number(x.amount || 0));
   const assets = lands.reduce((s: number, x: any) => s + Number(x.current_value || 0), 0);
 
   return (
