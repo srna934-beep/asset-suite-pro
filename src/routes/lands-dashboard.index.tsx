@@ -14,15 +14,17 @@ function LandsDashboard() {
   const { data } = useQuery(queryOptions({
     queryKey: ["dash-lands"],
     queryFn: async () => {
-      const [l, t] = await Promise.all([
+      const [l, t, m, e] = await Promise.all([
         (supabase as any).from("lands").select("*").eq("archived", false),
-        (supabase as any).from("transactions").select("amount,txn_type,category").eq("entity_type", "land"),
+        (supabase as any).from("transactions").select("amount,txn_type,category,txn_date").eq("entity_type", "land"),
+        (supabase as any).from("maintenance_requests").select("cost,reported_at,completed_at,entity_type").eq("entity_type", "land"),
+        (supabase as any).from("expenses").select("amount,expense_date,entity_type").eq("entity_type", "land"),
       ]);
-      return { lands: l.data ?? [], txns: t.data ?? [] };
+      return { lands: l.data ?? [], txns: t.data ?? [], maint: m.data ?? [], expenses: e.data ?? [] };
     },
   }));
   const d: any = data ?? {};
-  const lands = d.lands ?? []; const txns = d.txns ?? [];
+  const lands = d.lands ?? []; const txns = d.txns ?? []; const maint = d.maint ?? []; const expenses = d.expenses ?? [];
   const byType = (k: string) => lands.filter((x: any) => (x.ownership_type || "").includes(k) || (x.status || "").includes(k)).length;
   const agri = byType("زراع"); const indu = byType("صناع"); const comm = byType("تجار"); const resi = byType("سكن");
   const leased = lands.filter((x: any) => (x.status || "").includes("مؤجر")).length;
