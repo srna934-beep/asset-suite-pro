@@ -14,34 +14,57 @@ function PropertiesDashboard() {
   const { data } = useQuery(queryOptions({
     queryKey: ["dash-props"],
     queryFn: async () => {
-      const [p, u, t, c, pay, m, exp] = await Promise.all([
+      const [p, u, t, c, pay, m, exp, txn] = await Promise.all([
         supabase.from("properties").select("id,status"),
         supabase.from("units").select("id,status,property_id"),
         supabase.from("tenants").select("id"),
         supabase.from("contracts").select("id,status,monthly_rent"),
-        supabase.from("payments").select("id,amount,status"),
-        supabase.from("maintenance_requests").select("id,cost,status"),
-        (supabase as any).from("expenses").select("amount"),
+        supabase.from("payments").select("id,amount,status,paid_date"),
+        supabase.from("maintenance_requests").select("id,cost,status,reported_at,completed_at,entity_type,property_id"),
+        (supabase as any).from("expenses").select("amount,expense_date,property_id,entity_type"),
+        (supabase as any).from("transactions").select("amount,txn_type,txn_date,entity_type"),
       ]);
       return {
         props: p.data ?? [], units: u.data ?? [], tenants: t.data ?? [],
         contracts: c.data ?? [], payments: pay.data ?? [],
-        maint: m.data ?? [], expenses: exp.data ?? [],
+        maint: m.data ?? [], expenses: exp.data ?? [], txns: txn.data ?? [],
       };
     },
   }));
   const d: any = data ?? {};
   const props = d.props ?? []; const units = d.units ?? []; const contracts = d.contracts ?? [];
-  const payments = d.payments ?? []; const maint = d.maint ?? []; const expenses = d.expenses ?? [];
+  const payments = d.payments ?? []; const maint = d.maint ?? []; const expenses = d.expenses ?? []; const txns = d.txns ?? [];
   const occupied = units.filter((x: any) => x.status === "مؤجرة" || x.status === "مشغولة").length;
   const available = units.filter((x: any) => x.status === "متاحة" || x.status === "شاغرة").length;
   const activeC = contracts.filter((x: any) => x.status === "نشط").length;
   const expiredC = contracts.filter((x: any) => x.status === "منتهي").length;
-  const revenue = payments.filter((x: any) => x.status === "مدفوع").reduce((s: number, x: any) => s + Number(x.amount || 0), 0);
-  const outstanding = payments.filter((x: any) => x.status !== "مدفوع").reduce((s: number, x: any) => s + Number(x.amount || 0), 0);
-  const maintCost = maint.reduce((s: number, x: any) => s + Number(x.cost || 0), 0);
-  const expensesTotal = expenses.reduce((s: number, x: any) => s + Number(x.amount || 0), 0);
-  const net = revenue - expensesTotal - maintCost;
+
+  const now = new Date();
+  const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const inMonth = (dt?: string | null) => !!dt && dt.startsWith(ym);
+  const sum = (arr: any[], f: (x: any) => number) => arr.reduce((s, x) => s + f(x), 0);
+  const isProp = (x: any) => !x.entity_type || x.entity_type === "property" || !!x.property_id;
+
+  const incomeMonth =
+    sum(payments.filter((x: any) => x.status === "مدفوع" && inMonth(x.paid_date)), (x) => Number(x.amount || 0)) +
+    sum(txns.filter((x: any) => x.txn_type === "إيراد" && x.entity_type === "property" && inMonth(x.txn_date)), (x) => Number(x.amount || 0));
+  const expensesMonth =
+    sum(expenses.filter((x: any) => isProp(x) && inMonth(x.expense_date)), (x) => Number(x.amount || 0)) +
+    sum(txns.filter((x: any) => x.txn_type === "مصروف" && x.entity_type === "property" && inMonth(x.txn_date)), (x) => Number(x.amount || 0)) +
+    sum(maint.filter((x: any) => isProp(x) && (inMonth(x.completed_at) || inMonth(x.reported_at))), (x) => Number(x.cost || 0));
+  const netMonth = incomeMonth - expensesMonth;
+
+  const incomeAll =
+    sum(payments.filter((x: any) => x.status === "مدفوع"), (x) => Number(x.amount || 0)) +
+    sum(txns.filter((x: any) => x.txn_type === "إيراد" && x.entity_type === "property"), (x) => Number(x.amount || 0));
+  const expensesAll =
+    sum(expenses.filter(isProp), (x: any) => Number(x.amount || 0)) +
+    sum(txns.filter((x: any) => x.txn_type === "مصروف" && x.entity_type === "property"), (x) => Number(x.amount || 0)) +
+    sum(maint.filter(isProp), (x: any) => Number(x.cost || 0));
+  const netAll = incomeAll - expensesAll;
+
+  const expectedRent = sum(contracts.filter((x: any) => x.status === "نشط"), (x) => Number(x.monthly_rent || 0));
+
   return (
     <DashboardLayout title="لوحة العقارات" icon={<div className="grid h-11 w-11 place-items-center rounded-2xl bg-orange-100 text-orange-700"><Building2 className="h-6 w-6" /></div>}>
       <div className="space-y-4">
@@ -53,11 +76,11 @@ function PropertiesDashboard() {
           <StatCard label="المستأجرين" value={(d.tenants ?? []).length} icon={<Users className="h-5 w-5" />} />
           <StatCard label="عقود نشطة" value={activeC} tone="success" icon={<FileText className="h-5 w-5" />} />
           <StatCard label="عقود منتهية" value={expiredC} tone="warning" />
-          <StatCard label="الإيرادات" value={fmtSAR(revenue)} tone="success" icon={<DollarSign className="h-5 w-5" />} />
-          <StatCard label="المستحقات" value={fmtSAR(outstanding)} tone="danger" />
-          <StatCard label="تكلفة الصيانة" value={fmtSAR(maintCost)} tone="warning" icon={<Wrench className="h-5 w-5" />} />
-          <StatCard label="إجمالي المصروفات" value={fmtSAR(expensesTotal)} tone="warning" />
-          <StatCard label="صافي الربح" value={fmtSAR(net)} tone={net >= 0 ? "success" : "danger"} />
+          <StatCard label="إيرادات الشهر" value={fmtSAR(incomeMonth)} tone="success" icon={<DollarSign className="h-5 w-5" />} hint="الدفعات المستلمة هذا الشهر" />
+          <StatCard label="مصروفات الشهر" value={fmtSAR(expensesMonth)} tone="warning" icon={<Wrench className="h-5 w-5" />} />
+          <StatCard label="صافي ربح الشهر" value={fmtSAR(netMonth)} tone={netMonth >= 0 ? "success" : "danger"} />
+          <StatCard label="صافي الربح الإجمالي" value={fmtSAR(netAll)} tone={netAll >= 0 ? "success" : "danger"} />
+          <StatCard label="الإيجار المتوقع للشهر" value={fmtSAR(expectedRent)} tone="info" hint="من العقود النشطة" />
         </DashGrid>
         <Section title="روابط سريعة">
           <div className="flex flex-wrap gap-2">
