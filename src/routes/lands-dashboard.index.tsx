@@ -63,9 +63,10 @@ function LandsDashboard() {
           <StatCard label="مشغّلة" value={active} tone="success" />
           <StatCard label="غير مستخدمة" value={unused} tone="warning" />
           <StatCard label="قيمة الأصول" value={fmtSAR(assets)} tone="primary" />
-          <StatCard label="الإيرادات" value={fmtSAR(revenue)} tone="success" icon={<DollarSign className="h-5 w-5" />} />
-          <StatCard label="المصروفات (منها رواتب)" value={fmtSAR(expenses)} hint={`رواتب: ${fmtSAR(salaries)}`} tone="warning" />
-          <StatCard label="صافي الربح" value={fmtSAR(net)} tone={net >= 0 ? "success" : "danger"} />
+          <StatCard label="إيرادات الشهر" value={fmtSAR(incomeMonth)} tone="success" icon={<DollarSign className="h-5 w-5" />} />
+          <StatCard label="مصروفات الشهر" value={fmtSAR(expensesMonth)} hint={`رواتب: ${fmtSAR(salaries)}`} tone="warning" />
+          <StatCard label="صافي ربح الشهر" value={fmtSAR(netMonth)} tone={netMonth >= 0 ? "success" : "danger"} />
+          <StatCard label="صافي الربح الإجمالي" value={fmtSAR(netAll)} tone={netAll >= 0 ? "success" : "danger"} />
         </DashGrid>
         <Section title="روابط سريعة">
           <div className="flex flex-wrap gap-2">
