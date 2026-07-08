@@ -899,7 +899,9 @@ export type Database = {
           full_name: string | null
           id: string
           phone: string | null
+          status: string
           updated_at: string
+          username: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -907,7 +909,9 @@ export type Database = {
           full_name?: string | null
           id: string
           phone?: string | null
+          status?: string
           updated_at?: string
+          username?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -915,7 +919,9 @@ export type Database = {
           full_name?: string | null
           id?: string
           phone?: string | null
+          status?: string
           updated_at?: string
+          username?: string | null
         }
         Relationships: []
       }
@@ -1254,6 +1260,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_module_visibility: {
+        Row: {
+          created_at: string
+          id: string
+          module_key: string
+          user_id: string
+          visible: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          module_key: string
+          user_id: string
+          visible?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          module_key?: string
+          user_id?: string
+          visible?: boolean
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

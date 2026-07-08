@@ -81,23 +81,29 @@ export function AppSidebar() {
   const { data: roleData } = useQuery(queryOptions({
     queryKey: ["my-role", user?.id],
     queryFn: async () => {
-      if (!user) return { role: "user", vis: [] as any[] };
-      const [{ data: r }, { data: v }] = await Promise.all([
+      if (!user) return { role: "user", vis: [] as any[], userVis: [] as any[] };
+      const [{ data: r }, { data: v }, { data: uv }] = await Promise.all([
         supabase.from("user_roles").select("role").eq("user_id", user.id).maybeSingle(),
         sb("module_visibility").select("*"),
+        sb("user_module_visibility").select("*").eq("user_id", user.id),
       ]);
-      return { role: (r as any)?.role ?? "user", vis: (v ?? []) as any[] };
+      return { role: (r as any)?.role ?? "user", vis: (v ?? []) as any[], userVis: (uv ?? []) as any[] };
     },
     enabled: !!user,
   }));
   const role = roleData?.role ?? "user";
   const vis = roleData?.vis ?? [];
+  const userVis = roleData?.userVis ?? [];
   const isAdmin = role === "admin" || role === "super_admin";
   const canSee = (to: string) => {
+    // Per-user override wins
+    const uRow = userVis.find((x: any) => x.module_key === to);
+    if (uRow) return uRow.visible;
     if (isAdmin) return true;
     const row = vis.find((x: any) => x.module_key === to && x.role === role);
     return row ? row.visible : true;
   };
+
   return (
     <aside className="fixed inset-y-0 right-0 z-30 hidden w-64 flex-col border-l border-sidebar-border bg-sidebar text-sidebar-foreground lg:flex">
       <div className="flex items-center gap-3 px-5 py-5 border-b border-sidebar-border">
