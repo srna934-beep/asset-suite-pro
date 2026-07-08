@@ -64,14 +64,14 @@ function VehiclesDashboard() {
           <StatCard label="نشطة" value={active} tone="success" />
           <StatCard label="غير نشطة" value={inactive} tone="warning" />
           <StatCard label="قيمة الأصول" value={fmtSAR(assets)} tone="primary" />
-          <StatCard label="الإيرادات" value={fmtSAR(revenue)} tone="success" icon={<DollarSign className="h-5 w-5" />} />
+          <StatCard label="إيرادات الشهر" value={fmtSAR(incomeMonth)} tone="success" icon={<DollarSign className="h-5 w-5" />} />
+          <StatCard label="مصروفات الشهر" value={fmtSAR(expensesMonth)} tone="warning" icon={<Wrench className="h-5 w-5" />} />
+          <StatCard label="صافي ربح الشهر" value={fmtSAR(netMonth)} tone={netMonth >= 0 ? "success" : "danger"} />
+          <StatCard label="صافي الربح الإجمالي" value={fmtSAR(netAll)} tone={netAll >= 0 ? "success" : "danger"} />
           <StatCard label="الوقود" value={fmtSAR(fuel)} tone="warning" />
-          <StatCard label="الصيانة" value={fmtSAR(maintCost)} tone="warning" icon={<Wrench className="h-5 w-5" />} />
           <StatCard label="رواتب السائقين" value={fmtSAR(salaries)} tone="warning" />
           <StatCard label="التأمين" value={fmtSAR(insurance)} tone="warning" />
           <StatCard label="الاستمارات" value={fmtSAR(license)} tone="warning" />
-          <StatCard label="إجمالي المصروفات" value={fmtSAR(totalExp + maintCost)} tone="danger" />
-          <StatCard label="صافي الربح" value={fmtSAR(net)} tone={net >= 0 ? "success" : "danger"} />
         </DashGrid>
         <Section title="تنبيهات قريبة الانتهاء (30 يوم)" action={<AlertTriangle className="h-4 w-4 text-amber-600" />}>
           <div className="grid gap-3 md:grid-cols-2">
