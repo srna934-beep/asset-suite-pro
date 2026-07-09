@@ -65,7 +65,13 @@ export function RecordDialog({ table, title, fields, initial, invalidate, trigge
       ? await (supabase.from(table as any).update(payload).eq("id", initial.id))
       : await (supabase.from(table as any).insert(payload));
     setSaving(false);
-    if (q.error) { toast.error(q.error.message); return; }
+    if (q.error) {
+      const msg = (q.error as any).code === "23505"
+        ? "هذا السجل موجود مسبقاً — تم رصد تكرار. تحقق من الاسم أو الرقم أو الرقم التسلسلي."
+        : q.error.message;
+      toast.error(msg);
+      return;
+    }
     toast.success(initial?.id ? "تم التحديث بنجاح" : "تمت الإضافة بنجاح");
 
     invalidate.forEach((k) => qc.invalidateQueries({ queryKey: k }));

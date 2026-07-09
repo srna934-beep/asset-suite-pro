@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient, queryOptions } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/dashboard-layout";
+import { AdminOnly } from "@/components/admin-only";
 import { sb } from "@/lib/sb";
 import { supabase } from "@/integrations/supabase/client";
 import { ShieldCheck, Users as UsersIcon, Eye, EyeOff, UserPlus, Trash2, KeyRound, CheckCircle2, Archive, Save } from "lucide-react";
@@ -138,6 +139,7 @@ function SuperAdminPage() {
   }
 
   return (
+    <AdminOnly>
     <DashboardLayout title="إدارة النظام" icon={<div className="grid h-11 w-11 place-items-center rounded-2xl bg-rose-100 text-rose-700"><ShieldCheck className="h-6 w-6" /></div>}>
       <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 mb-5 text-sm text-amber-900">
         هذه الصفحة متاحة لمدراء النظام فقط. التغييرات تطبق فوراً على جميع المستخدمين.
@@ -249,6 +251,7 @@ function SuperAdminPage() {
         </DialogContent>
       </Dialog>
     </DashboardLayout>
+    </AdminOnly>
   );
 }
 
