@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, queryOptions } from "@tanstack/react-query";
 import { DashboardLayout } from "@/components/dashboard-layout";
+import { AdminOnly } from "@/components/admin-only";
 import { sb } from "@/lib/sb";
 import { History } from "lucide-react";
 
