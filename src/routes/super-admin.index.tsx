@@ -250,6 +250,7 @@ function SuperAdminPage() {
         </DialogContent>
       </Dialog>
     </DashboardLayout>
+    </AdminOnly>
   );
 }
 
