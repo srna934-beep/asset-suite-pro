@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient, queryOptions } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/dashboard-layout";
+import { AdminOnly } from "@/components/admin-only";
 import { sb } from "@/lib/sb";
 import { supabase } from "@/integrations/supabase/client";
 import { ShieldCheck, Users as UsersIcon, Eye, EyeOff, UserPlus, Trash2, KeyRound, CheckCircle2, Archive, Save } from "lucide-react";
