@@ -135,11 +135,11 @@ export function AppSidebar() {
 
       <nav className="flex-1 overflow-y-auto px-3 py-4">
         {sections.map((sec) => {
+          if ((sec as any).adminOnly && !isAdmin) return null;
           const visibleItems = sec.items.filter((i) => canSee(i.to));
           if (visibleItems.length === 0) return null;
           return (
             <div key={sec.label} className="mb-4">
-              <div className="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-sidebar-muted">
                 {sec.label}
               </div>
               <ul className="space-y-0.5">
