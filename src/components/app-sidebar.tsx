@@ -140,6 +140,7 @@ export function AppSidebar() {
           if (visibleItems.length === 0) return null;
           return (
             <div key={sec.label} className="mb-4">
+              <div className="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-sidebar-muted">
                 {sec.label}
               </div>
               <ul className="space-y-0.5">
