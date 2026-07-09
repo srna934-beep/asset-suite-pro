@@ -7,16 +7,18 @@ import {
   LayoutDashboard, Building2, Home, Users, FileText, DollarSign, Wrench, FolderOpen,
   Bell, Calculator, BarChart3, Settings, Building, MousePointerClick,
   Car, Map, UserCog, ListChecks, MessageSquare, Wallet, ShieldCheck, History,
-  CalendarCheck, Plane, FileSignature,
+  CalendarCheck, Plane, FileSignature, PieChart, Briefcase, Target,
 } from "lucide-react";
 
 const sections = [
   {
     label: "الرئيسية",
+    adminOnly: false,
     items: [{ to: "/", label: "لوحة التحكم", icon: LayoutDashboard }],
   },
   {
     label: "الأصول",
+    adminOnly: false,
     items: [
       { to: "/properties-dashboard", label: "لوحة العقارات", icon: LayoutDashboard },
       { to: "/properties", label: "العقارات", icon: Building2 },
@@ -28,7 +30,17 @@ const sections = [
     ],
   },
   {
+    label: "المشاريع والأهداف",
+    adminOnly: false,
+    items: [
+      { to: "/projects-dashboard", label: "لوحة المشاريع", icon: LayoutDashboard },
+      { to: "/projects", label: "المشاريع", icon: Briefcase },
+      { to: "/goals", label: "الأهداف", icon: Target },
+    ],
+  },
+  {
     label: "العملاء والعقود",
+    adminOnly: false,
     items: [
       { to: "/tenants", label: "المستأجرين", icon: Users },
       { to: "/contracts", label: "العقود", icon: FileText },
@@ -37,6 +49,7 @@ const sections = [
   },
   {
     label: "العمليات",
+    adminOnly: false,
     items: [
       { to: "/maintenance", label: "الصيانة", icon: Wrench },
       { to: "/documents", label: "الوثائق", icon: FolderOpen },
@@ -47,6 +60,7 @@ const sections = [
   },
   {
     label: "الموارد البشرية",
+    adminOnly: false,
     items: [
       { to: "/employees", label: "الموظفين", icon: UserCog },
       { to: "/departments", label: "الأقسام", icon: Building },
@@ -57,8 +71,10 @@ const sections = [
   },
   {
     label: "المالية",
+    adminOnly: false,
     items: [
       { to: "/finance-dashboard", label: "لوحة المالية", icon: LayoutDashboard },
+      { to: "/budgets", label: "الميزانيات والتخطيط", icon: PieChart },
       { to: "/accounts", label: "الحسابات", icon: Wallet },
       { to: "/transactions", label: "الحركات المالية", icon: Calculator },
       { to: "/accounting", label: "المحاسبة", icon: DollarSign },
@@ -67,6 +83,7 @@ const sections = [
   },
   {
     label: "النظام",
+    adminOnly: true,
     items: [
       { to: "/settings", label: "الإعدادات", icon: Settings },
       { to: "/super-admin", label: "إدارة النظام", icon: ShieldCheck },
