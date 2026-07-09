@@ -130,6 +130,109 @@ export type Database = {
         }
         Relationships: []
       }
+      budget_items: {
+        Row: {
+          budget_id: string
+          category: string
+          created_at: string
+          id: string
+          kind: string
+          notes: string | null
+          planned_amount: number
+        }
+        Insert: {
+          budget_id: string
+          category: string
+          created_at?: string
+          id?: string
+          kind?: string
+          notes?: string | null
+          planned_amount?: number
+        }
+        Update: {
+          budget_id?: string
+          category?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          notes?: string | null
+          planned_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_items_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "budgets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      budgets: {
+        Row: {
+          archived: boolean
+          created_at: string
+          created_by: string | null
+          end_date: string
+          entity_id: string | null
+          id: string
+          name: string
+          notes: string | null
+          period: string
+          planned_expense: number
+          planned_income: number
+          responsible_id: string | null
+          scope: string
+          start_date: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          archived?: boolean
+          created_at?: string
+          created_by?: string | null
+          end_date: string
+          entity_id?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          period?: string
+          planned_expense?: number
+          planned_income?: number
+          responsible_id?: string | null
+          scope?: string
+          start_date: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          archived?: boolean
+          created_at?: string
+          created_by?: string | null
+          end_date?: string
+          entity_id?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          period?: string
+          planned_expense?: number
+          planned_income?: number
+          responsible_id?: string | null
+          scope?: string
+          start_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budgets_responsible_id_fkey"
+            columns: ["responsible_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comments: {
         Row: {
           author_id: string
@@ -470,6 +573,7 @@ export type Database = {
           id: string
           monthly_salary: number
           notes: string | null
+          project_id: string | null
           start_date: string
           status: string
           updated_at: string
@@ -483,6 +587,7 @@ export type Database = {
           id?: string
           monthly_salary: number
           notes?: string | null
+          project_id?: string | null
           start_date: string
           status?: string
           updated_at?: string
@@ -496,6 +601,7 @@ export type Database = {
           id?: string
           monthly_salary?: number
           notes?: string | null
+          project_id?: string | null
           start_date?: string
           status?: string
           updated_at?: string
@@ -508,11 +614,19 @@ export type Database = {
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "employment_contracts_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
         ]
       }
       expenses: {
         Row: {
           amount: number
+          budget_id: string | null
           category: string
           created_at: string
           description: string | null
@@ -521,10 +635,12 @@ export type Database = {
           entity_type: string | null
           expense_date: string
           id: string
+          project_id: string | null
           property_id: string | null
         }
         Insert: {
           amount: number
+          budget_id?: string | null
           category: string
           created_at?: string
           description?: string | null
@@ -533,10 +649,12 @@ export type Database = {
           entity_type?: string | null
           expense_date?: string
           id?: string
+          project_id?: string | null
           property_id?: string | null
         }
         Update: {
           amount?: number
+          budget_id?: string | null
           category?: string
           created_at?: string
           description?: string | null
@@ -545,9 +663,17 @@ export type Database = {
           entity_type?: string | null
           expense_date?: string
           id?: string
+          project_id?: string | null
           property_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "expenses_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "budgets"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "expenses_employee_id_fkey"
             columns: ["employee_id"]
@@ -556,10 +682,136 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "expenses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "expenses_property_id_fkey"
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goal_updates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          goal_id: string
+          id: string
+          reason: string | null
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          goal_id: string
+          id?: string
+          reason?: string | null
+          value: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          goal_id?: string
+          id?: string
+          reason?: string | null
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_updates_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goals: {
+        Row: {
+          archived: boolean
+          created_at: string
+          created_by: string | null
+          current_value: number
+          description: string | null
+          end_date: string | null
+          entity_id: string | null
+          goal_type: string
+          id: string
+          measure: string | null
+          name: string
+          notes: string | null
+          priority: string
+          project_id: string | null
+          responsible_id: string | null
+          scope: string
+          start_date: string | null
+          status: string
+          target_value: number
+          updated_at: string
+        }
+        Insert: {
+          archived?: boolean
+          created_at?: string
+          created_by?: string | null
+          current_value?: number
+          description?: string | null
+          end_date?: string | null
+          entity_id?: string | null
+          goal_type?: string
+          id?: string
+          measure?: string | null
+          name: string
+          notes?: string | null
+          priority?: string
+          project_id?: string | null
+          responsible_id?: string | null
+          scope?: string
+          start_date?: string | null
+          status?: string
+          target_value?: number
+          updated_at?: string
+        }
+        Update: {
+          archived?: boolean
+          created_at?: string
+          created_by?: string | null
+          current_value?: number
+          description?: string | null
+          end_date?: string | null
+          entity_id?: string | null
+          goal_type?: string
+          id?: string
+          measure?: string | null
+          name?: string
+          notes?: string | null
+          priority?: string
+          project_id?: string | null
+          responsible_id?: string | null
+          scope?: string
+          start_date?: string | null
+          status?: string
+          target_value?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goals_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goals_responsible_id_fkey"
+            columns: ["responsible_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
         ]
@@ -688,6 +940,7 @@ export type Database = {
       maintenance_requests: {
         Row: {
           assigned_to: string | null
+          budget_id: string | null
           completed_at: string | null
           cost: number | null
           created_at: string
@@ -696,6 +949,7 @@ export type Database = {
           entity_id: string | null
           entity_type: string | null
           id: string
+          project_id: string | null
           property_id: string | null
           reported_at: string
           status: Database["public"]["Enums"]["maintenance_status"]
@@ -705,6 +959,7 @@ export type Database = {
         }
         Insert: {
           assigned_to?: string | null
+          budget_id?: string | null
           completed_at?: string | null
           cost?: number | null
           created_at?: string
@@ -713,6 +968,7 @@ export type Database = {
           entity_id?: string | null
           entity_type?: string | null
           id?: string
+          project_id?: string | null
           property_id?: string | null
           reported_at?: string
           status?: Database["public"]["Enums"]["maintenance_status"]
@@ -722,6 +978,7 @@ export type Database = {
         }
         Update: {
           assigned_to?: string | null
+          budget_id?: string | null
           completed_at?: string | null
           cost?: number | null
           created_at?: string
@@ -730,6 +987,7 @@ export type Database = {
           entity_id?: string | null
           entity_type?: string | null
           id?: string
+          project_id?: string | null
           property_id?: string | null
           reported_at?: string
           status?: Database["public"]["Enums"]["maintenance_status"]
@@ -739,10 +997,24 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "maintenance_requests_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "budgets"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "maintenance_requests_employee_id_fkey"
             columns: ["employee_id"]
             isOneToOne: false
             referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenance_requests_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
           {
@@ -855,6 +1127,7 @@ export type Database = {
           notes: string | null
           paid_date: string | null
           payment_method: string | null
+          project_id: string | null
           status: Database["public"]["Enums"]["payment_status"]
           updated_at: string
         }
@@ -867,6 +1140,7 @@ export type Database = {
           notes?: string | null
           paid_date?: string | null
           payment_method?: string | null
+          project_id?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
           updated_at?: string
         }
@@ -879,6 +1153,7 @@ export type Database = {
           notes?: string | null
           paid_date?: string | null
           payment_method?: string | null
+          project_id?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
           updated_at?: string
         }
@@ -888,6 +1163,13 @@ export type Database = {
             columns: ["contract_id"]
             isOneToOne: false
             referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -924,6 +1206,161 @@ export type Database = {
           username?: string | null
         }
         Relationships: []
+      }
+      project_assets: {
+        Row: {
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          notes: string | null
+          project_id: string
+        }
+        Insert: {
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          notes?: string | null
+          project_id: string
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          notes?: string | null
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_assets_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_employees: {
+        Row: {
+          created_at: string
+          employee_id: string
+          id: string
+          project_id: string
+          role_in_project: string | null
+        }
+        Insert: {
+          created_at?: string
+          employee_id: string
+          id?: string
+          project_id: string
+          role_in_project?: string | null
+        }
+        Update: {
+          created_at?: string
+          employee_id?: string
+          id?: string
+          project_id?: string
+          role_in_project?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_employees_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_employees_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          archived: boolean
+          code: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          manager_id: string | null
+          name: string
+          notes: string | null
+          planned_budget: number
+          planned_income: number
+          priority: string
+          progress_pct: number
+          project_type: string | null
+          responsible_id: string | null
+          start_date: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          archived?: boolean
+          code?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          manager_id?: string | null
+          name: string
+          notes?: string | null
+          planned_budget?: number
+          planned_income?: number
+          priority?: string
+          progress_pct?: number
+          project_type?: string | null
+          responsible_id?: string | null
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          archived?: boolean
+          code?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          manager_id?: string | null
+          name?: string
+          notes?: string | null
+          planned_budget?: number
+          planned_income?: number
+          priority?: string
+          progress_pct?: number
+          project_type?: string | null
+          responsible_id?: string | null
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projects_responsible_id_fkey"
+            columns: ["responsible_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       properties: {
         Row: {
@@ -1045,8 +1482,10 @@ export type Database = {
           due_date: string | null
           entity_id: string | null
           entity_type: string | null
+          goal_id: string | null
           id: string
           priority: string
+          project_id: string | null
           status: string
           title: string
           updated_at: string
@@ -1060,8 +1499,10 @@ export type Database = {
           due_date?: string | null
           entity_id?: string | null
           entity_type?: string | null
+          goal_id?: string | null
           id?: string
           priority?: string
+          project_id?: string | null
           status?: string
           title: string
           updated_at?: string
@@ -1075,13 +1516,30 @@ export type Database = {
           due_date?: string | null
           entity_id?: string | null
           entity_type?: string | null
+          goal_id?: string | null
           id?: string
           priority?: string
+          project_id?: string | null
           status?: string
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tasks_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tenants: {
         Row: {
@@ -1126,6 +1584,7 @@ export type Database = {
         Row: {
           account_id: string
           amount: number
+          budget_id: string | null
           category: string | null
           created_at: string
           created_by: string | null
@@ -1135,6 +1594,7 @@ export type Database = {
           entity_type: string | null
           id: string
           payment_id: string | null
+          project_id: string | null
           txn_date: string
           txn_type: string
           updated_at: string
@@ -1142,6 +1602,7 @@ export type Database = {
         Insert: {
           account_id: string
           amount: number
+          budget_id?: string | null
           category?: string | null
           created_at?: string
           created_by?: string | null
@@ -1151,6 +1612,7 @@ export type Database = {
           entity_type?: string | null
           id?: string
           payment_id?: string | null
+          project_id?: string | null
           txn_date?: string
           txn_type: string
           updated_at?: string
@@ -1158,6 +1620,7 @@ export type Database = {
         Update: {
           account_id?: string
           amount?: number
+          budget_id?: string | null
           category?: string | null
           created_at?: string
           created_by?: string | null
@@ -1167,6 +1630,7 @@ export type Database = {
           entity_type?: string | null
           id?: string
           payment_id?: string | null
+          project_id?: string | null
           txn_date?: string
           txn_type?: string
           updated_at?: string
@@ -1177,6 +1641,13 @@ export type Database = {
             columns: ["account_id"]
             isOneToOne: false
             referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "budgets"
             referencedColumns: ["id"]
           },
           {
@@ -1191,6 +1662,13 @@ export type Database = {
             columns: ["payment_id"]
             isOneToOne: false
             referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
