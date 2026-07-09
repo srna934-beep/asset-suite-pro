@@ -45,5 +45,6 @@ function AuditLogsPage() {
         </div>
       </div>
     </DashboardLayout>
+    </AdminOnly>
   );
 }
