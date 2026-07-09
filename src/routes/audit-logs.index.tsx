@@ -18,6 +18,7 @@ function AuditLogsPage() {
   const rows = data as any[];
 
   return (
+    <AdminOnly>
     <DashboardLayout title="سجل التدقيق" icon={<div className="grid h-11 w-11 place-items-center rounded-2xl bg-slate-100 text-slate-700"><History className="h-6 w-6" /></div>}>
       <p className="mb-4 text-sm text-muted-foreground">آخر 200 عملية على الجداول الحساسة. متاحة للمدراء فقط.</p>
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
