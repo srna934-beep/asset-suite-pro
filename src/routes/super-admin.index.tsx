@@ -139,7 +139,7 @@ function SuperAdminPage() {
   }
 
   return (
-    <AdminOnly>
+    <AdminOnly superAdmin>
     <DashboardLayout title="إدارة النظام" icon={<div className="grid h-11 w-11 place-items-center rounded-2xl bg-rose-100 text-rose-700"><ShieldCheck className="h-6 w-6" /></div>}>
       <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 mb-5 text-sm text-amber-900">
         هذه الصفحة متاحة لمدراء النظام فقط. التغييرات تطبق فوراً على جميع المستخدمين.
