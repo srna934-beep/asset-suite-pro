@@ -86,7 +86,7 @@ const sections = [
     adminOnly: true,
     items: [
       { to: "/settings", label: "الإعدادات", icon: Settings },
-      { to: "/super-admin", label: "إدارة النظام", icon: ShieldCheck },
+      { to: "/super-admin", label: "إدارة النظام", icon: ShieldCheck, superAdminOnly: true },
       { to: "/audit-logs", label: "سجل التدقيق", icon: History },
     ],
   },
@@ -112,12 +112,14 @@ export function AppSidebar() {
   const vis = roleData?.vis ?? [];
   const userVis = roleData?.userVis ?? [];
   const isAdmin = role === "admin" || role === "super_admin";
-  const canSee = (to: string) => {
+  const isSuperAdmin = role === "super_admin";
+  const canSee = (item: any) => {
+    if (item.superAdminOnly && !isSuperAdmin) return false;
     // Per-user override wins
-    const uRow = userVis.find((x: any) => x.module_key === to);
+    const uRow = userVis.find((x: any) => x.module_key === item.to);
     if (uRow) return uRow.visible;
     if (isAdmin) return true;
-    const row = vis.find((x: any) => x.module_key === to && x.role === role);
+    const row = vis.find((x: any) => x.module_key === item.to && x.role === role);
     return row ? row.visible : true;
   };
 
@@ -136,7 +138,7 @@ export function AppSidebar() {
       <nav className="flex-1 overflow-y-auto px-3 py-4">
         {sections.map((sec) => {
           if ((sec as any).adminOnly && !isAdmin) return null;
-          const visibleItems = sec.items.filter((i) => canSee(i.to));
+          const visibleItems = sec.items.filter((i) => canSee(i));
           if (visibleItems.length === 0) return null;
           return (
             <div key={sec.label} className="mb-4">

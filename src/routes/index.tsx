@@ -94,6 +94,16 @@ function Dashboard() {
   const lateCount = payments.filter((p) => p.status === "متأخر").length;
   const pendingApprovals = extra?.notifications?.length ?? 0;
 
+  // Properties-specific metrics
+  const nowYm = new Date().toISOString().slice(0, 7);
+  const propMonthlyRent = contracts.filter((c) => c.status === "نشط").reduce((s, c) => s + Number(c.monthly_rent || 0), 0);
+  const propCollectedMonth = payments.filter((p) => p.status === "مدفوع" && (p.paid_date ?? "").startsWith(nowYm)).reduce((s, p) => s + Number(p.amount), 0);
+  const propLateTotal = payments.filter((p) => p.status === "متأخر").reduce((s, p) => s + Number(p.amount), 0);
+  const propExpensesMonth = (extra?.transactions ?? []).filter((x: any) => x.txn_type === "مصروف" && x.entity_type === "property" && String(x.txn_date ?? "").startsWith(nowYm)).reduce((s: number, x: any) => s + Number(x.amount || 0), 0);
+  const propNetMonth = propCollectedMonth - propExpensesMonth;
+  const propTotalNet = payments.filter((p) => p.status === "مدفوع").reduce((s, p) => s + Number(p.amount), 0)
+    - (extra?.transactions ?? []).filter((x: any) => x.txn_type === "مصروف" && x.entity_type === "property").reduce((s: number, x: any) => s + Number(x.amount || 0), 0);
+
   const unitStats = {
     total: units.length,
     occupied: units.filter((u) => u.status === "مؤجرة").length,
@@ -194,9 +204,12 @@ function Dashboard() {
             { label: "المتاحة", value: unitStats.vacant, total: unitStats.total || 1, color: "bg-amber-500" },
           ]}
           stats={[
-            { label: "إجمالي الدخل", value: revenue, tone: "text-emerald-600" },
-            { label: "إجمالي المصروفات", value: expenses, tone: "text-rose-600" },
-            { label: "صافي الربح", value: netProfit, tone: "text-sky-600" },
+            { label: "الإيجار الشهري", value: propMonthlyRent, tone: "text-sky-600" },
+            { label: "المحصّل هذا الشهر", value: propCollectedMonth, tone: "text-emerald-600" },
+            { label: "المتأخر", value: propLateTotal, tone: "text-rose-600" },
+            { label: "مصروفات الشهر", value: propExpensesMonth, tone: "text-amber-600" },
+            { label: "الصافي الشهري", value: propNetMonth, tone: propNetMonth >= 0 ? "text-emerald-600" : "text-rose-600" },
+            { label: "المجموع (صافي)", value: propTotalNet, tone: propTotalNet >= 0 ? "text-emerald-600" : "text-rose-600" },
           ]}
           footer={[
             { label: "طلبات صيانة", value: extra?.maintenance?.length ?? 0 },
