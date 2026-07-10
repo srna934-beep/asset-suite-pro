@@ -204,9 +204,12 @@ function Dashboard() {
             { label: "المتاحة", value: unitStats.vacant, total: unitStats.total || 1, color: "bg-amber-500" },
           ]}
           stats={[
-            { label: "إجمالي الدخل", value: revenue, tone: "text-emerald-600" },
-            { label: "إجمالي المصروفات", value: expenses, tone: "text-rose-600" },
-            { label: "صافي الربح", value: netProfit, tone: "text-sky-600" },
+            { label: "الإيجار الشهري", value: propMonthlyRent, tone: "text-sky-600" },
+            { label: "المحصّل هذا الشهر", value: propCollectedMonth, tone: "text-emerald-600" },
+            { label: "المتأخر", value: propLateTotal, tone: "text-rose-600" },
+            { label: "مصروفات الشهر", value: propExpensesMonth, tone: "text-amber-600" },
+            { label: "الصافي الشهري", value: propNetMonth, tone: propNetMonth >= 0 ? "text-emerald-600" : "text-rose-600" },
+            { label: "المجموع (صافي)", value: propTotalNet, tone: propTotalNet >= 0 ? "text-emerald-600" : "text-rose-600" },
           ]}
           footer={[
             { label: "طلبات صيانة", value: extra?.maintenance?.length ?? 0 },
