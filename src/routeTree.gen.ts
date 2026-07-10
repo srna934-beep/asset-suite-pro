@@ -50,7 +50,9 @@ import { Route as UnitsIdRouteImport } from './routes/units.$id'
 import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
 import { Route as ProjectsIdRouteImport } from './routes/projects.$id'
 import { Route as LandsIdRouteImport } from './routes/lands.$id'
+import { Route as GoalsIdRouteImport } from './routes/goals.$id'
 import { Route as EmployeesIdRouteImport } from './routes/employees.$id'
+import { Route as BudgetsIdRouteImport } from './routes/budgets.$id'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -260,9 +262,19 @@ const LandsIdRoute = LandsIdRouteImport.update({
   path: '/lands/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GoalsIdRoute = GoalsIdRouteImport.update({
+  id: '/goals/$id',
+  path: '/goals/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EmployeesIdRoute = EmployeesIdRouteImport.update({
   id: '/employees/$id',
   path: '/employees/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BudgetsIdRoute = BudgetsIdRouteImport.update({
+  id: '/budgets/$id',
+  path: '/budgets/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -271,7 +283,9 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/budgets/$id': typeof BudgetsIdRoute
   '/employees/$id': typeof EmployeesIdRoute
+  '/goals/$id': typeof GoalsIdRoute
   '/lands/$id': typeof LandsIdRoute
   '/projects/$id': typeof ProjectsIdRoute
   '/properties/$id': typeof PropertiesIdRoute
@@ -315,7 +329,9 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/budgets/$id': typeof BudgetsIdRoute
   '/employees/$id': typeof EmployeesIdRoute
+  '/goals/$id': typeof GoalsIdRoute
   '/lands/$id': typeof LandsIdRoute
   '/projects/$id': typeof ProjectsIdRoute
   '/properties/$id': typeof PropertiesIdRoute
@@ -360,7 +376,9 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/budgets/$id': typeof BudgetsIdRoute
   '/employees/$id': typeof EmployeesIdRoute
+  '/goals/$id': typeof GoalsIdRoute
   '/lands/$id': typeof LandsIdRoute
   '/projects/$id': typeof ProjectsIdRoute
   '/properties/$id': typeof PropertiesIdRoute
@@ -406,7 +424,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/profile'
     | '/reset-password'
+    | '/budgets/$id'
     | '/employees/$id'
+    | '/goals/$id'
     | '/lands/$id'
     | '/projects/$id'
     | '/properties/$id'
@@ -450,7 +470,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/profile'
     | '/reset-password'
+    | '/budgets/$id'
     | '/employees/$id'
+    | '/goals/$id'
     | '/lands/$id'
     | '/projects/$id'
     | '/properties/$id'
@@ -494,7 +516,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/profile'
     | '/reset-password'
+    | '/budgets/$id'
     | '/employees/$id'
+    | '/goals/$id'
     | '/lands/$id'
     | '/projects/$id'
     | '/properties/$id'
@@ -539,7 +563,9 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ProfileRoute: typeof ProfileRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  BudgetsIdRoute: typeof BudgetsIdRoute
   EmployeesIdRoute: typeof EmployeesIdRoute
+  GoalsIdRoute: typeof GoalsIdRoute
   LandsIdRoute: typeof LandsIdRoute
   ProjectsIdRoute: typeof ProjectsIdRoute
   PropertiesIdRoute: typeof PropertiesIdRoute
@@ -868,11 +894,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LandsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/goals/$id': {
+      id: '/goals/$id'
+      path: '/goals/$id'
+      fullPath: '/goals/$id'
+      preLoaderRoute: typeof GoalsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/employees/$id': {
       id: '/employees/$id'
       path: '/employees/$id'
       fullPath: '/employees/$id'
       preLoaderRoute: typeof EmployeesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/budgets/$id': {
+      id: '/budgets/$id'
+      path: '/budgets/$id'
+      fullPath: '/budgets/$id'
+      preLoaderRoute: typeof BudgetsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -883,7 +923,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ProfileRoute: ProfileRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  BudgetsIdRoute: BudgetsIdRoute,
   EmployeesIdRoute: EmployeesIdRoute,
+  GoalsIdRoute: GoalsIdRoute,
   LandsIdRoute: LandsIdRoute,
   ProjectsIdRoute: ProjectsIdRoute,
   PropertiesIdRoute: PropertiesIdRoute,
