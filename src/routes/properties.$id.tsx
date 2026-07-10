@@ -66,7 +66,7 @@ function PropertyDetail() {
             <Info label="الحالة" value={<StatusPill tone={propertyTone(property.status)}>{property.status}</StatusPill>} />
             <Info label="الموقع" value={<span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{property.location ?? "—"}</span>} />
             <Info label="العنوان" value={p.address ?? "—"} />
-            <Info label="الدخل الشهري" value={`${monthlyIncome.toLocaleString()} ر.س`} />
+            <Info label="الإيجار الشهري" value={`${monthlyIncome.toLocaleString()} ر.س`} />
             <Info label="نسبة الإشغال" value={`${occupancy}% (${occupied}/${units.length})`} />
           </div>
           {property.description && <p className="border-t border-border px-5 py-4 text-sm leading-relaxed text-foreground/80">{property.description}</p>}
