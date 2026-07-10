@@ -112,12 +112,14 @@ export function AppSidebar() {
   const vis = roleData?.vis ?? [];
   const userVis = roleData?.userVis ?? [];
   const isAdmin = role === "admin" || role === "super_admin";
-  const canSee = (to: string) => {
+  const isSuperAdmin = role === "super_admin";
+  const canSee = (item: any) => {
+    if (item.superAdminOnly && !isSuperAdmin) return false;
     // Per-user override wins
-    const uRow = userVis.find((x: any) => x.module_key === to);
+    const uRow = userVis.find((x: any) => x.module_key === item.to);
     if (uRow) return uRow.visible;
     if (isAdmin) return true;
-    const row = vis.find((x: any) => x.module_key === to && x.role === role);
+    const row = vis.find((x: any) => x.module_key === item.to && x.role === role);
     return row ? row.visible : true;
   };
 
