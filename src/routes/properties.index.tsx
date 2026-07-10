@@ -97,7 +97,7 @@ function PropertiesList() {
               statusTone={propertyTone(p.status)}
               stats={[
                 { label: "الوحدات", value: `${occupied}/${propUnits.length}` },
-                { label: "الدخل الشهري", value: income ? `${income.toLocaleString()} ر.س` : "—" },
+                { label: "الإيجار الشهري", value: income ? `${income.toLocaleString()} ر.س` : "—" },
                 { label: "المسؤول", value: p.responsible_employee_id ? (nameById[p.responsible_employee_id] ?? "—") : "—" },
                 { label: "النوع", value: p.type },
               ]}
