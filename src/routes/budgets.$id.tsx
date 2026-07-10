@@ -57,12 +57,12 @@ function BudgetDetail() {
       )}
 
       <DashGrid>
-        <StatCard label="الدخل المخطط" value={fmtSAR(plannedInc)} tone="emerald" />
-        <StatCard label="الدخل الفعلي" value={fmtSAR(inc)} tone="emerald" />
-        <StatCard label="المصروف المخطط" value={fmtSAR(plannedExp)} tone="rose" />
-        <StatCard label="المصروف الفعلي" value={fmtSAR(exp)} tone="rose" />
-        <StatCard label="الرصيد" value={fmtSAR(balance)} tone={balance >= 0 ? "sky" : "rose"} />
-        <StatCard label="نسبة الإنفاق" value={`${pct}%`} tone={overBudget ? "rose" : near ? "amber" : "sky"} />
+        <StatCard label="الدخل المخطط" value={fmtSAR(plannedInc)} tone="success" />
+        <StatCard label="الدخل الفعلي" value={fmtSAR(inc)} tone="success" />
+        <StatCard label="المصروف المخطط" value={fmtSAR(plannedExp)} tone="danger" />
+        <StatCard label="المصروف الفعلي" value={fmtSAR(exp)} tone="danger" />
+        <StatCard label="الرصيد" value={fmtSAR(balance)} tone={balance >= 0 ? "info" : "danger"} />
+        <StatCard label="نسبة الإنفاق" value={`${pct}%`} tone={overBudget ? "danger" : near ? "warning" : "info"} />
       </DashGrid>
 
       <Section title="بنود الميزانية">

@@ -66,11 +66,11 @@ function GoalDetail() {
       {g.description && <p className="mb-4 rounded-2xl border border-border bg-card p-4 text-sm">{g.description}</p>}
 
       <DashGrid>
-        <StatCard label="المستهدف" value={target.toLocaleString()} tone="sky" />
-        <StatCard label="المنجز" value={current.toLocaleString()} tone="emerald" />
-        <StatCard label="المتبقي" value={remaining.toLocaleString()} tone="amber" />
-        <StatCard label="نسبة الإنجاز" value={`${pct}%`} tone={pct >= 100 ? "emerald" : pct >= 50 ? "sky" : "amber"} />
-        {daysLeft !== null && <StatCard label="الأيام المتبقية" value={String(daysLeft)} tone={daysLeft < 0 ? "rose" : daysLeft < 15 ? "amber" : "sky"} />}
+        <StatCard label="المستهدف" value={target.toLocaleString()} tone="info" />
+        <StatCard label="المنجز" value={current.toLocaleString()} tone="success" />
+        <StatCard label="المتبقي" value={remaining.toLocaleString()} tone="warning" />
+        <StatCard label="نسبة الإنجاز" value={`${pct}%`} tone={pct >= 100 ? "success" : pct >= 50 ? "info" : "warning"} />
+        {daysLeft !== null && <StatCard label="الأيام المتبقية" value={String(daysLeft)} tone={daysLeft < 0 ? "danger" : daysLeft < 15 ? "warning" : "info"} />}
       </DashGrid>
 
       <Section title="شريط الإنجاز">
