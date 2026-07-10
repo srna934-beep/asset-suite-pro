@@ -86,7 +86,7 @@ const sections = [
     adminOnly: true,
     items: [
       { to: "/settings", label: "الإعدادات", icon: Settings },
-      { to: "/super-admin", label: "إدارة النظام", icon: ShieldCheck },
+      { to: "/super-admin", label: "إدارة النظام", icon: ShieldCheck, superAdminOnly: true },
       { to: "/audit-logs", label: "سجل التدقيق", icon: History },
     ],
   },
