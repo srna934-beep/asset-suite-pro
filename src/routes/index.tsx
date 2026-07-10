@@ -94,6 +94,16 @@ function Dashboard() {
   const lateCount = payments.filter((p) => p.status === "متأخر").length;
   const pendingApprovals = extra?.notifications?.length ?? 0;
 
+  // Properties-specific metrics
+  const nowYm = new Date().toISOString().slice(0, 7);
+  const propMonthlyRent = contracts.filter((c) => c.status === "نشط").reduce((s, c) => s + Number(c.monthly_rent || 0), 0);
+  const propCollectedMonth = payments.filter((p) => p.status === "مدفوع" && (p.paid_date ?? "").startsWith(nowYm)).reduce((s, p) => s + Number(p.amount), 0);
+  const propLateTotal = payments.filter((p) => p.status === "متأخر").reduce((s, p) => s + Number(p.amount), 0);
+  const propExpensesMonth = (extra?.transactions ?? []).filter((x: any) => x.txn_type === "مصروف" && x.entity_type === "property" && String(x.txn_date ?? "").startsWith(nowYm)).reduce((s: number, x: any) => s + Number(x.amount || 0), 0);
+  const propNetMonth = propCollectedMonth - propExpensesMonth;
+  const propTotalNet = payments.filter((p) => p.status === "مدفوع").reduce((s, p) => s + Number(p.amount), 0)
+    - (extra?.transactions ?? []).filter((x: any) => x.txn_type === "مصروف" && x.entity_type === "property").reduce((s: number, x: any) => s + Number(x.amount || 0), 0);
+
   const unitStats = {
     total: units.length,
     occupied: units.filter((u) => u.status === "مؤجرة").length,
