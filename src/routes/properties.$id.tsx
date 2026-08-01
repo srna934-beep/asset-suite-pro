@@ -4,7 +4,9 @@ import { useMemo } from "react";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { StatusPill, propertyTone, unitTone } from "@/components/status-pill";
 import { getPropertyDetail } from "@/lib/db";
-import { Building2, MapPin, Home, User, TrendingUp } from "lucide-react";
+import { Building2, MapPin, Home, User, TrendingUp, ArrowLeft } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+
 import { AssetFinanceTabs, BackNav, AssetDocsAndActivity, Section } from "@/components/asset-detail";
 import { RecordDialog, type FieldDef } from "@/components/record-dialog";
 import { useAssetOptions } from "@/lib/asset-options";
