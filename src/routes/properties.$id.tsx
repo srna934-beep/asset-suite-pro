@@ -104,6 +104,64 @@ function PropertyDetail() {
   );
 }
 
+function UnitsTable({ propertyId, units }: { propertyId: string; units: any[] }) {
+  const { data } = useQuery(queryOptions({
+    queryKey: ["property-units-contracts", propertyId],
+    queryFn: async () => {
+      const ids = units.map((u) => u.id);
+      if (ids.length === 0) return { contracts: [] as any[], tenants: [] as any[] };
+      const { data: contracts } = await supabase.from("contracts").select("id, unit_id, tenant_id, monthly_rent, status, end_date").in("unit_id", ids);
+      const tIds = Array.from(new Set((contracts ?? []).map((c: any) => c.tenant_id))).filter(Boolean);
+      const { data: tenants } = tIds.length
+        ? await supabase.from("tenants").select("id, full_name").in("id", tIds as string[])
+        : { data: [] as any[] };
+      return { contracts: (contracts ?? []) as any[], tenants: (tenants ?? []) as any[] };
+    },
+  }));
+  const tenantById: Record<string, any> = Object.fromEntries((data?.tenants ?? []).map((t: any) => [t.id, t]));
+  const activeByUnit: Record<string, any> = {};
+  for (const c of data?.contracts ?? []) {
+    if (!activeByUnit[c.unit_id] || c.status === "نشط") activeByUnit[c.unit_id] = c;
+  }
+
+  return (
+    <table className="w-full min-w-[820px] text-right text-sm">
+      <thead><tr className="bg-muted/40 text-[12px] font-bold text-muted-foreground">
+        <th className="px-4 py-3">رقم الوحدة</th>
+        <th className="px-4 py-3">النوع</th>
+        <th className="px-4 py-3">المستأجر</th>
+        <th className="px-4 py-3">الإيجار الشهري</th>
+        <th className="px-4 py-3">حالة الوحدة</th>
+        <th className="px-4 py-3">انتهاء العقد</th>
+        <th className="px-4 py-3">تفاصيل</th>
+      </tr></thead>
+      <tbody>
+        {units.map((u: any) => {
+          const c = activeByUnit[u.id];
+          const tenant = c ? tenantById[c.tenant_id] : null;
+          return (
+            <tr key={u.id} className="border-t border-border hover:bg-muted/30">
+              <td className="px-4 py-3"><Link to="/units/$id" params={{ id: u.id }} className="font-semibold text-primary hover:underline">{u.unit_number}</Link></td>
+              <td className="px-4 py-3 text-muted-foreground">{u.type}</td>
+              <td className="px-4 py-3">{tenant?.full_name ?? "—"}</td>
+              <td className="px-4 py-3 font-semibold">{Number(c?.monthly_rent ?? u.rent_amount).toLocaleString()} ر.س</td>
+              <td className="px-4 py-3"><StatusPill tone={unitTone(u.status)}>{u.status}</StatusPill></td>
+              <td className="px-4 py-3 text-muted-foreground">{c?.end_date ?? "—"}</td>
+              <td className="px-4 py-3">
+                <Link to="/units/$id" params={{ id: u.id }} className="inline-flex items-center gap-1 rounded-lg border border-border px-2 py-1.5 text-xs font-semibold hover:bg-muted">
+                  عرض <ArrowLeft className="h-3 w-3" />
+                </Link>
+              </td>
+            </tr>
+          );
+        })}
+        {units.length === 0 && <tr><td colSpan={7} className="px-4 py-6 text-center text-muted-foreground">لا توجد وحدات</td></tr>}
+      </tbody>
+    </table>
+  );
+}
+
+
 function Info({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="rounded-xl bg-muted/40 px-3 py-2">
