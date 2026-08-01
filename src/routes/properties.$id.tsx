@@ -89,24 +89,9 @@ function PropertyDetail() {
       </div>
 
       <Section title="الوحدات" icon={<Home className="h-5 w-5 text-amber-600" />}>
-        <table className="w-full min-w-[640px] text-right text-sm">
-          <thead><tr className="bg-muted/40 text-[12px] font-bold text-muted-foreground">
-            <th className="px-4 py-3">رقم الوحدة</th><th className="px-4 py-3">النوع</th>
-            <th className="px-4 py-3">الإيجار</th><th className="px-4 py-3">الحالة</th>
-          </tr></thead>
-          <tbody>
-            {units.map((u) => (
-              <tr key={u.id} className="border-t border-border hover:bg-muted/40">
-                <td className="px-4 py-3"><Link to="/units/$id" params={{ id: u.id }} className="font-semibold text-primary hover:underline">{u.unit_number}</Link></td>
-                <td className="px-4 py-3 text-muted-foreground">{u.type}</td>
-                <td className="px-4 py-3 font-semibold">{Number(u.rent_amount).toLocaleString()} ر.س</td>
-                <td className="px-4 py-3"><StatusPill tone={unitTone(u.status)}>{u.status}</StatusPill></td>
-              </tr>
-            ))}
-            {units.length === 0 && <tr><td colSpan={4} className="px-4 py-6 text-center text-muted-foreground">لا توجد وحدات</td></tr>}
-          </tbody>
-        </table>
+        <UnitsTable propertyId={id} units={units} />
       </Section>
+
 
       <div className="mt-5">
         <AssetFinanceTabs assetType="property" assetId={id} responsibleEmployeeId={p.responsible_employee_id} />
