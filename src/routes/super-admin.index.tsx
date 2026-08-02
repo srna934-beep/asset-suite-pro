@@ -115,6 +115,7 @@ function SuperAdminPage() {
   async function toggleVis(uid: string, mk: string, current: boolean) {
     await visFn({ data: { user_id: uid, module_key: mk, visible: !current } });
     qc.invalidateQueries({ queryKey: ["admin-users"] });
+    qc.invalidateQueries({ queryKey: ["my-perms"] });
   }
 
   return (
