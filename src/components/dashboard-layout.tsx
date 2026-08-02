@@ -1,10 +1,12 @@
 import { useState, type ReactNode, useEffect } from "react";
 import { AppSidebar } from "./app-sidebar";
-import { Search, Menu, X } from "lucide-react";
+import { Search, Menu, X, ShieldAlert } from "lucide-react";
 import { NotificationsPopover } from "./notifications-popover";
 import { ProfileMenu } from "./profile-menu";
 import { useAuth } from "@/hooks/use-auth";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouterState, Link } from "@tanstack/react-router";
+import { usePerms } from "@/hooks/use-perms";
+import { moduleForPath, moduleLabel } from "@/lib/permissions";
 
 export function DashboardLayout({
   title,
@@ -18,10 +20,16 @@ export function DashboardLayout({
   const [mobileOpen, setMobileOpen] = useState(false);
   const { loading, session } = useAuth();
   const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { can, loading: permsLoading } = usePerms();
+  const moduleKey = moduleForPath(pathname);
+  const allowed = permsLoading ? true : can(moduleKey, "view");
 
   useEffect(() => {
     if (!loading && !session) navigate({ to: "/auth", replace: true });
   }, [loading, session, navigate]);
+
+
 
 
   return (
