@@ -15,6 +15,7 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   adminListUsers, adminCreateUser, adminUpdateUser, adminDeleteUser, adminSetVisibility,
 } from "@/lib/admin-users.functions";
+import { ACTIONS, ACTION_LABEL, MODULES, SUPER_ADMIN_ONLY, permKey, ROLE_DEFAULTS, type PermAction } from "@/lib/permissions";
 
 export const Route = createFileRoute("/super-admin/")({
   head: () => ({ meta: [{ title: "إدارة النظام | منصة الأصول" }] }),
@@ -71,9 +72,13 @@ function SuperAdminPage() {
   }
 
   const userRole = (uid: string) => (data?.roles ?? []).find((r: any) => r.user_id === uid)?.role ?? "user";
-  const userVis = (uid: string, mk: string) => {
-    const row = (data?.visibility ?? []).find((v: any) => v.user_id === uid && v.module_key === mk);
-    return row ? row.visible : true;
+  const userPerm = (uid: string, mk: string, action: PermAction) => {
+    const row = (data?.visibility ?? []).find(
+      (v: any) => v.user_id === uid && v.module_key === permKey(mk, action),
+    );
+    if (row) return row.visible as boolean;
+    const def = ROLE_DEFAULTS[userRole(uid)] ?? ROLE_DEFAULTS.user;
+    return action === "view" ? def.view : def.actions.includes(action);
   };
 
   async function handleCreate(form: FormData) {
