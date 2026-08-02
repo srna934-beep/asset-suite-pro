@@ -199,28 +199,56 @@ function SuperAdminPage() {
         </div>
       </section>
 
-      {/* Per-user module visibility */}
+      {/* مصفوفة الصلاحيات الكاملة لكل مستخدم */}
       <Dialog open={!!visUser} onOpenChange={(o) => !o && setVisUser(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader><DialogTitle className="text-right">صلاحيات الوصول — {visUser?.full_name}</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-5xl">
+          <DialogHeader>
+            <DialogTitle className="text-right">
+              مصفوفة الصلاحيات — {visUser?.full_name}
+              {visUser && userRole(visUser.id) === "super_admin" && " (مدير عام: كل الصلاحيات)"}
+            </DialogTitle>
+          </DialogHeader>
           {visUser && (
-            <div className="max-h-[60vh] overflow-y-auto grid grid-cols-2 gap-2">
-              {MODULES.map(m => {
-                const v = userVis(visUser.id, m.key);
-                return (
-                  <button
-                    key={m.key}
-                    onClick={() => toggleVis(visUser.id, m.key, v)}
-                    className={`flex items-center justify-between rounded-lg border px-3 py-2 text-sm ${v ? "border-emerald-200 bg-emerald-50" : "border-rose-200 bg-rose-50"}`}
-                  >
-                    <span className="font-semibold">{m.label}</span>
-                    <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-bold ${v ? "bg-emerald-200 text-emerald-800" : "bg-rose-200 text-rose-800"}`}>
-                      {v ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />} {v ? "ظاهر" : "مخفي"}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+            userRole(visUser.id) === "super_admin" ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">
+                المدير العام يمتلك جميع الصلاحيات بدون استثناء ولا يمكن تقييده.
+              </p>
+            ) : (
+              <div className="max-h-[65vh] overflow-auto">
+                <table className="w-full min-w-[760px] text-right text-xs">
+                  <thead className="sticky top-0 bg-muted">
+                    <tr>
+                      <th className="px-3 py-2">الوحدة</th>
+                      {ACTIONS.map((a) => (
+                        <th key={a} className="px-2 py-2 text-center">{ACTION_LABEL[a]}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {MODULES.filter((m) => !SUPER_ADMIN_ONLY.includes(m.key)).map((m) => (
+                      <tr key={m.key} className="border-t border-border">
+                        <td className="px-3 py-2 font-bold">{m.label}</td>
+                        {ACTIONS.map((a) => {
+                          const key = permKey(m.key, a);
+                          const on = userPerm(visUser.id, m.key, a);
+                          return (
+                            <td key={a} className="px-2 py-1.5 text-center">
+                              <button
+                                onClick={() => toggleVis(visUser.id, key, on)}
+                                title={`${m.label} — ${ACTION_LABEL[a]}`}
+                                className={`inline-grid h-7 w-7 place-items-center rounded-md border ${on ? "border-emerald-300 bg-emerald-100 text-emerald-700" : "border-rose-200 bg-rose-50 text-rose-600"}`}
+                              >
+                                {on ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
+                              </button>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )
           )}
         </DialogContent>
       </Dialog>
