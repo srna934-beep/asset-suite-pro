@@ -97,7 +97,6 @@ export function AppSidebar() {
 
       <nav className="flex-1 overflow-y-auto px-3 py-4">
         {sections.map((sec) => {
-          if ((sec as any).adminOnly && !isAdmin) return null;
           const visibleItems = sec.items.filter((i) => canSee(i));
           if (visibleItems.length === 0) return null;
           return (
