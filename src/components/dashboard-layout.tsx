@@ -74,7 +74,22 @@ export function DashboardLayout({
             <ProfileMenu />
           </div>
         </header>
-        <main className="px-4 py-6 md:px-8 md:py-8">{children}</main>
+        <main className="px-4 py-6 md:px-8 md:py-8">
+          {allowed ? (
+            children
+          ) : (
+            <div className="mx-auto max-w-lg rounded-2xl border border-rose-200 bg-rose-50 p-8 text-center">
+              <ShieldAlert className="mx-auto mb-3 h-10 w-10 text-rose-600" />
+              <h2 className="text-lg font-extrabold text-rose-900">لا تملك صلاحية الوصول</h2>
+              <p className="mt-2 text-sm text-rose-700">
+                صفحة «{moduleKey ? moduleLabel(moduleKey) : title}» غير مصرح لك بعرضها. تواصل مع المدير العام لمنحك الصلاحية.
+              </p>
+              <Link to="/" className="mt-4 inline-flex rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white">
+                رجوع للرئيسية
+              </Link>
+            </div>
+          )}
+        </main>
       </div>
     </div>
   );
