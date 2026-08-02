@@ -21,34 +21,8 @@ export const Route = createFileRoute("/super-admin/")({
   component: SuperAdminPage,
 });
 
-const MODULES = [
-  { key: "/properties-dashboard", label: "لوحة العقارات" },
-  { key: "/properties", label: "العقارات" },
-  { key: "/units", label: "الوحدات" },
-  { key: "/vehicles-dashboard", label: "لوحة المركبات" },
-  { key: "/vehicles", label: "المركبات" },
-  { key: "/lands-dashboard", label: "لوحة الأراضي" },
-  { key: "/lands", label: "الأراضي" },
-  { key: "/tenants", label: "المستأجرين" },
-  { key: "/contracts", label: "العقود" },
-  { key: "/payments", label: "الدفعات" },
-  { key: "/maintenance", label: "الصيانة" },
-  { key: "/documents", label: "الوثائق" },
-  { key: "/tasks", label: "المهام" },
-  { key: "/messages", label: "الرسائل" },
-  { key: "/notifications-center", label: "التنبيهات" },
-  { key: "/employees", label: "الموظفين" },
-  { key: "/departments", label: "الأقسام" },
-  { key: "/employment-contracts", label: "عقود الموظفين" },
-  { key: "/attendance", label: "الحضور" },
-  { key: "/leaves", label: "الإجازات" },
-  { key: "/finance-dashboard", label: "لوحة المالية" },
-  { key: "/accounts", label: "الحسابات" },
-  { key: "/transactions", label: "الحركات المالية" },
-  { key: "/accounting", label: "المحاسبة" },
-  { key: "/reports", label: "التقارير" },
-  { key: "/audit-logs", label: "سجل التدقيق" },
-];
+// قائمة الوحدات وأنواع الإجراءات موحدة في src/lib/permissions.ts (مصدر واحد)
+
 
 const ROLES = [
   { v: "super_admin", l: "مدير عام" },
