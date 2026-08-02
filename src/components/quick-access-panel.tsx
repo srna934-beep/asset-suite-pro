@@ -34,7 +34,6 @@ const PRESETS = [
   { module_key: "reports", label: "التقارير", icon: "BarChart3", link: "/reports" },
   { module_key: "notifications-center", label: "التنبيهات", icon: "Bell", link: "/notifications-center" },
   { module_key: "settings", label: "الإعدادات", icon: "Settings", link: "/settings" },
-  { module_key: "properties", label: "العقارات", icon: "Building2", link: "/properties" },
   { module_key: "vehicles", label: "المركبات", icon: "Car", link: "/vehicles" },
   { module_key: "lands", label: "الأراضي", icon: "Map", link: "/lands" },
   { module_key: "finance-dashboard", label: "لوحة المالية", icon: "Wallet", link: "/finance-dashboard" },
