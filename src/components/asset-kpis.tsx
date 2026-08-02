@@ -101,7 +101,7 @@ export function AssetKpis({ kind }: { kind: "vehicle" | "land" }) {
           <StatCard
             label="وثائق تنتهي (30 يوم)"
             value={expiring.length}
-            tone={expiring.length ? "warning" : "muted"}
+            tone={expiring.length ? "warning" : "default"}
             icon={<AlertTriangle className="h-5 w-5" />}
           />
         )}
