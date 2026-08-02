@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { useCurrentPerms } from "@/hooks/use-perms";
 
 export type FieldDef = {
   name: string;
@@ -45,6 +46,8 @@ export function RecordDialog({ table, title, fields, initial, invalidate, trigge
   });
   const [saving, setSaving] = useState(false);
   const qc = useQueryClient();
+  const { allow, loading: permsLoading } = useCurrentPerms();
+  const requiredAction = initial?.id ? "edit" : "create";
 
   async function handleSave() {
     setSaving(true);
@@ -77,6 +80,8 @@ export function RecordDialog({ table, title, fields, initial, invalidate, trigge
     invalidate.forEach((k) => qc.invalidateQueries({ queryKey: k }));
     setOpen(false);
   }
+
+  if (!permsLoading && !allow(requiredAction)) return null;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -134,6 +139,7 @@ export function DeleteButton({ table, id, invalidate, label = "حذف" }: { tabl
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const { allow, loading: permsLoading } = useCurrentPerms();
 
   async function handle() {
     setBusy(true);
@@ -144,6 +150,8 @@ export function DeleteButton({ table, id, invalidate, label = "حذف" }: { tabl
     invalidate.forEach((k) => qc.invalidateQueries({ queryKey: k }));
     setOpen(false);
   }
+
+  if (!permsLoading && !allow("delete")) return null;
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>

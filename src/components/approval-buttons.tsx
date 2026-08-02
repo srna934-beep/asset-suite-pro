@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Check, X } from "lucide-react";
+import { useCurrentPerms } from "@/hooks/use-perms";
 
 type Props = {
   table: string;
@@ -20,12 +21,14 @@ export function ApprovalButtons({
   invalidate, current,
 }: Props) {
   const qc = useQueryClient();
+  const { allow, loading: permsLoading } = useCurrentPerms();
   async function setStatus(value: string) {
     const { error } = await (supabase.from(table as any).update({ [field]: value }).eq("id", id));
     if (error) { toast.error(error.message); return; }
     toast.success("تم تحديث الحالة");
     invalidate.forEach((k) => qc.invalidateQueries({ queryKey: k }));
   }
+  if (!permsLoading && !allow("approve")) return null;
   const isApproved = current === approveValue;
   const isRejected = current === rejectValue;
   return (
