@@ -1,8 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useQuery, queryOptions } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { sb } from "@/lib/sb";
-import { useAuth } from "@/hooks/use-auth";
+import { usePerms } from "@/hooks/use-perms";
 import {
   LayoutDashboard, Building2, Home, Users, FileText, DollarSign, Wrench, FolderOpen,
   Bell, Calculator, BarChart3, Settings, Building, MousePointerClick,
@@ -12,35 +9,28 @@ import {
 
 const sections = [
   {
-    label: "الرئيسية",
-    adminOnly: false,
-    items: [{ to: "/", label: "لوحة التحكم", icon: LayoutDashboard }],
-  },
-  {
-    label: "الأصول",
-    adminOnly: false,
+    label: "التخطيط والمتابعة",
     items: [
-      { to: "/properties", label: "العقارات", icon: Building2 },
-
-      { to: "/units", label: "الوحدات", icon: Home },
-      { to: "/vehicles-dashboard", label: "لوحة المركبات", icon: LayoutDashboard },
-      { to: "/vehicles", label: "المركبات", icon: Car },
-      { to: "/lands-dashboard", label: "لوحة الأراضي", icon: LayoutDashboard },
-      { to: "/lands", label: "الأراضي", icon: Map },
+      { to: "/goals", label: "الأهداف", icon: Target },
+      { to: "/budgets", label: "الميزانية المالية", icon: PieChart },
     ],
   },
   {
-    label: "المشاريع والأهداف",
-    adminOnly: false,
+    label: "الرئيسية",
+    items: [{ to: "/", label: "لوحة التحكم", icon: LayoutDashboard }],
+  },
+  {
+    label: "الأصول والمشاريع",
     items: [
-      { to: "/projects-dashboard", label: "لوحة المشاريع", icon: LayoutDashboard },
+      { to: "/properties", label: "العقارات", icon: Building2 },
+      { to: "/units", label: "الوحدات", icon: Home },
+      { to: "/lands", label: "الأراضي", icon: Map },
+      { to: "/vehicles", label: "المركبات", icon: Car },
       { to: "/projects", label: "المشاريع", icon: Briefcase },
-      { to: "/goals", label: "الأهداف", icon: Target },
     ],
   },
   {
     label: "العملاء والعقود",
-    adminOnly: false,
     items: [
       { to: "/tenants", label: "المستأجرين", icon: Users },
       { to: "/contracts", label: "العقود", icon: FileText },
@@ -49,7 +39,6 @@ const sections = [
   },
   {
     label: "العمليات",
-    adminOnly: false,
     items: [
       { to: "/maintenance", label: "الصيانة", icon: Wrench },
       { to: "/documents", label: "الوثائق", icon: FolderOpen },
@@ -60,7 +49,6 @@ const sections = [
   },
   {
     label: "الموارد البشرية",
-    adminOnly: false,
     items: [
       { to: "/employees", label: "الموظفين", icon: UserCog },
       { to: "/departments", label: "الأقسام", icon: Building },
@@ -71,10 +59,8 @@ const sections = [
   },
   {
     label: "المالية",
-    adminOnly: false,
     items: [
       { to: "/finance-dashboard", label: "لوحة المالية", icon: LayoutDashboard },
-      { to: "/budgets", label: "الميزانيات والتخطيط", icon: PieChart },
       { to: "/accounts", label: "الحسابات", icon: Wallet },
       { to: "/transactions", label: "الحركات المالية", icon: Calculator },
       { to: "/accounting", label: "المحاسبة", icon: DollarSign },
@@ -83,10 +69,9 @@ const sections = [
   },
   {
     label: "النظام",
-    adminOnly: true,
     items: [
       { to: "/settings", label: "الإعدادات", icon: Settings },
-      { to: "/super-admin", label: "إدارة النظام", icon: ShieldCheck, superAdminOnly: true },
+      { to: "/super-admin", label: "إدارة النظام", icon: ShieldCheck },
       { to: "/audit-logs", label: "سجل التدقيق", icon: History },
     ],
   },
@@ -94,34 +79,9 @@ const sections = [
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { user } = useAuth();
-  const { data: roleData } = useQuery(queryOptions({
-    queryKey: ["my-role", user?.id],
-    queryFn: async () => {
-      if (!user) return { role: "user", vis: [] as any[], userVis: [] as any[] };
-      const [{ data: r }, { data: v }, { data: uv }] = await Promise.all([
-        supabase.from("user_roles").select("role").eq("user_id", user.id).maybeSingle(),
-        sb("module_visibility").select("*"),
-        sb("user_module_visibility").select("*").eq("user_id", user.id),
-      ]);
-      return { role: (r as any)?.role ?? "user", vis: (v ?? []) as any[], userVis: (uv ?? []) as any[] };
-    },
-    enabled: !!user,
-  }));
-  const role = roleData?.role ?? "user";
-  const vis = roleData?.vis ?? [];
-  const userVis = roleData?.userVis ?? [];
-  const isAdmin = role === "admin" || role === "super_admin";
-  const isSuperAdmin = role === "super_admin";
-  const canSee = (item: any) => {
-    if (item.superAdminOnly && !isSuperAdmin) return false;
-    // Per-user override wins
-    const uRow = userVis.find((x: any) => x.module_key === item.to);
-    if (uRow) return uRow.visible;
-    if (isAdmin) return true;
-    const row = vis.find((x: any) => x.module_key === item.to && x.role === role);
-    return row ? row.visible : true;
-  };
+  const { can } = usePerms();
+  const canSee = (item: { to: string }) => can(item.to, "view");
+
 
   return (
     <aside className="fixed inset-y-0 right-0 z-30 hidden w-64 flex-col border-l border-sidebar-border bg-sidebar text-sidebar-foreground lg:flex">
