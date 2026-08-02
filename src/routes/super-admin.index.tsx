@@ -15,40 +15,15 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   adminListUsers, adminCreateUser, adminUpdateUser, adminDeleteUser, adminSetVisibility,
 } from "@/lib/admin-users.functions";
+import { ACTIONS, ACTION_LABEL, MODULES, SUPER_ADMIN_ONLY, permKey, ROLE_DEFAULTS, type PermAction } from "@/lib/permissions";
 
 export const Route = createFileRoute("/super-admin/")({
   head: () => ({ meta: [{ title: "إدارة النظام | منصة الأصول" }] }),
   component: SuperAdminPage,
 });
 
-const MODULES = [
-  { key: "/properties-dashboard", label: "لوحة العقارات" },
-  { key: "/properties", label: "العقارات" },
-  { key: "/units", label: "الوحدات" },
-  { key: "/vehicles-dashboard", label: "لوحة المركبات" },
-  { key: "/vehicles", label: "المركبات" },
-  { key: "/lands-dashboard", label: "لوحة الأراضي" },
-  { key: "/lands", label: "الأراضي" },
-  { key: "/tenants", label: "المستأجرين" },
-  { key: "/contracts", label: "العقود" },
-  { key: "/payments", label: "الدفعات" },
-  { key: "/maintenance", label: "الصيانة" },
-  { key: "/documents", label: "الوثائق" },
-  { key: "/tasks", label: "المهام" },
-  { key: "/messages", label: "الرسائل" },
-  { key: "/notifications-center", label: "التنبيهات" },
-  { key: "/employees", label: "الموظفين" },
-  { key: "/departments", label: "الأقسام" },
-  { key: "/employment-contracts", label: "عقود الموظفين" },
-  { key: "/attendance", label: "الحضور" },
-  { key: "/leaves", label: "الإجازات" },
-  { key: "/finance-dashboard", label: "لوحة المالية" },
-  { key: "/accounts", label: "الحسابات" },
-  { key: "/transactions", label: "الحركات المالية" },
-  { key: "/accounting", label: "المحاسبة" },
-  { key: "/reports", label: "التقارير" },
-  { key: "/audit-logs", label: "سجل التدقيق" },
-];
+// قائمة الوحدات وأنواع الإجراءات موحدة في src/lib/permissions.ts (مصدر واحد)
+
 
 const ROLES = [
   { v: "super_admin", l: "مدير عام" },
@@ -97,9 +72,13 @@ function SuperAdminPage() {
   }
 
   const userRole = (uid: string) => (data?.roles ?? []).find((r: any) => r.user_id === uid)?.role ?? "user";
-  const userVis = (uid: string, mk: string) => {
-    const row = (data?.visibility ?? []).find((v: any) => v.user_id === uid && v.module_key === mk);
-    return row ? row.visible : true;
+  const userPerm = (uid: string, mk: string, action: PermAction) => {
+    const row = (data?.visibility ?? []).find(
+      (v: any) => v.user_id === uid && v.module_key === permKey(mk, action),
+    );
+    if (row) return row.visible as boolean;
+    const def = ROLE_DEFAULTS[userRole(uid)] ?? ROLE_DEFAULTS.user;
+    return action === "view" ? def.view : def.actions.includes(action);
   };
 
   async function handleCreate(form: FormData) {
@@ -136,6 +115,7 @@ function SuperAdminPage() {
   async function toggleVis(uid: string, mk: string, current: boolean) {
     await visFn({ data: { user_id: uid, module_key: mk, visible: !current } });
     qc.invalidateQueries({ queryKey: ["admin-users"] });
+    qc.invalidateQueries({ queryKey: ["my-perms"] });
   }
 
   return (
@@ -225,28 +205,56 @@ function SuperAdminPage() {
         </div>
       </section>
 
-      {/* Per-user module visibility */}
+      {/* مصفوفة الصلاحيات الكاملة لكل مستخدم */}
       <Dialog open={!!visUser} onOpenChange={(o) => !o && setVisUser(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader><DialogTitle className="text-right">صلاحيات الوصول — {visUser?.full_name}</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-5xl">
+          <DialogHeader>
+            <DialogTitle className="text-right">
+              مصفوفة الصلاحيات — {visUser?.full_name}
+              {visUser && userRole(visUser.id) === "super_admin" && " (مدير عام: كل الصلاحيات)"}
+            </DialogTitle>
+          </DialogHeader>
           {visUser && (
-            <div className="max-h-[60vh] overflow-y-auto grid grid-cols-2 gap-2">
-              {MODULES.map(m => {
-                const v = userVis(visUser.id, m.key);
-                return (
-                  <button
-                    key={m.key}
-                    onClick={() => toggleVis(visUser.id, m.key, v)}
-                    className={`flex items-center justify-between rounded-lg border px-3 py-2 text-sm ${v ? "border-emerald-200 bg-emerald-50" : "border-rose-200 bg-rose-50"}`}
-                  >
-                    <span className="font-semibold">{m.label}</span>
-                    <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-bold ${v ? "bg-emerald-200 text-emerald-800" : "bg-rose-200 text-rose-800"}`}>
-                      {v ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />} {v ? "ظاهر" : "مخفي"}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+            userRole(visUser.id) === "super_admin" ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">
+                المدير العام يمتلك جميع الصلاحيات بدون استثناء ولا يمكن تقييده.
+              </p>
+            ) : (
+              <div className="max-h-[65vh] overflow-auto">
+                <table className="w-full min-w-[760px] text-right text-xs">
+                  <thead className="sticky top-0 bg-muted">
+                    <tr>
+                      <th className="px-3 py-2">الوحدة</th>
+                      {ACTIONS.map((a) => (
+                        <th key={a} className="px-2 py-2 text-center">{ACTION_LABEL[a]}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {MODULES.filter((m) => !SUPER_ADMIN_ONLY.includes(m.key)).map((m) => (
+                      <tr key={m.key} className="border-t border-border">
+                        <td className="px-3 py-2 font-bold">{m.label}</td>
+                        {ACTIONS.map((a) => {
+                          const key = permKey(m.key, a);
+                          const on = userPerm(visUser.id, m.key, a);
+                          return (
+                            <td key={a} className="px-2 py-1.5 text-center">
+                              <button
+                                onClick={() => toggleVis(visUser.id, key, on)}
+                                title={`${m.label} — ${ACTION_LABEL[a]}`}
+                                className={`inline-grid h-7 w-7 place-items-center rounded-md border ${on ? "border-emerald-300 bg-emerald-100 text-emerald-700" : "border-rose-200 bg-rose-50 text-rose-600"}`}
+                              >
+                                {on ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
+                              </button>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )
           )}
         </DialogContent>
       </Dialog>

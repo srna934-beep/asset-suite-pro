@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, queryOptions } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { DashboardLayout } from "@/components/dashboard-layout";
+import { AssetKpis } from "@/components/asset-kpis";
 import { supabase } from "@/integrations/supabase/client";
 import { Car } from "lucide-react";
 import { RecordDialog, DeleteButton, type FieldDef } from "@/components/record-dialog";
@@ -60,6 +61,7 @@ function VehiclesList() {
 
   return (
     <DashboardLayout title="المركبات" icon={<div className="grid h-11 w-11 place-items-center rounded-2xl bg-sky-100 text-sky-700"><Car className="h-6 w-6" /></div>}>
+      <AssetKpis kind="vehicle" />
       <ListToolbar
         search={search} onSearch={setSearch}
         filters={[{ value: status, onChange: setStatus, placeholder: "كل الحالات", options: [

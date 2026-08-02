@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, queryOptions } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { DashboardLayout } from "@/components/dashboard-layout";
+import { AssetKpis } from "@/components/asset-kpis";
 import { supabase } from "@/integrations/supabase/client";
 import { Map as MapIcon } from "lucide-react";
 import { RecordDialog, DeleteButton, type FieldDef } from "@/components/record-dialog";
@@ -55,6 +56,7 @@ function LandsList() {
 
   return (
     <DashboardLayout title="الأراضي" icon={<div className="grid h-11 w-11 place-items-center rounded-2xl bg-emerald-100 text-emerald-700"><MapIcon className="h-6 w-6" /></div>}>
+      <AssetKpis kind="land" />
       <ListToolbar
         search={search} onSearch={setSearch}
         filters={[{ value: status, onChange: setStatus, placeholder: "كل الحالات", options: [

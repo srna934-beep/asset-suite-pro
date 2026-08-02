@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useRole } from "@/hooks/use-role";
+import { usePerms } from "@/hooks/use-perms";
 import { DashboardLayout } from "./dashboard-layout";
 import { ShieldAlert } from "lucide-react";
 
@@ -12,7 +12,7 @@ export function AdminOnly({
   title?: string;
   superAdmin?: boolean;
 }) {
-  const { isAdmin, isSuperAdmin, loading } = useRole();
+  const { isAdmin, isSuperAdmin, loading } = usePerms();
   const allowed = superAdmin ? isSuperAdmin : isAdmin;
   if (loading) {
     return (

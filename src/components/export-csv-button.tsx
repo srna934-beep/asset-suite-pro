@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
+import { useCurrentPerms } from "@/hooks/use-perms";
 
 function toCsv(rows: any[], columns: { key: string; label: string }[]): string {
   const head = columns.map((c) => `"${c.label}"`).join(",");
@@ -15,6 +16,7 @@ function toCsv(rows: any[], columns: { key: string; label: string }[]): string {
 }
 
 export function ExportCsvButton({ rows, columns, filename }: { rows: any[]; columns: { key: string; label: string }[]; filename: string }) {
+  const { allow, loading } = useCurrentPerms();
   function handle() {
     const csv = toCsv(rows, columns);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
@@ -24,6 +26,8 @@ export function ExportCsvButton({ rows, columns, filename }: { rows: any[]; colu
     a.click();
     URL.revokeObjectURL(url);
   }
+  if (!loading && !allow("export")) return null;
+
   return (
     <Button variant="outline" size="sm" onClick={handle} disabled={rows.length === 0}>
       <Download className="ml-1 h-4 w-4" /> تصدير CSV
