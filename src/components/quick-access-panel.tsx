@@ -35,8 +35,8 @@ const PRESETS = [
   { module_key: "notifications-center", label: "التنبيهات", icon: "Bell", link: "/notifications-center" },
   { module_key: "settings", label: "الإعدادات", icon: "Settings", link: "/settings" },
   { module_key: "properties-dashboard", label: "لوحة العقارات", icon: "Building2", link: "/properties-dashboard" },
-  { module_key: "vehicles-dashboard", label: "لوحة المركبات", icon: "Car", link: "/vehicles-dashboard" },
-  { module_key: "lands-dashboard", label: "لوحة الأراضي", icon: "Map", link: "/lands-dashboard" },
+  { module_key: "vehicles", label: "المركبات", icon: "Car", link: "/vehicles" },
+  { module_key: "lands", label: "الأراضي", icon: "Map", link: "/lands" },
   { module_key: "finance-dashboard", label: "لوحة المالية", icon: "Wallet", link: "/finance-dashboard" },
 ];
 
