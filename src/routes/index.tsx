@@ -53,6 +53,24 @@ function Dashboard() {
   const { data, isLoading } = useQuery(dashboardQuery);
   const { data: totals } = useQuery(totalsQuery);
   const { data: extra } = useQuery(extraQuery);
+  const vehFin = useEntityFinance("vehicle");
+  const landFin = useEntityFinance("land");
+  const { data: projFin } = useQuery(projectFinanceQuery);
+  const { data: projectsList = [] } = useQuery(queryOptions({
+    queryKey: ["home-projects"],
+    queryFn: async () => ((await supabase.from("projects" as any).select("*").eq("archived", false)).data ?? []) as any[],
+  }));
+  const projMoney = useMemo(() => aggregateProject(projFin), [projFin]);
+  const projStats = useMemo(() => ({
+    count: projectsList.length,
+    active: projectsList.filter((p: any) => p.status === "نشط").length,
+    done: projectsList.filter((p: any) => p.status === "مكتمل").length,
+    budget: projectsList.reduce((s: number, p: any) => s + Number(p.planned_budget || 0), 0),
+    avgProgress: projectsList.length
+      ? Math.round(projectsList.reduce((s: number, p: any) => s + Number(p.progress_pct || 0), 0) / projectsList.length)
+      : 0,
+  }), [projectsList]);
+
 
   useEffect(() => {
     refreshLatePayments().then(() => qc.invalidateQueries({ queryKey: ["dashboard"] }));
