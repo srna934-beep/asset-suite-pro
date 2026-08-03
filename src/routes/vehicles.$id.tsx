@@ -91,8 +91,17 @@ function VehicleDetail() {
       <AssetFinanceTabs assetType="vehicle" assetId={id} responsibleEmployeeId={v.responsible_employee_id} />
 
       <div className="mt-5">
+        <FuelAndOps id={id} />
+      </div>
+
+      <div className="mt-5">
+        <AssetLedgerAndReport kind="vehicle" id={id} />
+      </div>
+
+      <div className="mt-5">
         <AssetDocsAndActivity entityType="vehicle" entityId={id} />
       </div>
+
     </DashboardLayout>
   );
 }
