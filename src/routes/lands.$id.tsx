@@ -83,8 +83,13 @@ function LandDetail() {
       <AssetFinanceTabs assetType="land" assetId={id} responsibleEmployeeId={v.responsible_employee_id} />
 
       <div className="mt-5">
+        <AssetLedgerAndReport kind="land" id={id} />
+      </div>
+
+      <div className="mt-5">
         <AssetDocsAndActivity entityType="land" entityId={id} />
       </div>
+
     </DashboardLayout>
   );
 }
