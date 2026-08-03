@@ -35,6 +35,8 @@ function VehiclesList() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const { employeeOpts, nameById } = useAssetOptions();
+  const { rows: moneyRows, byId, totals } = useEntityFinance("vehicle");
+
   const { data = [] } = useQuery(queryOptions({
     queryKey: ["vehicles-list"],
     queryFn: async () => (await supabase.from("vehicles" as any).select("*").eq("archived", false).order("created_at", { ascending: false })).data ?? [],
