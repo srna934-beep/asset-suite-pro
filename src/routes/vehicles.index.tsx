@@ -1,23 +1,35 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, queryOptions } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { AssetKpis } from "@/components/asset-kpis";
+import { StatusPill } from "@/components/status-pill";
 import { supabase } from "@/integrations/supabase/client";
-import { Car } from "lucide-react";
+import { Car, ArrowLeft } from "lucide-react";
 import { RecordDialog, DeleteButton, type FieldDef } from "@/components/record-dialog";
 import { ListToolbar } from "@/components/list-toolbar";
 import { AttachmentsButton } from "@/components/attachments-panel";
 import { ExportCsvButton } from "@/components/export-csv-button";
 import { useAssetOptions } from "@/lib/asset-options";
-import { AssetCard, CardsGrid } from "@/components/asset-card";
+import { Section } from "@/components/asset-detail";
+import { StatCard, DashGrid, fmtSAR } from "@/components/dash-bits";
+import { MoneyMovements } from "@/components/money-table";
+import { useEntityFinance, emptyAgg } from "@/lib/entity-finance";
 
 export const Route = createFileRoute("/vehicles/")({
-  head: () => ({ meta: [{ title: "المركبات | منصة الأصول" }] }),
+  head: () => ({
+    meta: [
+      { title: "المركبات والمعدات | منصة الأصول" },
+      { name: "description", content: "إدارة المركبات والمعدات: الصيانة والتأمين والوقود والإيرادات والمصروفات." },
+      { property: "og:title", content: "المركبات والمعدات | منصة الأصول" },
+      { property: "og:description", content: "إدارة المركبات والمعدات: الصيانة والتأمين والوقود والسجل المالي." },
+    ],
+  }),
   component: VehiclesList,
 });
 
-const INV = [["vehicles-list"], ["dashboard-totals"], ["asset-options"]];
+const INV = [["vehicles-list"], ["dashboard-totals"], ["asset-options"], ["entity-finance", "vehicle"]];
+
 
 function VehiclesList() {
   const [search, setSearch] = useState("");
