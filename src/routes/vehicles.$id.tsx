@@ -4,7 +4,12 @@ import { DashboardLayout } from "@/components/dashboard-layout";
 import { StatusPill } from "@/components/status-pill";
 import { supabase } from "@/integrations/supabase/client";
 import { Car, Calendar, User } from "lucide-react";
-import { AssetFinanceTabs, Section, BackNav, AssetDocsAndActivity } from "@/components/asset-detail";
+import { AssetFinanceTabs, Section, BackNav, AssetDocsAndActivity, StatMini } from "@/components/asset-detail";
+import { AssetLedgerAndReport } from "@/components/money-table";
+import { useEntityFinance } from "@/lib/entity-finance";
+import { fmtSAR } from "@/components/dash-bits";
+import { Fuel, Wrench, ShieldCheck } from "lucide-react";
+
 import { RecordDialog } from "@/components/record-dialog";
 import { useAssetOptions } from "@/lib/asset-options";
 import { useMemo } from "react";
