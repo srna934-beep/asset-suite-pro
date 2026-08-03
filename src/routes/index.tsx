@@ -4,14 +4,17 @@ import { DashboardLayout } from "@/components/dashboard-layout";
 import { getDashboardData, refreshLatePayments } from "@/lib/db";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  DollarSign, AlertCircle, Building2, Car, Map, Wallet, TrendingUp,
+  DollarSign, AlertCircle, Building2, Car, Map, Wallet, TrendingUp, Briefcase,
   CheckCircle2, Wrench, FileText, Bell, Activity, ClipboardList, Users, FileCheck,
   ArrowUpRight, ArrowDownRight,
 } from "lucide-react";
 import { useEffect, useMemo, type ReactNode } from "react";
+import { useEntityFinance } from "@/lib/entity-finance";
+import { projectFinanceQuery, aggregateProject } from "@/lib/project-finance";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from "recharts";
+
 
 const dashboardQuery = queryOptions({ queryKey: ["dashboard"], queryFn: getDashboardData });
 const totalsQuery = queryOptions({
