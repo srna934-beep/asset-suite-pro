@@ -119,3 +119,41 @@ function Info({ label, value }: { label: string; value: React.ReactNode }) {
     </div>
   );
 }
+
+/** الوقود والصيانة والتأمين — مشتقة من الحركات المالية للمركبة (مصدر واحد). */
+function FuelAndOps({ id }: { id: string }) {
+  const { rows } = useEntityFinance("vehicle");
+  const mine = rows.filter((r) => r.entityId === id);
+  const has = (r: any, ...keys: string[]) => keys.some((k) => String(r.label ?? "").includes(k));
+  const fuel = mine.filter((r) => r.kind === "مصروف" && has(r, "وقود", "بنزين", "ديزل"));
+  const maint = mine.filter((r) => r.kind === "مصروف" && (r.id.startsWith("m-") || has(r, "صيانة")));
+  const insurance = mine.filter((r) => r.kind === "مصروف" && has(r, "تأمين"));
+  const sum = (a: typeof mine) => a.reduce((s, r) => s + r.amount, 0);
+
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <StatMini label="مصروف الوقود" value={fmtSAR(sum(fuel))} icon={<Fuel className="h-5 w-5" />} tone="bg-amber-50 border-amber-200 text-amber-700" />
+        <StatMini label="مصروف الصيانة" value={fmtSAR(sum(maint))} icon={<Wrench className="h-5 w-5" />} tone="bg-violet-50 border-violet-200 text-violet-700" />
+        <StatMini label="مصروف التأمين" value={fmtSAR(sum(insurance))} icon={<ShieldCheck className="h-5 w-5" />} tone="bg-sky-50 border-sky-200 text-sky-700" />
+      </div>
+      <Section title="سجل الوقود" icon={<Fuel className="h-5 w-5 text-amber-600" />}>
+        <table className="w-full min-w-[420px] text-right text-sm">
+          <thead><tr className="bg-muted/40 text-[12px] font-bold text-muted-foreground">
+            <th className="px-4 py-3">التاريخ</th><th className="px-4 py-3">البيان</th><th className="px-4 py-3">المبلغ</th>
+          </tr></thead>
+          <tbody>
+            {fuel.map((r) => (
+              <tr key={r.id} className="border-t border-border">
+                <td className="px-4 py-3 text-muted-foreground">{r.date ?? "—"}</td>
+                <td className="px-4 py-3">{r.label}</td>
+                <td className="px-4 py-3 font-bold text-rose-600">{fmtSAR(r.amount)}</td>
+              </tr>
+            ))}
+            {fuel.length === 0 && <tr><td colSpan={3} className="px-4 py-6 text-center text-muted-foreground">لا توجد حركات وقود — أضف مصروفاً بتصنيف "وقود" مرتبطاً بهذه المركبة.</td></tr>}
+          </tbody>
+        </table>
+      </Section>
+    </div>
+  );
+}
