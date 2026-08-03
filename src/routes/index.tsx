@@ -4,14 +4,17 @@ import { DashboardLayout } from "@/components/dashboard-layout";
 import { getDashboardData, refreshLatePayments } from "@/lib/db";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  DollarSign, AlertCircle, Building2, Car, Map, Wallet, TrendingUp,
+  DollarSign, AlertCircle, Building2, Car, Map, Wallet, TrendingUp, Briefcase,
   CheckCircle2, Wrench, FileText, Bell, Activity, ClipboardList, Users, FileCheck,
   ArrowUpRight, ArrowDownRight,
 } from "lucide-react";
 import { useEffect, useMemo, type ReactNode } from "react";
+import { useEntityFinance } from "@/lib/entity-finance";
+import { projectFinanceQuery, aggregateProject } from "@/lib/project-finance";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from "recharts";
+
 
 const dashboardQuery = queryOptions({ queryKey: ["dashboard"], queryFn: getDashboardData });
 const totalsQuery = queryOptions({
@@ -53,6 +56,24 @@ function Dashboard() {
   const { data, isLoading } = useQuery(dashboardQuery);
   const { data: totals } = useQuery(totalsQuery);
   const { data: extra } = useQuery(extraQuery);
+  const vehFin = useEntityFinance("vehicle");
+  const landFin = useEntityFinance("land");
+  const { data: projFin } = useQuery(projectFinanceQuery);
+  const { data: projectsList = [] } = useQuery(queryOptions({
+    queryKey: ["home-projects"],
+    queryFn: async () => ((await supabase.from("projects" as any).select("*").eq("archived", false)).data ?? []) as any[],
+  }));
+  const projMoney = useMemo(() => aggregateProject(projFin), [projFin]);
+  const projStats = useMemo(() => ({
+    count: projectsList.length,
+    active: projectsList.filter((p: any) => p.status === "نشط").length,
+    done: projectsList.filter((p: any) => p.status === "مكتمل").length,
+    budget: projectsList.reduce((s: number, p: any) => s + Number(p.planned_budget || 0), 0),
+    avgProgress: projectsList.length
+      ? Math.round(projectsList.reduce((s: number, p: any) => s + Number(p.progress_pct || 0), 0) / projectsList.length)
+      : 0,
+  }), [projectsList]);
+
 
   useEffect(() => {
     refreshLatePayments().then(() => qc.invalidateQueries({ queryKey: ["dashboard"] }));
@@ -195,9 +216,9 @@ function Dashboard() {
       </Panel>
 
       {/* ASSET MODULES */}
-      <div className="mt-5 grid gap-4 lg:grid-cols-3">
+      <div className="mt-5 grid gap-4 lg:grid-cols-4">
         <ModuleCard
-          to="/properties-dashboard" title="العقارات" subtitle="عقار" count={properties.length}
+          to="/properties" title="العقارات" subtitle="عقار" count={properties.length}
           icon={<Building2 className="h-6 w-6" />} accent="from-orange-500 to-amber-500"
           bars={[
             { label: "المشغولة", value: unitStats.occupied, total: unitStats.total || 1, color: "bg-emerald-500" },
@@ -214,32 +235,11 @@ function Dashboard() {
           footer={[
             { label: "طلبات صيانة", value: extra?.maintenance?.length ?? 0 },
             { label: "متأخرات", value: lateCount, tone: "text-rose-600" },
-            { label: "عقود تنتهي قريباً", value: 0 },
           ]}
           head={`${unitStats.total} وحدة`}
         />
         <ModuleCard
-          to="/vehicles-dashboard" title="المركبات والمعدات" subtitle="مركبة / معدة" count={vStats.total}
-          icon={<Car className="h-6 w-6" />} accent="from-sky-500 to-blue-600"
-          bars={[
-            { label: "تعمل", value: vStats.active, total: vStats.total || 1, color: "bg-emerald-500" },
-            { label: "متوقفة", value: vStats.idle, total: vStats.total || 1, color: "bg-amber-500" },
-            { label: "تحت الصيانة", value: vStats.maint, total: vStats.total || 1, color: "bg-rose-500" },
-            { label: "مؤجرة", value: vStats.rented, total: vStats.total || 1, color: "bg-violet-500" },
-          ]}
-          stats={[
-            { label: "إجمالي الدخل", value: 0, tone: "text-emerald-600" },
-            { label: "إجمالي المصروفات", value: 0, tone: "text-rose-600" },
-            { label: "صافي الربح", value: 0, tone: "text-sky-600" },
-          ]}
-          footer={[
-            { label: "صيانة قادمة", value: 0 },
-            { label: "تأمينات تنتهي", value: 0 },
-            { label: "رخص تنتهي", value: 0 },
-          ]}
-        />
-        <ModuleCard
-          to="/lands-dashboard" title="الأراضي والمزارع" subtitle="أرض / مزرعة" count={lStats.total}
+          to="/lands" title="الأراضي والمزارع" subtitle="أرض / مزرعة" count={lStats.total}
           icon={<Map className="h-6 w-6" />} accent="from-emerald-500 to-green-600"
           bars={[
             { label: "متاحة", value: lStats.owned, total: lStats.total || 1, color: "bg-emerald-500" },
@@ -247,17 +247,49 @@ function Dashboard() {
             { label: "قيد التطوير", value: lStats.dev, total: lStats.total || 1, color: "bg-violet-500" },
           ]}
           stats={[
-            { label: "إجمالي الدخل", value: 0, tone: "text-emerald-600" },
-            { label: "إجمالي المصروفات", value: 0, tone: "text-rose-600" },
-            { label: "صافي الربح", value: 0, tone: "text-sky-600" },
+            { label: "إجمالي الدخل", value: landFin.totals.income, tone: "text-emerald-600" },
+            { label: "إجمالي المصروفات", value: landFin.totals.expense, tone: "text-rose-600" },
+            { label: "صافي الربح", value: landFin.totals.net, tone: landFin.totals.net >= 0 ? "text-emerald-600" : "text-rose-600" },
+            { label: "صافي الشهر", value: landFin.totals.netMonth, tone: landFin.totals.netMonth >= 0 ? "text-emerald-600" : "text-rose-600" },
           ]}
-          footer={[
-            { label: "طلبات صيانة", value: 0 },
-            { label: "مستحقات متأخرة", value: 0, tone: "text-rose-600" },
-            { label: "مستندات", value: 0 },
+          footer={[{ label: "حركات مالية", value: landFin.rows.length }]}
+        />
+        <ModuleCard
+          to="/vehicles" title="المركبات والمعدات" subtitle="مركبة / معدة" count={vStats.total}
+          icon={<Car className="h-6 w-6" />} accent="from-sky-500 to-blue-600"
+          bars={[
+            { label: "تعمل", value: vStats.active, total: vStats.total || 1, color: "bg-emerald-500" },
+            { label: "متوقفة", value: vStats.idle, total: vStats.total || 1, color: "bg-amber-500" },
+            { label: "تحت الصيانة", value: vStats.maint, total: vStats.total || 1, color: "bg-rose-500" },
           ]}
+          stats={[
+            { label: "إجمالي الدخل", value: vehFin.totals.income, tone: "text-emerald-600" },
+            { label: "إجمالي المصروفات", value: vehFin.totals.expense, tone: "text-rose-600" },
+            { label: "صافي الربح", value: vehFin.totals.net, tone: vehFin.totals.net >= 0 ? "text-emerald-600" : "text-rose-600" },
+            { label: "تكلفة الصيانة", value: vehFin.totals.maint, tone: "text-amber-600" },
+          ]}
+          footer={[{ label: "حركات مالية", value: vehFin.rows.length }]}
+        />
+        <ModuleCard
+          to="/projects" title="المشاريع" subtitle="مشروع" count={projStats.count}
+          icon={<Briefcase className="h-6 w-6" />} accent="from-violet-500 to-fuchsia-600"
+          bars={[
+            { label: "نشطة", value: projStats.active, total: projStats.count || 1, color: "bg-emerald-500" },
+            { label: "مكتملة", value: projStats.done, total: projStats.count || 1, color: "bg-sky-500" },
+          ]}
+          stats={[
+            { label: "الميزانية المخططة", value: projStats.budget, tone: "text-sky-600" },
+            { label: "الإيرادات الفعلية", value: projMoney.income, tone: "text-emerald-600" },
+            { label: "المصروفات الفعلية", value: projMoney.expense, tone: "text-rose-600" },
+            { label: "صافي الأرباح", value: projMoney.net, tone: projMoney.net >= 0 ? "text-emerald-600" : "text-rose-600" },
+            { label: "المتبقي من الميزانية", value: projStats.budget - projMoney.expense, tone: "text-amber-600" },
+            { label: "الرواتب المرتبطة", value: projMoney.salaries, tone: "text-violet-600" },
+          ]}
+          footer={[{ label: "متوسط الإنجاز", value: projStats.avgProgress }]}
+          head={`${projStats.avgProgress}% إنجاز`}
         />
       </div>
+
 
       {/* ALERTS / ACTIVITY / LATE PAYMENTS */}
       <div className="mt-5 grid gap-4 lg:grid-cols-3">

@@ -5,6 +5,8 @@ import { StatusPill } from "@/components/status-pill";
 import { supabase } from "@/integrations/supabase/client";
 import { Map as MapIcon, User, FileText } from "lucide-react";
 import { AssetFinanceTabs, BackNav, AssetDocsAndActivity } from "@/components/asset-detail";
+import { AssetLedgerAndReport } from "@/components/money-table";
+
 import { RecordDialog } from "@/components/record-dialog";
 import { useAssetOptions } from "@/lib/asset-options";
 import { useMemo } from "react";
@@ -83,8 +85,13 @@ function LandDetail() {
       <AssetFinanceTabs assetType="land" assetId={id} responsibleEmployeeId={v.responsible_employee_id} />
 
       <div className="mt-5">
+        <AssetLedgerAndReport kind="land" id={id} />
+      </div>
+
+      <div className="mt-5">
         <AssetDocsAndActivity entityType="land" entityId={id} />
       </div>
+
     </DashboardLayout>
   );
 }
