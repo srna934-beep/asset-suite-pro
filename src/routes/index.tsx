@@ -185,6 +185,12 @@ function Dashboard() {
 
   return (
     <DashboardLayout title="لوحة التحكم">
+      {/* PERIOD FILTER */}
+      <div className="mb-4 grid grid-cols-[minmax(0,1fr)] gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm">
+        <PeriodPicker value={periodKey} custom={custom} onChange={setPeriod} />
+        <p className="text-[11px] text-muted-foreground" dir="ltr">{range.from} → {range.to}</p>
+      </div>
+
       {/* KPI ROW */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
         {kpis.map((k) => {
@@ -192,27 +198,26 @@ function Dashboard() {
           return (
             <div key={k.label} className="rounded-2xl border border-border bg-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
               <div className="flex items-start justify-between gap-2">
-                <div className={`grid h-10 w-10 place-items-center rounded-xl ${k.color}`}>
+                <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${k.color}`}>
                   <Icon className="h-5 w-5" />
                 </div>
-                <div className="text-[11px] text-muted-foreground text-left">{k.label}</div>
+                <div className="min-w-0 text-[11px] text-muted-foreground text-left">{k.label}</div>
               </div>
               <div className="mt-3 text-right">
-                <div className="text-2xl font-extrabold tracking-tight">
-                  {k.plain ? k.value : Number(k.value).toLocaleString()}
-                </div>
-                {!k.plain && <div className="mt-0.5 text-[11px] text-muted-foreground">ريال</div>}
+                <div className="text-2xl font-extrabold tracking-tight">{Number(k.value).toLocaleString()}</div>
+                <div className="mt-0.5 text-[11px] text-muted-foreground">ريال</div>
               </div>
-              {k.delta && (
+              {"delta" in k && k.delta && (
                 <div className={`mt-2 flex items-center justify-end gap-1 text-[11px] font-semibold ${k.up ? "text-emerald-600" : "text-rose-600"}`}>
                   {k.up ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
                   <span>{k.delta}</span>
-                  <span className="text-muted-foreground font-normal">عن الشهر الماضي</span>
+                  <span className="text-muted-foreground font-normal">عن الفترة السابقة</span>
                 </div>
               )}
             </div>
           );
         })}
+
       </div>
 
       {/* CHART */}
