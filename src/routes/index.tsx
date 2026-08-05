@@ -174,13 +174,14 @@ function Dashboard() {
   };
 
   const kpis = [
-    { label: "إجمالي قيمة الأصول", value: assetsValue, icon: TrendingUp, color: "bg-violet-100 text-violet-700", delta: "+12.5%", up: true },
-    { label: "إجمالي الإيرادات", value: revenue, icon: DollarSign, color: "bg-emerald-100 text-emerald-700", delta: "+8.7%", up: true },
-    { label: "إجمالي المصروفات", value: expenses, icon: Wallet, color: "bg-rose-100 text-rose-700", delta: "+5.3%", up: false },
-    { label: "صافي الربح", value: netProfit, icon: TrendingUp, color: "bg-sky-100 text-sky-700", delta: "+15.6%", up: true },
+    { label: "إجمالي قيمة الأصول", value: assetsValue, icon: TrendingUp, color: "bg-violet-100 text-violet-700" },
+    { label: `الإيرادات — ${periodLabel(periodKey)}`, value: periodStats.rev, icon: DollarSign, color: "bg-emerald-100 text-emerald-700", delta: fmtPct(periodStats.revPct), up: (periodStats.revPct ?? 0) >= 0 },
+    { label: `المصروفات — ${periodLabel(periodKey)}`, value: periodStats.exp, icon: Wallet, color: "bg-rose-100 text-rose-700", delta: fmtPct(periodStats.expPct), up: (periodStats.expPct ?? 0) <= 0 },
+    { label: `صافي الربح — ${periodLabel(periodKey)}`, value: periodStats.net, icon: TrendingUp, color: "bg-sky-100 text-sky-700", delta: fmtPct(periodStats.netPct), up: (periodStats.netPct ?? 0) >= 0 },
+    { label: `المحصّل — ${periodLabel(periodKey)}`, value: periodStats.collected, icon: FileCheck, color: "bg-teal-100 text-teal-700", delta: fmtPct(periodStats.collectedPct), up: (periodStats.collectedPct ?? 0) >= 0 },
     { label: "إجمالي المتأخرات", value: lateTotal, icon: AlertCircle, color: "bg-amber-100 text-amber-700", delta: `${lateCount} عملية`, up: false },
-    { label: "عمليات بانتظار الموافقة", value: pendingApprovals, icon: FileCheck, color: "bg-fuchsia-100 text-fuchsia-700", plain: true },
   ];
+
 
   return (
     <DashboardLayout title="لوحة التحكم">
