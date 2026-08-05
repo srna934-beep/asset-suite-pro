@@ -11,9 +11,13 @@ import {
 import { useEffect, useMemo, type ReactNode } from "react";
 import { useEntityFinance } from "@/lib/entity-finance";
 import { projectFinanceQuery, aggregateProject } from "@/lib/project-finance";
+import { PeriodPicker, usePeriod } from "@/components/period-picker";
+import { CollapsiblePanel } from "@/components/collapsible-panel";
+import { inRange, previousRange, pctChange, fmtPct, periodLabel } from "@/lib/period";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from "recharts";
+
 
 
 const dashboardQuery = queryOptions({ queryKey: ["dashboard"], queryFn: getDashboardData });
