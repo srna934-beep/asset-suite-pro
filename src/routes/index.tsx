@@ -327,8 +327,7 @@ function Dashboard() {
 
       {/* ALERTS / ACTIVITY / LATE PAYMENTS */}
       <div className="mt-5 grid gap-4 lg:grid-cols-3">
-        <Panel>
-          <PanelTitle icon={<Bell className="h-4 w-4 text-amber-600" />} title="التنبيهات" />
+        <CollapsiblePanel id="التنبيهات" title="التنبيهات" icon={<Bell className="h-4 w-4 text-amber-600" />}>
           <ul className="space-y-2 text-sm">
             {(extra?.notifications ?? []).slice(0, 5).map((n: any) => (
               <li key={n.id} className="flex items-start gap-3 rounded-xl border border-border bg-muted/30 p-3">
@@ -342,10 +341,9 @@ function Dashboard() {
             {(!extra?.notifications || extra.notifications.length === 0) && <EmptyRow text="لا توجد تنبيهات" />}
           </ul>
           <BottomLink to="/notifications-center">عرض جميع التنبيهات</BottomLink>
-        </Panel>
+        </CollapsiblePanel>
 
-        <Panel>
-          <PanelTitle icon={<Activity className="h-4 w-4 text-sky-600" />} title="آخر الأنشطة" />
+        <CollapsiblePanel id="آخر-الأنشطة" title="آخر الأنشطة" icon={<Activity className="h-4 w-4 text-sky-600" />}>
           <ul className="space-y-2 text-sm">
             {payments.slice(0, 5).map((p) => (
               <li key={p.id} className="flex items-start gap-3 rounded-xl border border-border bg-muted/30 p-3">
@@ -361,10 +359,9 @@ function Dashboard() {
             {payments.length === 0 && <EmptyRow text="لا يوجد نشاط حديث" />}
           </ul>
           <BottomLink to="/audit-logs">عرض جميع الأنشطة</BottomLink>
-        </Panel>
+        </CollapsiblePanel>
 
-        <Panel>
-          <PanelTitle icon={<DollarSign className="h-4 w-4 text-rose-600" />} title="الدفعات المتأخرة" />
+        <CollapsiblePanel id="الدفعات-المتأخرة" title="الدفعات المتأخرة" icon={<DollarSign className="h-4 w-4 text-rose-600" />}>
           <ul className="space-y-2 text-sm">
             {payments.filter((p) => p.status === "متأخر").slice(0, 5).map((p) => (
               <li key={p.id} className="flex items-start justify-between gap-3 rounded-xl border border-border bg-muted/30 p-3">
@@ -378,13 +375,12 @@ function Dashboard() {
             {payments.filter((p) => p.status === "متأخر").length === 0 && <EmptyRow text="لا توجد متأخرات" />}
           </ul>
           <BottomLink to="/payments">عرض جميع المتأخرات</BottomLink>
-        </Panel>
+        </CollapsiblePanel>
       </div>
 
       {/* MAINTENANCE / CONTRACTS / APPROVALS */}
       <div className="mt-5 grid gap-4 lg:grid-cols-3">
-        <Panel>
-          <PanelTitle icon={<Wrench className="h-4 w-4 text-violet-600" />} title="طلبات الصيانة" />
+        <CollapsiblePanel id="طلبات-الصيانة" title="طلبات الصيانة" icon={<Wrench className="h-4 w-4 text-violet-600" />}>
           <ul className="space-y-2 text-sm">
             {(extra?.maintenance ?? []).slice(0, 5).map((m: any) => (
               <li key={m.id} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/30 p-3">
@@ -395,10 +391,9 @@ function Dashboard() {
             {(!extra?.maintenance || extra.maintenance.length === 0) && <EmptyRow text="لا توجد طلبات صيانة" />}
           </ul>
           <BottomLink to="/maintenance">عرض جميع طلبات الصيانة</BottomLink>
-        </Panel>
+        </CollapsiblePanel>
 
-        <Panel>
-          <PanelTitle icon={<FileText className="h-4 w-4 text-emerald-600" />} title="العقود التي تنتهي قريباً" />
+        <CollapsiblePanel id="العقود-التي-تنتهي-قر" title="العقود التي تنتهي قريباً" icon={<FileText className="h-4 w-4 text-emerald-600" />}>
           <ul className="space-y-2 text-sm">
             {contracts.filter((c) => c.status === "نشط").slice(0, 5).map((c) => {
               const days = Math.max(0, Math.round((new Date(c.end_date).getTime() - Date.now()) / 86400000));
@@ -415,10 +410,9 @@ function Dashboard() {
             {contracts.length === 0 && <EmptyRow text="لا توجد عقود" />}
           </ul>
           <BottomLink to="/contracts">عرض جميع العقود</BottomLink>
-        </Panel>
+        </CollapsiblePanel>
 
-        <Panel>
-          <PanelTitle icon={<ClipboardList className="h-4 w-4 text-fuchsia-600" />} title="الموافقات المطلوبة" />
+        <CollapsiblePanel id="الموافقات-المطلوبة" title="الموافقات المطلوبة" icon={<ClipboardList className="h-4 w-4 text-fuchsia-600" />}>
           <ul className="space-y-2 text-sm">
             {[
               { label: "فواتير شراء بانتظار الموافقة", n: 0 },
@@ -433,7 +427,7 @@ function Dashboard() {
             ))}
           </ul>
           <BottomLink to="/notifications-center">عرض جميع الموافقات</BottomLink>
-        </Panel>
+        </CollapsiblePanel>
       </div>
 
       {/* FOOTER MINI STATS */}
