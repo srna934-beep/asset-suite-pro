@@ -7,6 +7,9 @@ import { useAuth } from "@/hooks/use-auth";
 import { useNavigate, useRouterState, Link } from "@tanstack/react-router";
 import { usePerms } from "@/hooks/use-perms";
 import { moduleForPath, moduleLabel } from "@/lib/permissions";
+import { ThemeToggle } from "./theme-toggle";
+import { GlobalSearch } from "./global-search";
+
 
 export function DashboardLayout({
   title,
@@ -61,19 +64,28 @@ export function DashboardLayout({
             <h1 className="truncate text-xl font-extrabold tracking-tight md:text-2xl">{title}</h1>
           </div>
           <div className="mr-auto flex items-center gap-2 md:gap-3">
-            <div className="relative hidden md:block">
-              <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                type="search"
-                placeholder="ابحث..."
-                className="h-10 w-56 rounded-xl border border-border bg-card pl-3 pr-9 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-                onChange={(e) => window.dispatchEvent(new CustomEvent("global-search", { detail: e.target.value }))}
-              />
-            </div>
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent("global-search", { detail: "" }))}
+              className="hidden h-10 w-56 items-center gap-2 rounded-xl border border-border bg-card px-3 text-sm text-muted-foreground transition hover:border-primary md:flex"
+            >
+              <Search className="h-4 w-4 shrink-0" />
+              <span className="truncate">ابحث في النظام...</span>
+              <span className="mr-auto shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-bold" dir="ltr">Ctrl K</span>
+            </button>
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent("global-search", { detail: "" }))}
+              aria-label="بحث"
+              className="grid h-9 w-9 place-items-center rounded-lg border border-border md:hidden"
+            >
+              <Search className="h-4 w-4" />
+            </button>
+            <ThemeToggle />
             <NotificationsPopover />
             <ProfileMenu />
           </div>
         </header>
+        <GlobalSearch />
+
         <main className="px-4 py-6 md:px-8 md:py-8">
           {allowed ? (
             children
