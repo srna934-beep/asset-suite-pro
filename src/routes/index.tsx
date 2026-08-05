@@ -11,9 +11,13 @@ import {
 import { useEffect, useMemo, type ReactNode } from "react";
 import { useEntityFinance } from "@/lib/entity-finance";
 import { projectFinanceQuery, aggregateProject } from "@/lib/project-finance";
+import { PeriodPicker, usePeriod } from "@/components/period-picker";
+import { CollapsiblePanel } from "@/components/collapsible-panel";
+import { inRange, previousRange, pctChange, fmtPct, periodLabel } from "@/lib/period";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from "recharts";
+
 
 
 const dashboardQuery = queryOptions({ queryKey: ["dashboard"], queryFn: getDashboardData });
@@ -53,6 +57,8 @@ export const Route = createFileRoute("/")({
 
 function Dashboard() {
   const qc = useQueryClient();
+  const { key: periodKey, custom, update: setPeriod, range } = usePeriod("month");
+
   const { data, isLoading } = useQuery(dashboardQuery);
   const { data: totals } = useQuery(totalsQuery);
   const { data: extra } = useQuery(extraQuery);
@@ -100,6 +106,28 @@ function Dashboard() {
     return order.map((k) => ({ ...buckets[k], profit: buckets[k].rev - buckets[k].exp }));
   }, [txns]);
 
+  // إحصائيات الفترة المختارة + مقارنة بالفترة السابقة
+  const allPayments = data?.payments ?? [];
+  const periodStats = useMemo(() => {
+    const prev = previousRange(range);
+    const sum = (list: any[], f: (x: any) => boolean) => list.filter(f).reduce((s, x) => s + Number(x.amount || 0), 0);
+    const rev = sum(txns, (x) => x.txn_type === "إيراد" && inRange(x.txn_date, range));
+    const exp = sum(txns, (x) => x.txn_type === "مصروف" && inRange(x.txn_date, range));
+    const revPrev = sum(txns, (x) => x.txn_type === "إيراد" && inRange(x.txn_date, prev));
+    const expPrev = sum(txns, (x) => x.txn_type === "مصروف" && inRange(x.txn_date, prev));
+    const collected = sum(allPayments, (p: any) => p.status === "مدفوع" && inRange(p.paid_date, range));
+    const collectedPrev = sum(allPayments, (p: any) => p.status === "مدفوع" && inRange(p.paid_date, prev));
+    return {
+      rev, exp, net: rev - exp, collected,
+      revPct: pctChange(rev, revPrev),
+      expPct: pctChange(exp, expPrev),
+      netPct: pctChange(rev - exp, revPrev - expPrev),
+      collectedPct: pctChange(collected, collectedPrev),
+    };
+  }, [txns, allPayments, range]);
+
+
+
   if (isLoading || !data) return <LoadingShell />;
 
   const t: any = totals ?? {};
@@ -146,16 +174,23 @@ function Dashboard() {
   };
 
   const kpis = [
-    { label: "إجمالي قيمة الأصول", value: assetsValue, icon: TrendingUp, color: "bg-violet-100 text-violet-700", delta: "+12.5%", up: true },
-    { label: "إجمالي الإيرادات", value: revenue, icon: DollarSign, color: "bg-emerald-100 text-emerald-700", delta: "+8.7%", up: true },
-    { label: "إجمالي المصروفات", value: expenses, icon: Wallet, color: "bg-rose-100 text-rose-700", delta: "+5.3%", up: false },
-    { label: "صافي الربح", value: netProfit, icon: TrendingUp, color: "bg-sky-100 text-sky-700", delta: "+15.6%", up: true },
+    { label: "إجمالي قيمة الأصول", value: assetsValue, icon: TrendingUp, color: "bg-violet-100 text-violet-700" },
+    { label: `الإيرادات — ${periodLabel(periodKey)}`, value: periodStats.rev, icon: DollarSign, color: "bg-emerald-100 text-emerald-700", delta: fmtPct(periodStats.revPct), up: (periodStats.revPct ?? 0) >= 0 },
+    { label: `المصروفات — ${periodLabel(periodKey)}`, value: periodStats.exp, icon: Wallet, color: "bg-rose-100 text-rose-700", delta: fmtPct(periodStats.expPct), up: (periodStats.expPct ?? 0) <= 0 },
+    { label: `صافي الربح — ${periodLabel(periodKey)}`, value: periodStats.net, icon: TrendingUp, color: "bg-sky-100 text-sky-700", delta: fmtPct(periodStats.netPct), up: (periodStats.netPct ?? 0) >= 0 },
+    { label: `المحصّل — ${periodLabel(periodKey)}`, value: periodStats.collected, icon: FileCheck, color: "bg-teal-100 text-teal-700", delta: fmtPct(periodStats.collectedPct), up: (periodStats.collectedPct ?? 0) >= 0 },
     { label: "إجمالي المتأخرات", value: lateTotal, icon: AlertCircle, color: "bg-amber-100 text-amber-700", delta: `${lateCount} عملية`, up: false },
-    { label: "عمليات بانتظار الموافقة", value: pendingApprovals, icon: FileCheck, color: "bg-fuchsia-100 text-fuchsia-700", plain: true },
   ];
+
 
   return (
     <DashboardLayout title="لوحة التحكم">
+      {/* PERIOD FILTER */}
+      <div className="mb-4 grid grid-cols-[minmax(0,1fr)] gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm">
+        <PeriodPicker value={periodKey} custom={custom} onChange={setPeriod} />
+        <p className="text-[11px] text-muted-foreground" dir="ltr">{range.from} → {range.to}</p>
+      </div>
+
       {/* KPI ROW */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
         {kpis.map((k) => {
@@ -163,27 +198,26 @@ function Dashboard() {
           return (
             <div key={k.label} className="rounded-2xl border border-border bg-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
               <div className="flex items-start justify-between gap-2">
-                <div className={`grid h-10 w-10 place-items-center rounded-xl ${k.color}`}>
+                <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${k.color}`}>
                   <Icon className="h-5 w-5" />
                 </div>
-                <div className="text-[11px] text-muted-foreground text-left">{k.label}</div>
+                <div className="min-w-0 text-[11px] text-muted-foreground text-left">{k.label}</div>
               </div>
               <div className="mt-3 text-right">
-                <div className="text-2xl font-extrabold tracking-tight">
-                  {k.plain ? k.value : Number(k.value).toLocaleString()}
-                </div>
-                {!k.plain && <div className="mt-0.5 text-[11px] text-muted-foreground">ريال</div>}
+                <div className="text-2xl font-extrabold tracking-tight">{Number(k.value).toLocaleString()}</div>
+                <div className="mt-0.5 text-[11px] text-muted-foreground">ريال</div>
               </div>
-              {k.delta && (
+              {"delta" in k && k.delta && (
                 <div className={`mt-2 flex items-center justify-end gap-1 text-[11px] font-semibold ${k.up ? "text-emerald-600" : "text-rose-600"}`}>
                   {k.up ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
                   <span>{k.delta}</span>
-                  <span className="text-muted-foreground font-normal">عن الشهر الماضي</span>
+                  <span className="text-muted-foreground font-normal">عن الفترة السابقة</span>
                 </div>
               )}
             </div>
           );
         })}
+
       </div>
 
       {/* CHART */}
@@ -293,8 +327,7 @@ function Dashboard() {
 
       {/* ALERTS / ACTIVITY / LATE PAYMENTS */}
       <div className="mt-5 grid gap-4 lg:grid-cols-3">
-        <Panel>
-          <PanelTitle icon={<Bell className="h-4 w-4 text-amber-600" />} title="التنبيهات" />
+        <CollapsiblePanel id="التنبيهات" title="التنبيهات" icon={<Bell className="h-4 w-4 text-amber-600" />}>
           <ul className="space-y-2 text-sm">
             {(extra?.notifications ?? []).slice(0, 5).map((n: any) => (
               <li key={n.id} className="flex items-start gap-3 rounded-xl border border-border bg-muted/30 p-3">
@@ -308,10 +341,9 @@ function Dashboard() {
             {(!extra?.notifications || extra.notifications.length === 0) && <EmptyRow text="لا توجد تنبيهات" />}
           </ul>
           <BottomLink to="/notifications-center">عرض جميع التنبيهات</BottomLink>
-        </Panel>
+        </CollapsiblePanel>
 
-        <Panel>
-          <PanelTitle icon={<Activity className="h-4 w-4 text-sky-600" />} title="آخر الأنشطة" />
+        <CollapsiblePanel id="آخر-الأنشطة" title="آخر الأنشطة" icon={<Activity className="h-4 w-4 text-sky-600" />}>
           <ul className="space-y-2 text-sm">
             {payments.slice(0, 5).map((p) => (
               <li key={p.id} className="flex items-start gap-3 rounded-xl border border-border bg-muted/30 p-3">
@@ -327,10 +359,9 @@ function Dashboard() {
             {payments.length === 0 && <EmptyRow text="لا يوجد نشاط حديث" />}
           </ul>
           <BottomLink to="/audit-logs">عرض جميع الأنشطة</BottomLink>
-        </Panel>
+        </CollapsiblePanel>
 
-        <Panel>
-          <PanelTitle icon={<DollarSign className="h-4 w-4 text-rose-600" />} title="الدفعات المتأخرة" />
+        <CollapsiblePanel id="الدفعات-المتأخرة" title="الدفعات المتأخرة" icon={<DollarSign className="h-4 w-4 text-rose-600" />}>
           <ul className="space-y-2 text-sm">
             {payments.filter((p) => p.status === "متأخر").slice(0, 5).map((p) => (
               <li key={p.id} className="flex items-start justify-between gap-3 rounded-xl border border-border bg-muted/30 p-3">
@@ -344,13 +375,12 @@ function Dashboard() {
             {payments.filter((p) => p.status === "متأخر").length === 0 && <EmptyRow text="لا توجد متأخرات" />}
           </ul>
           <BottomLink to="/payments">عرض جميع المتأخرات</BottomLink>
-        </Panel>
+        </CollapsiblePanel>
       </div>
 
       {/* MAINTENANCE / CONTRACTS / APPROVALS */}
       <div className="mt-5 grid gap-4 lg:grid-cols-3">
-        <Panel>
-          <PanelTitle icon={<Wrench className="h-4 w-4 text-violet-600" />} title="طلبات الصيانة" />
+        <CollapsiblePanel id="طلبات-الصيانة" title="طلبات الصيانة" icon={<Wrench className="h-4 w-4 text-violet-600" />}>
           <ul className="space-y-2 text-sm">
             {(extra?.maintenance ?? []).slice(0, 5).map((m: any) => (
               <li key={m.id} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/30 p-3">
@@ -361,10 +391,9 @@ function Dashboard() {
             {(!extra?.maintenance || extra.maintenance.length === 0) && <EmptyRow text="لا توجد طلبات صيانة" />}
           </ul>
           <BottomLink to="/maintenance">عرض جميع طلبات الصيانة</BottomLink>
-        </Panel>
+        </CollapsiblePanel>
 
-        <Panel>
-          <PanelTitle icon={<FileText className="h-4 w-4 text-emerald-600" />} title="العقود التي تنتهي قريباً" />
+        <CollapsiblePanel id="العقود-التي-تنتهي-قر" title="العقود التي تنتهي قريباً" icon={<FileText className="h-4 w-4 text-emerald-600" />}>
           <ul className="space-y-2 text-sm">
             {contracts.filter((c) => c.status === "نشط").slice(0, 5).map((c) => {
               const days = Math.max(0, Math.round((new Date(c.end_date).getTime() - Date.now()) / 86400000));
@@ -381,10 +410,9 @@ function Dashboard() {
             {contracts.length === 0 && <EmptyRow text="لا توجد عقود" />}
           </ul>
           <BottomLink to="/contracts">عرض جميع العقود</BottomLink>
-        </Panel>
+        </CollapsiblePanel>
 
-        <Panel>
-          <PanelTitle icon={<ClipboardList className="h-4 w-4 text-fuchsia-600" />} title="الموافقات المطلوبة" />
+        <CollapsiblePanel id="الموافقات-المطلوبة" title="الموافقات المطلوبة" icon={<ClipboardList className="h-4 w-4 text-fuchsia-600" />}>
           <ul className="space-y-2 text-sm">
             {[
               { label: "فواتير شراء بانتظار الموافقة", n: 0 },
@@ -399,7 +427,7 @@ function Dashboard() {
             ))}
           </ul>
           <BottomLink to="/notifications-center">عرض جميع الموافقات</BottomLink>
-        </Panel>
+        </CollapsiblePanel>
       </div>
 
       {/* FOOTER MINI STATS */}
