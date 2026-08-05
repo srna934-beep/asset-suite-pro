@@ -57,6 +57,8 @@ export const Route = createFileRoute("/")({
 
 function Dashboard() {
   const qc = useQueryClient();
+  const { key: periodKey, custom, update: setPeriod, range } = usePeriod("month");
+
   const { data, isLoading } = useQuery(dashboardQuery);
   const { data: totals } = useQuery(totalsQuery);
   const { data: extra } = useQuery(extraQuery);
@@ -103,6 +105,28 @@ function Dashboard() {
     }
     return order.map((k) => ({ ...buckets[k], profit: buckets[k].rev - buckets[k].exp }));
   }, [txns]);
+
+  // إحصائيات الفترة المختارة + مقارنة بالفترة السابقة
+  const allPayments = data?.payments ?? [];
+  const periodStats = useMemo(() => {
+    const prev = previousRange(range);
+    const sum = (list: any[], f: (x: any) => boolean) => list.filter(f).reduce((s, x) => s + Number(x.amount || 0), 0);
+    const rev = sum(txns, (x) => x.txn_type === "إيراد" && inRange(x.txn_date, range));
+    const exp = sum(txns, (x) => x.txn_type === "مصروف" && inRange(x.txn_date, range));
+    const revPrev = sum(txns, (x) => x.txn_type === "إيراد" && inRange(x.txn_date, prev));
+    const expPrev = sum(txns, (x) => x.txn_type === "مصروف" && inRange(x.txn_date, prev));
+    const collected = sum(allPayments, (p: any) => p.status === "مدفوع" && inRange(p.paid_date, range));
+    const collectedPrev = sum(allPayments, (p: any) => p.status === "مدفوع" && inRange(p.paid_date, prev));
+    return {
+      rev, exp, net: rev - exp, collected,
+      revPct: pctChange(rev, revPrev),
+      expPct: pctChange(exp, expPrev),
+      netPct: pctChange(rev - exp, revPrev - expPrev),
+      collectedPct: pctChange(collected, collectedPrev),
+    };
+  }, [txns, allPayments, range]);
+
+
 
   if (isLoading || !data) return <LoadingShell />;
 
