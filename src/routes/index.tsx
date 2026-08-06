@@ -86,25 +86,45 @@ function Dashboard() {
   }, [qc]);
 
   const txns = extra?.transactions ?? [];
+  // الرسم البياني يتبع الفترة المختارة: أيام للفترات القصيرة، أشهر للطويلة
   const chartData = useMemo(() => {
+    const start = range.from === "0000-01-01"
+      ? new Date(new Date().getFullYear(), new Date().getMonth() - 11, 1)
+      : new Date(range.from);
+    const end = range.to === "9999-12-31" ? new Date() : new Date(range.to);
+    const days = Math.max(1, Math.round((end.getTime() - start.getTime()) / 86400000) + 1);
+    const daily = days <= 62;
+
     const buckets: Record<string, { m: string; rev: number; exp: number }> = {};
     const order: string[] = [];
-    const now = new Date();
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-      buckets[key] = { m: key, rev: 0, exp: 0 };
-      order.push(key);
+    if (daily) {
+      for (let i = 0; i < days; i++) {
+        const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        buckets[key] = { m: key.slice(5), rev: 0, exp: 0 };
+        order.push(key);
+      }
+    } else {
+      const months = Math.min(24, (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1);
+      for (let i = 0; i < months; i++) {
+        const d = new Date(start.getFullYear(), start.getMonth() + i, 1);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+        buckets[key] = { m: key, rev: 0, exp: 0 };
+        order.push(key);
+      }
     }
+
     for (const x of txns) {
-      const key = String(x.txn_date ?? "").slice(0, 7);
+      const raw = String(x.txn_date ?? "");
+      const key = daily ? raw.slice(0, 10) : raw.slice(0, 7);
       const b = buckets[key];
       if (!b) continue;
       if (x.txn_type === "إيراد") b.rev += Number(x.amount);
       else b.exp += Number(x.amount);
     }
     return order.map((k) => ({ ...buckets[k], profit: buckets[k].rev - buckets[k].exp }));
-  }, [txns]);
+  }, [txns, range]);
+
 
   // إحصائيات الفترة المختارة + مقارنة بالفترة السابقة
   const allPayments = data?.payments ?? [];
