@@ -245,7 +245,7 @@ function Dashboard() {
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h3 className="text-base font-extrabold">الإيرادات والمصروفات والأرباح</h3>
-            <p className="mt-0.5 text-xs text-muted-foreground">آخر 6 أشهر</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">{periodLabel(periodKey)} — {range.from} → {range.to}</p>
           </div>
           <div className="flex items-center gap-2 rounded-xl border border-border bg-muted/40 p-1 text-xs">
             {["أسبوع", "شهر", "سنة"].map((p, i) => (
