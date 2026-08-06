@@ -13,6 +13,8 @@ import { useEntityFinance } from "@/lib/entity-finance";
 import { projectFinanceQuery, aggregateProject } from "@/lib/project-finance";
 import { PeriodPicker, usePeriod } from "@/components/period-picker";
 import { CollapsiblePanel } from "@/components/collapsible-panel";
+import { WidgetGrid } from "@/components/widget-grid";
+import { usePerms } from "@/hooks/use-perms";
 import { inRange, previousRange, pctChange, fmtPct, periodLabel } from "@/lib/period";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
@@ -58,6 +60,7 @@ export const Route = createFileRoute("/")({
 function Dashboard() {
   const qc = useQueryClient();
   const { key: periodKey, custom, update: setPeriod, range } = usePeriod("month");
+  const { can, loading: permsLoading } = usePerms();
 
   const { data, isLoading } = useQuery(dashboardQuery);
   const { data: totals } = useQuery(totalsQuery);
@@ -162,6 +165,7 @@ function Dashboard() {
   const lateTotal = payments.filter((p) => p.status === "متأخر").reduce((s, p) => s + Number(p.amount), 0);
   const lateCount = payments.filter((p) => p.status === "متأخر").length;
   const pendingApprovals = extra?.notifications?.length ?? 0;
+  const pendingMaint = (extra?.maintenance ?? []).filter((m: any) => m.status === "جديد" || m.status === "قيد الانتظار").length;
 
   // Properties-specific metrics
   const nowYm = new Date().toISOString().slice(0, 7);
@@ -345,110 +349,144 @@ function Dashboard() {
       </div>
 
 
-      {/* ALERTS / ACTIVITY / LATE PAYMENTS */}
-      <div className="mt-5 grid gap-4 lg:grid-cols-3">
-        <CollapsiblePanel id="التنبيهات" title="التنبيهات" icon={<Bell className="h-4 w-4 text-amber-600" />}>
-          <ul className="space-y-2 text-sm">
-            {(extra?.notifications ?? []).slice(0, 5).map((n: any) => (
-              <li key={n.id} className="flex items-start gap-3 rounded-xl border border-border bg-muted/30 p-3">
-                <span className="mt-0.5 rounded-md bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">تنبيه</span>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate font-semibold">{n.title}</div>
-                  <div className="mt-0.5 truncate text-xs text-muted-foreground">{n.body}</div>
-                </div>
-              </li>
-            ))}
-            {(!extra?.notifications || extra.notifications.length === 0) && <EmptyRow text="لا توجد تنبيهات" />}
-          </ul>
-          <BottomLink to="/notifications-center">عرض جميع التنبيهات</BottomLink>
-        </CollapsiblePanel>
+      <div className="mt-5" />
+      {/* لوحات قابلة للطي وإعادة الترتيب — تظهر فقط اللوحات المسموحة لدور المستخدم */}
+      <WidgetGrid
+        storageKey="home-panels"
+        className="grid gap-4 lg:grid-cols-3"
+        widgets={[
+          {
+            id: "alerts",
+            module: "/notifications-center",
+            node: (
+              <CollapsiblePanel id="التنبيهات" title="التنبيهات" icon={<Bell className="h-4 w-4 text-amber-600" />}>
+                <ul className="space-y-2 text-sm">
+                  {(extra?.notifications ?? []).slice(0, 5).map((n: any) => (
+                    <li key={n.id} className="flex items-start gap-3 rounded-xl border border-border bg-muted/30 p-3">
+                      <span className="mt-0.5 rounded-md bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">تنبيه</span>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate font-semibold">{n.title}</div>
+                        <div className="mt-0.5 truncate text-xs text-muted-foreground">{n.body}</div>
+                      </div>
+                    </li>
+                  ))}
+                  {(!extra?.notifications || extra.notifications.length === 0) && <EmptyRow text="لا توجد تنبيهات" />}
+                </ul>
+                <BottomLink to="/notifications-center">عرض جميع التنبيهات</BottomLink>
+              </CollapsiblePanel>
+            ),
+          },
+          {
+            id: "activity",
+            module: "/payments",
+            node: (
+              <CollapsiblePanel id="آخر-الأنشطة" title="آخر الأنشطة" icon={<Activity className="h-4 w-4 text-sky-600" />}>
+                <ul className="space-y-2 text-sm">
+                  {payments.slice(0, 5).map((p) => (
+                    <li key={p.id} className="flex items-start gap-3 rounded-xl border border-border bg-muted/30 p-3">
+                      <span className={`mt-0.5 grid h-6 w-6 place-items-center rounded-md ${p.status === "مدفوع" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate">دفعة بمبلغ {Number(p.amount).toLocaleString()} ريال</div>
+                        <div className="mt-0.5 text-xs text-muted-foreground">{p.due_date}</div>
+                      </div>
+                    </li>
+                  ))}
+                  {payments.length === 0 && <EmptyRow text="لا يوجد نشاط حديث" />}
+                </ul>
+                <BottomLink to="/audit-logs">عرض جميع الأنشطة</BottomLink>
+              </CollapsiblePanel>
+            ),
+          },
+          {
+            id: "late",
+            module: "/payments",
+            node: (
+              <CollapsiblePanel id="الدفعات-المتأخرة" title="الدفعات المتأخرة" icon={<DollarSign className="h-4 w-4 text-rose-600" />}>
+                <ul className="space-y-2 text-sm">
+                  {payments.filter((p) => p.status === "متأخر").slice(0, 5).map((p) => (
+                    <li key={p.id} className="flex items-start justify-between gap-3 rounded-xl border border-border bg-muted/30 p-3">
+                      <div className="min-w-0">
+                        <div className="truncate">دفعة #{p.id.slice(0, 6)}</div>
+                        <div className="mt-0.5 text-xs text-muted-foreground">{p.due_date}</div>
+                      </div>
+                      <div className="text-rose-600 font-bold whitespace-nowrap">{Number(p.amount).toLocaleString()} ريال</div>
+                    </li>
+                  ))}
+                  {payments.filter((p) => p.status === "متأخر").length === 0 && <EmptyRow text="لا توجد متأخرات" />}
+                </ul>
+                <BottomLink to="/payments">عرض جميع المتأخرات</BottomLink>
+              </CollapsiblePanel>
+            ),
+          },
+          {
+            id: "maintenance",
+            module: "/maintenance",
+            node: (
+              <CollapsiblePanel id="طلبات-الصيانة" title="طلبات الصيانة" icon={<Wrench className="h-4 w-4 text-violet-600" />}>
+                <ul className="space-y-2 text-sm">
+                  {(extra?.maintenance ?? []).slice(0, 5).map((m: any) => (
+                    <li key={m.id} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/30 p-3">
+                      <span className="truncate">{m.title ?? "طلب صيانة"}</span>
+                      <StatusChip value={m.status ?? "جديد"} />
+                    </li>
+                  ))}
+                  {(!extra?.maintenance || extra.maintenance.length === 0) && <EmptyRow text="لا توجد طلبات صيانة" />}
+                </ul>
+                <BottomLink to="/maintenance">عرض جميع طلبات الصيانة</BottomLink>
+              </CollapsiblePanel>
+            ),
+          },
+          {
+            id: "contracts",
+            module: "/contracts",
+            node: (
+              <CollapsiblePanel id="العقود-التي-تنتهي-قر" title="العقود التي تنتهي قريباً" icon={<FileText className="h-4 w-4 text-emerald-600" />}>
+                <ul className="space-y-2 text-sm">
+                  {contracts.filter((c) => c.status === "نشط").slice(0, 5).map((c) => {
+                    const days = Math.max(0, Math.round((new Date(c.end_date).getTime() - Date.now()) / 86400000));
+                    return (
+                      <li key={c.id} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/30 p-3">
+                        <span className="truncate">عقد #{c.id.slice(0, 6)}</span>
+                        <div className="flex items-center gap-3 text-xs">
+                          <span className="text-muted-foreground">{c.end_date}</span>
+                          <span className={`font-bold ${days < 15 ? "text-rose-600" : "text-amber-600"}`}>{days} يوم</span>
+                        </div>
+                      </li>
+                    );
+                  })}
+                  {contracts.length === 0 && <EmptyRow text="لا توجد عقود" />}
+                </ul>
+                <BottomLink to="/contracts">عرض جميع العقود</BottomLink>
+              </CollapsiblePanel>
+            ),
+          },
+          {
+            id: "approvals",
+            module: "/notifications-center",
+            node: (
+              <CollapsiblePanel id="الموافقات-المطلوبة" title="الموافقات المطلوبة" icon={<ClipboardList className="h-4 w-4 text-fuchsia-600" />}>
+                <ul className="space-y-2 text-sm">
+                  {[
+                    { label: "فواتير شراء بانتظار الموافقة", n: 0 },
+                    { label: "مصروفات بانتظار الموافقة", n: 0 },
+                    { label: "سندات صرف بانتظار الموافقة", n: 0 },
+                    { label: "طلبات صيانة بانتظار الموافقة", n: pendingMaint },
+                  ].map((r) => (
+                    <li key={r.label} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/30 p-3">
+                      <span className="truncate">{r.label}</span>
+                      <span className="grid h-6 min-w-6 place-items-center rounded-full bg-fuchsia-100 px-2 text-xs font-bold text-fuchsia-700">{r.n}</span>
+                    </li>
+                  ))}
+                </ul>
+                <BottomLink to="/notifications-center">عرض جميع الموافقات</BottomLink>
+              </CollapsiblePanel>
+            ),
+          },
+        ].filter((w) => permsLoading || can(w.module, "view"))}
+      />
 
-        <CollapsiblePanel id="آخر-الأنشطة" title="آخر الأنشطة" icon={<Activity className="h-4 w-4 text-sky-600" />}>
-          <ul className="space-y-2 text-sm">
-            {payments.slice(0, 5).map((p) => (
-              <li key={p.id} className="flex items-start gap-3 rounded-xl border border-border bg-muted/30 p-3">
-                <span className={`mt-0.5 grid h-6 w-6 place-items-center rounded-md ${p.status === "مدفوع" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate">دفعة بمبلغ {Number(p.amount).toLocaleString()} ريال</div>
-                  <div className="mt-0.5 text-xs text-muted-foreground">{p.due_date}</div>
-                </div>
-              </li>
-            ))}
-            {payments.length === 0 && <EmptyRow text="لا يوجد نشاط حديث" />}
-          </ul>
-          <BottomLink to="/audit-logs">عرض جميع الأنشطة</BottomLink>
-        </CollapsiblePanel>
-
-        <CollapsiblePanel id="الدفعات-المتأخرة" title="الدفعات المتأخرة" icon={<DollarSign className="h-4 w-4 text-rose-600" />}>
-          <ul className="space-y-2 text-sm">
-            {payments.filter((p) => p.status === "متأخر").slice(0, 5).map((p) => (
-              <li key={p.id} className="flex items-start justify-between gap-3 rounded-xl border border-border bg-muted/30 p-3">
-                <div className="min-w-0">
-                  <div className="truncate">دفعة #{p.id.slice(0, 6)}</div>
-                  <div className="mt-0.5 text-xs text-muted-foreground">{p.due_date}</div>
-                </div>
-                <div className="text-rose-600 font-bold whitespace-nowrap">{Number(p.amount).toLocaleString()} ريال</div>
-              </li>
-            ))}
-            {payments.filter((p) => p.status === "متأخر").length === 0 && <EmptyRow text="لا توجد متأخرات" />}
-          </ul>
-          <BottomLink to="/payments">عرض جميع المتأخرات</BottomLink>
-        </CollapsiblePanel>
-      </div>
-
-      {/* MAINTENANCE / CONTRACTS / APPROVALS */}
-      <div className="mt-5 grid gap-4 lg:grid-cols-3">
-        <CollapsiblePanel id="طلبات-الصيانة" title="طلبات الصيانة" icon={<Wrench className="h-4 w-4 text-violet-600" />}>
-          <ul className="space-y-2 text-sm">
-            {(extra?.maintenance ?? []).slice(0, 5).map((m: any) => (
-              <li key={m.id} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/30 p-3">
-                <span className="truncate">{m.title ?? "طلب صيانة"}</span>
-                <StatusChip value={m.status ?? "جديد"} />
-              </li>
-            ))}
-            {(!extra?.maintenance || extra.maintenance.length === 0) && <EmptyRow text="لا توجد طلبات صيانة" />}
-          </ul>
-          <BottomLink to="/maintenance">عرض جميع طلبات الصيانة</BottomLink>
-        </CollapsiblePanel>
-
-        <CollapsiblePanel id="العقود-التي-تنتهي-قر" title="العقود التي تنتهي قريباً" icon={<FileText className="h-4 w-4 text-emerald-600" />}>
-          <ul className="space-y-2 text-sm">
-            {contracts.filter((c) => c.status === "نشط").slice(0, 5).map((c) => {
-              const days = Math.max(0, Math.round((new Date(c.end_date).getTime() - Date.now()) / 86400000));
-              return (
-                <li key={c.id} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/30 p-3">
-                  <span className="truncate">عقد #{c.id.slice(0, 6)}</span>
-                  <div className="flex items-center gap-3 text-xs">
-                    <span className="text-muted-foreground">{c.end_date}</span>
-                    <span className={`font-bold ${days < 15 ? "text-rose-600" : "text-amber-600"}`}>{days} يوم</span>
-                  </div>
-                </li>
-              );
-            })}
-            {contracts.length === 0 && <EmptyRow text="لا توجد عقود" />}
-          </ul>
-          <BottomLink to="/contracts">عرض جميع العقود</BottomLink>
-        </CollapsiblePanel>
-
-        <CollapsiblePanel id="الموافقات-المطلوبة" title="الموافقات المطلوبة" icon={<ClipboardList className="h-4 w-4 text-fuchsia-600" />}>
-          <ul className="space-y-2 text-sm">
-            {[
-              { label: "فواتير شراء بانتظار الموافقة", n: 0 },
-              { label: "مصروفات بانتظار الموافقة", n: 0 },
-              { label: "سندات صرف بانتظار الموافقة", n: 0 },
-              { label: "طلبات صيانة بانتظار الموافقة", n: 0 },
-            ].map((r) => (
-              <li key={r.label} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/30 p-3">
-                <span className="truncate">{r.label}</span>
-                <span className="grid h-6 min-w-6 place-items-center rounded-full bg-fuchsia-100 px-2 text-xs font-bold text-fuchsia-700">{r.n}</span>
-              </li>
-            ))}
-          </ul>
-          <BottomLink to="/notifications-center">عرض جميع الموافقات</BottomLink>
-        </CollapsiblePanel>
-      </div>
 
       {/* FOOTER MINI STATS */}
       <div className="mt-5 grid grid-cols-2 gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm md:grid-cols-4">
