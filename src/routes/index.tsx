@@ -13,6 +13,8 @@ import { useEntityFinance } from "@/lib/entity-finance";
 import { projectFinanceQuery, aggregateProject } from "@/lib/project-finance";
 import { PeriodPicker, usePeriod } from "@/components/period-picker";
 import { CollapsiblePanel } from "@/components/collapsible-panel";
+import { WidgetGrid } from "@/components/widget-grid";
+import { usePerms } from "@/hooks/use-perms";
 import { inRange, previousRange, pctChange, fmtPct, periodLabel } from "@/lib/period";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
@@ -58,6 +60,7 @@ export const Route = createFileRoute("/")({
 function Dashboard() {
   const qc = useQueryClient();
   const { key: periodKey, custom, update: setPeriod, range } = usePeriod("month");
+  const { can, loading: permsLoading } = usePerms();
 
   const { data, isLoading } = useQuery(dashboardQuery);
   const { data: totals } = useQuery(totalsQuery);
@@ -162,6 +165,7 @@ function Dashboard() {
   const lateTotal = payments.filter((p) => p.status === "متأخر").reduce((s, p) => s + Number(p.amount), 0);
   const lateCount = payments.filter((p) => p.status === "متأخر").length;
   const pendingApprovals = extra?.notifications?.length ?? 0;
+  const pendingMaint = (extra?.maintenance ?? []).filter((m: any) => m.status === "جديد" || m.status === "قيد الانتظار").length;
 
   // Properties-specific metrics
   const nowYm = new Date().toISOString().slice(0, 7);
@@ -345,6 +349,7 @@ function Dashboard() {
       </div>
 
 
+      <div className="mt-5" />
       {/* لوحات قابلة للطي وإعادة الترتيب — تظهر فقط اللوحات المسموحة لدور المستخدم */}
       <WidgetGrid
         storageKey="home-panels"
