@@ -8,6 +8,7 @@ import { Building2, Home, Users, Wrench, TrendingUp, TrendingDown, Wallet, Dolla
 import { RecordDialog, DeleteButton, type FieldDef } from "@/components/record-dialog";
 import { ListToolbar } from "@/components/list-toolbar";
 import { useAssetOptions } from "@/lib/asset-options";
+import { useAssetTypes } from "@/lib/asset-types";
 import { StatCard, DashGrid, fmtSAR } from "@/components/dash-bits";
 import { Section } from "@/components/asset-detail";
 
@@ -32,7 +33,11 @@ function PropertiesList() {
   const [sort, setSort] = useState("name");
   const { employeeOpts, nameById } = useAssetOptions();
 
+  const { options: typeOpts } = useAssetTypes("property");
+
   const PROPERTY_FIELDS: FieldDef[] = useMemo(() => [
+    { name: "type_id", label: "نوع العقار التفصيلي", type: "select", options: typeOpts },
+    { name: "qr_code", label: "رمز الأصل (باركود)" },
     { name: "name", label: "اسم العقار", required: true },
     { name: "type", label: "النوع", type: "select", required: true, options: [
       { value: "عمارة", label: "عمارة" }, { value: "فيلا", label: "فيلا" }, { value: "مجمع", label: "مجمع" },
@@ -45,7 +50,7 @@ function PropertiesList() {
     { name: "location", label: "الموقع" },
     { name: "address", label: "العنوان" },
     { name: "description", label: "الوصف", type: "textarea" },
-  ], [employeeOpts]);
+  ], [employeeOpts, typeOpts]);
 
   const { data } = useQuery(queryOptions({
     queryKey: ["properties-list"],
