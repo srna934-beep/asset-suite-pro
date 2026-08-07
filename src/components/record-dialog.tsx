@@ -35,7 +35,10 @@ type Props = {
   invalidate: string[][];
   trigger?: ReactNode;
   defaults?: Record<string, any>;
+  /** قيم ثابتة تُضاف للسجل بدون إظهارها في النموذج (مثل property_id) */
+  extra?: Record<string, any>;
 };
+
 
 export function RecordDialog({ table, title, fields, initial, invalidate, trigger, defaults }: Props) {
   const [open, setOpen] = useState(false);
