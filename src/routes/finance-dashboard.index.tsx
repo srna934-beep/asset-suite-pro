@@ -41,7 +41,7 @@ function FinanceDashboard() {
   const now = new Date();
   for (let i = 5; i >= 0; i--) {
     const dt = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const key = dt.toISOString().slice(0, 7);
+    const key = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}`;
     months.push({ key, rev: 0, exp: 0 });
   }
   for (const t of txns) {
