@@ -40,7 +40,7 @@ type Props = {
 };
 
 
-export function RecordDialog({ table, title, fields, initial, invalidate, trigger, defaults }: Props) {
+export function RecordDialog({ table, title, fields, initial, invalidate, trigger, defaults, extra }: Props) {
   const [open, setOpen] = useState(false);
   const [values, setValues] = useState<Record<string, any>>(() => {
     const v: Record<string, any> = {};
