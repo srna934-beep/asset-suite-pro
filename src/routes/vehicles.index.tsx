@@ -11,6 +11,7 @@ import { ListToolbar } from "@/components/list-toolbar";
 import { AttachmentsButton } from "@/components/attachments-panel";
 import { ExportCsvButton } from "@/components/export-csv-button";
 import { useAssetOptions } from "@/lib/asset-options";
+import { useAssetTypes } from "@/lib/asset-types";
 import { Section } from "@/components/asset-detail";
 import { StatCard, DashGrid, fmtSAR } from "@/components/dash-bits";
 import { MoneyMovements } from "@/components/money-table";
@@ -42,8 +43,12 @@ function VehiclesList() {
     queryFn: async () => (await supabase.from("vehicles" as any).select("*").eq("archived", false).order("created_at", { ascending: false })).data ?? [],
   }));
 
+  const { options: typeOpts } = useAssetTypes("vehicle");
+
   const FIELDS: FieldDef[] = useMemo(() => [
     { name: "name", label: "اسم/وصف المركبة", required: true },
+    { name: "type_id", label: "نوع المركبة/المعدة التفصيلي", type: "select", options: typeOpts },
+    { name: "qr_code", label: "رمز الأصل (باركود)" },
     { name: "vehicle_type", label: "النوع", type: "select", options: [
       { value: "سيارة", label: "سيارة" }, { value: "شاحنة", label: "شاحنة" },
       { value: "حافلة", label: "حافلة" }, { value: "دراجة نارية", label: "دراجة نارية" },
@@ -64,7 +69,7 @@ function VehiclesList() {
       { value: "نشط", label: "نشط" }, { value: "صيانة", label: "صيانة" }, { value: "متوقف", label: "متوقف" },
     ]},
     { name: "notes", label: "ملاحظات", type: "textarea" },
-  ], [employeeOpts]);
+  ], [employeeOpts, typeOpts]);
 
   const filtered = useMemo(() => {
     let r = data as any[];

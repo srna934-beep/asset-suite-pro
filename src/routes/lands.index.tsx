@@ -11,6 +11,7 @@ import { ListToolbar } from "@/components/list-toolbar";
 import { AttachmentsButton } from "@/components/attachments-panel";
 import { ExportCsvButton } from "@/components/export-csv-button";
 import { useAssetOptions } from "@/lib/asset-options";
+import { useAssetTypes } from "@/lib/asset-types";
 import { Section } from "@/components/asset-detail";
 import { StatCard, DashGrid, fmtSAR } from "@/components/dash-bits";
 import { MoneyMovements } from "@/components/money-table";
@@ -42,8 +43,12 @@ function LandsList() {
     queryFn: async () => (await supabase.from("lands" as any).select("*").eq("archived", false).order("created_at", { ascending: false })).data ?? [],
   }));
 
+  const { options: typeOpts } = useAssetTypes("land");
+
   const FIELDS: FieldDef[] = useMemo(() => [
     { name: "name", label: "اسم/وصف الأرض", required: true },
+    { name: "type_id", label: "نوع الأرض / المزرعة", type: "select", options: typeOpts },
+    { name: "qr_code", label: "رمز الأصل (باركود)" },
     { name: "deed_number", label: "رقم الصك" },
     { name: "ownership_type", label: "نوع الملكية", type: "select", options: [
       { value: "ملك حر", label: "ملك حر" }, { value: "وقف", label: "وقف" }, { value: "حكر", label: "حكر" },
@@ -57,7 +62,7 @@ function LandsList() {
     { name: "purchase_date", label: "تاريخ الشراء", type: "date" },
     { name: "status", label: "الحالة", type: "select", required: true, options: STATUSES.map(s => ({ value: s, label: s })) },
     { name: "notes", label: "ملاحظات", type: "textarea" },
-  ], [employeeOpts]);
+  ], [employeeOpts, typeOpts]);
 
   const filtered = useMemo(() => {
     let r = data as any[];

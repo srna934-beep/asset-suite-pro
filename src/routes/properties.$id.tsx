@@ -10,6 +10,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { AssetFinanceTabs, BackNav, AssetDocsAndActivity, Section } from "@/components/asset-detail";
 import { RecordDialog, type FieldDef } from "@/components/record-dialog";
 import { useAssetOptions } from "@/lib/asset-options";
+import { useAssetTypes } from "@/lib/asset-types";
+import { QrButton } from "@/components/qr-card";
+import { PropertyStructure } from "@/components/property-structure";
 
 export const Route = createFileRoute("/properties/$id")({
   head: ({ params }) => ({ meta: [{ title: `تفاصيل العقار | ${params.id.slice(0, 8)}` }] }),
@@ -19,24 +22,28 @@ export const Route = createFileRoute("/properties/$id")({
 function PropertyDetail() {
   const { id } = Route.useParams();
   const { employeeOpts, nameById } = useAssetOptions();
+  const { options: typeOpts, typeName } = useAssetTypes("property");
   const { data, isLoading } = useQuery(
     queryOptions({ queryKey: ["property", id], queryFn: () => getPropertyDetail(id) }),
   );
 
   const FIELDS: FieldDef[] = useMemo(() => [
     { name: "name", label: "اسم العقار", required: true },
-    { name: "type", label: "النوع", type: "select", required: true, options: [
+    { name: "type", label: "التصنيف الأساسي", type: "select", required: true, options: [
       { value: "عمارة", label: "عمارة" }, { value: "فيلا", label: "فيلا" }, { value: "مجمع", label: "مجمع" },
       { value: "أرض", label: "أرض" }, { value: "محل", label: "محل" }, { value: "مكتب", label: "مكتب" },
     ]},
+    { name: "type_id", label: "نوع العقار التفصيلي", type: "select", options: typeOpts },
     { name: "status", label: "الحالة", type: "select", required: true, options: [
       { value: "مؤجر", label: "مؤجر" }, { value: "خاصة", label: "خاصة" }, { value: "متاح", label: "متاح" },
     ]},
     { name: "responsible_employee_id", label: "المسؤول عن العقار (موظف)", type: "select", options: employeeOpts },
+    { name: "qr_code", label: "رمز الأصل (باركود)" },
     { name: "location", label: "الموقع" },
     { name: "address", label: "العنوان" },
     { name: "description", label: "الوصف", type: "textarea" },
-  ], [employeeOpts]);
+  ], [employeeOpts, typeOpts]);
+
 
   if (isLoading || !data) return <DashboardLayout title="جاري التحميل..."><div className="h-64 animate-pulse rounded-2xl bg-card" /></DashboardLayout>;
   if (!data.property) return <DashboardLayout title="غير موجود"><p>العقار غير موجود.</p></DashboardLayout>;
@@ -64,10 +71,12 @@ function PropertyDetail() {
             <Building2 className="h-24 w-24 text-primary/40" />
           </div>
           <div className="grid gap-3 p-5 sm:grid-cols-2">
-            <Info label="النوع" value={property.type} />
+            <Info label="التصنيف" value={property.type} />
+            <Info label="النوع التفصيلي" value={p.type_id ? typeName(p.type_id) : "غير محدد"} />
             <Info label="الحالة" value={<StatusPill tone={propertyTone(property.status)}>{property.status}</StatusPill>} />
             <Info label="الموقع" value={<span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{property.location ?? "—"}</span>} />
             <Info label="العنوان" value={p.address ?? "—"} />
+            <Info label="رمز الأصل" value={p.qr_code ?? "—"} />
             <Info label="الإيجار الشهري" value={`${monthlyIncome.toLocaleString()} ر.س`} />
             <Info label="نسبة الإشغال" value={`${occupancy}% (${occupied}/${units.length})`} />
           </div>
@@ -86,13 +95,21 @@ function PropertyDetail() {
               <div className="flex justify-between"><span className="text-muted-foreground">الشاغرة</span><span className="font-bold text-amber-600">{units.length - occupied}</span></div>
             </div>
           </div>
-          <RecordDialog table="properties" title="تعديل العقار" fields={FIELDS} initial={p} invalidate={[["property", id], ["properties-list"]]} />
+          <div className="flex gap-2">
+            <RecordDialog table="properties" title="تعديل العقار" fields={FIELDS} initial={p} invalidate={[["property", id], ["properties-list"]]} />
+            <QrButton path={`/properties/${id}`} title={property.name} subtitle={typeName(p.type_id) !== "—" ? typeName(p.type_id) : property.type} code={p.qr_code} />
+          </div>
         </div>
       </div>
 
       <Section title="الوحدات" icon={<Home className="h-5 w-5 text-amber-600" />}>
         <UnitsTable propertyId={id} units={units} />
       </Section>
+
+      <div className="mt-5">
+        <PropertyStructure propertyId={id} units={units} />
+      </div>
+
 
 
       <div className="mt-5">

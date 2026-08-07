@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { AdminOnly } from "@/components/admin-only";
-import { Settings as SettingsIcon, User, ShieldCheck, MessageSquare, ListChecks, Wallet } from "lucide-react";
+import { Settings as SettingsIcon, User, ShieldCheck, MessageSquare, ListChecks, Wallet, Shapes } from "lucide-react";
 
 export const Route = createFileRoute("/settings/")({
   head: () => ({ meta: [{ title: "الإعدادات | منصة الأصول" }] }),
@@ -11,10 +11,12 @@ export const Route = createFileRoute("/settings/")({
 const LINKS = [
   { to: "/profile", icon: User, label: "الملف الشخصي", desc: "تعديل بياناتك وكلمة المرور" },
   { to: "/super-admin", icon: ShieldCheck, label: "إدارة النظام", desc: "اسم الشركة، الأدوار، الموديولات (للمدراء)" },
+  { to: "/asset-types", icon: Shapes, label: "أنواع الأصول", desc: "أنواع العقارات والأراضي والمزارع والمركبات والمعدات" },
   { to: "/audit-logs", icon: ListChecks, label: "سجل التدقيق", desc: "عرض جميع العمليات على البيانات" },
   { to: "/messages", icon: MessageSquare, label: "الرسائل الداخلية", desc: "تواصل مع باقي المستخدمين" },
   { to: "/accounts", icon: Wallet, label: "إدارة الحسابات", desc: "الحسابات النقدية والبنكية" },
 ];
+
 
 function SettingsPage() {
   return (

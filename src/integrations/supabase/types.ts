@@ -56,6 +56,48 @@ export type Database = {
         }
         Relationships: []
       }
+      asset_types: {
+        Row: {
+          active: boolean
+          category: string | null
+          created_at: string
+          display_order: number
+          id: string
+          is_farm: boolean
+          key: string
+          name: string
+          scope: string
+          system: boolean
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          category?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_farm?: boolean
+          key: string
+          name: string
+          scope: string
+          system?: boolean
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          category?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_farm?: boolean
+          key?: string
+          name?: string
+          scope?: string
+          system?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       attendance: {
         Row: {
           check_in: string | null
@@ -834,9 +876,11 @@ export type Database = {
           photos: string[] | null
           purchase_date: string | null
           purchase_value: number | null
+          qr_code: string | null
           region: string | null
           responsible_employee_id: string | null
           status: string
+          type_id: string | null
           updated_at: string
         }
         Insert: {
@@ -856,9 +900,11 @@ export type Database = {
           photos?: string[] | null
           purchase_date?: string | null
           purchase_value?: number | null
+          qr_code?: string | null
           region?: string | null
           responsible_employee_id?: string | null
           status?: string
+          type_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -878,9 +924,11 @@ export type Database = {
           photos?: string[] | null
           purchase_date?: string | null
           purchase_value?: number | null
+          qr_code?: string | null
           region?: string | null
           responsible_employee_id?: string | null
           status?: string
+          type_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -889,6 +937,13 @@ export type Database = {
             columns: ["responsible_employee_id"]
             isOneToOne: false
             referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lands_type_id_fkey"
+            columns: ["type_id"]
+            isOneToOne: false
+            referencedRelation: "asset_types"
             referencedColumns: ["id"]
           },
         ]
@@ -1371,9 +1426,11 @@ export type Database = {
           location: string | null
           name: string
           photos: string[] | null
+          qr_code: string | null
           responsible_employee_id: string | null
           status: Database["public"]["Enums"]["property_status"]
           type: Database["public"]["Enums"]["property_type"]
+          type_id: string | null
           updated_at: string
         }
         Insert: {
@@ -1384,9 +1441,11 @@ export type Database = {
           location?: string | null
           name: string
           photos?: string[] | null
+          qr_code?: string | null
           responsible_employee_id?: string | null
           status?: Database["public"]["Enums"]["property_status"]
           type?: Database["public"]["Enums"]["property_type"]
+          type_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -1397,9 +1456,11 @@ export type Database = {
           location?: string | null
           name?: string
           photos?: string[] | null
+          qr_code?: string | null
           responsible_employee_id?: string | null
           status?: Database["public"]["Enums"]["property_status"]
           type?: Database["public"]["Enums"]["property_type"]
+          type_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1408,6 +1469,76 @@ export type Database = {
             columns: ["responsible_employee_id"]
             isOneToOne: false
             referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "properties_type_id_fkey"
+            columns: ["type_id"]
+            isOneToOne: false
+            referencedRelation: "asset_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_nodes: {
+        Row: {
+          area_sqm: number | null
+          code: string | null
+          created_at: string
+          display_order: number
+          floor_number: number | null
+          id: string
+          name: string
+          node_type: string
+          notes: string | null
+          parent_id: string | null
+          property_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          area_sqm?: number | null
+          code?: string | null
+          created_at?: string
+          display_order?: number
+          floor_number?: number | null
+          id?: string
+          name: string
+          node_type: string
+          notes?: string | null
+          parent_id?: string | null
+          property_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          area_sqm?: number | null
+          code?: string | null
+          created_at?: string
+          display_order?: number
+          floor_number?: number | null
+          id?: string
+          name?: string
+          node_type?: string
+          notes?: string | null
+          parent_id?: string | null
+          property_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_nodes_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "property_nodes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_nodes_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
             referencedColumns: ["id"]
           },
         ]
@@ -1680,6 +1811,7 @@ export type Database = {
           bedrooms: number | null
           created_at: string
           id: string
+          node_id: string | null
           notes: string | null
           photos: string[] | null
           property_id: string
@@ -1696,6 +1828,7 @@ export type Database = {
           bedrooms?: number | null
           created_at?: string
           id?: string
+          node_id?: string | null
           notes?: string | null
           photos?: string[] | null
           property_id: string
@@ -1712,6 +1845,7 @@ export type Database = {
           bedrooms?: number | null
           created_at?: string
           id?: string
+          node_id?: string | null
           notes?: string | null
           photos?: string[] | null
           property_id?: string
@@ -1723,6 +1857,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "units_node_id_fkey"
+            columns: ["node_id"]
+            isOneToOne: false
+            referencedRelation: "property_nodes"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "units_property_id_fkey"
             columns: ["property_id"]
@@ -1805,8 +1946,10 @@ export type Database = {
           plate_number: string | null
           purchase_date: string | null
           purchase_value: number | null
+          qr_code: string | null
           responsible_employee_id: string | null
           status: string
+          type_id: string | null
           updated_at: string
           vehicle_type: string | null
           year: number | null
@@ -1831,8 +1974,10 @@ export type Database = {
           plate_number?: string | null
           purchase_date?: string | null
           purchase_value?: number | null
+          qr_code?: string | null
           responsible_employee_id?: string | null
           status?: string
+          type_id?: string | null
           updated_at?: string
           vehicle_type?: string | null
           year?: number | null
@@ -1857,8 +2002,10 @@ export type Database = {
           plate_number?: string | null
           purchase_date?: string | null
           purchase_value?: number | null
+          qr_code?: string | null
           responsible_employee_id?: string | null
           status?: string
+          type_id?: string | null
           updated_at?: string
           vehicle_type?: string | null
           year?: number | null
@@ -1869,6 +2016,13 @@ export type Database = {
             columns: ["responsible_employee_id"]
             isOneToOne: false
             referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicles_type_id_fkey"
+            columns: ["type_id"]
+            isOneToOne: false
+            referencedRelation: "asset_types"
             referencedColumns: ["id"]
           },
         ]
