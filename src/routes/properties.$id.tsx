@@ -10,6 +10,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { AssetFinanceTabs, BackNav, AssetDocsAndActivity, Section } from "@/components/asset-detail";
 import { RecordDialog, type FieldDef } from "@/components/record-dialog";
 import { useAssetOptions } from "@/lib/asset-options";
+import { useAssetTypes } from "@/lib/asset-types";
+import { QrButton } from "@/components/qr-card";
+import { PropertyStructure } from "@/components/property-structure";
 
 export const Route = createFileRoute("/properties/$id")({
   head: ({ params }) => ({ meta: [{ title: `تفاصيل العقار | ${params.id.slice(0, 8)}` }] }),
@@ -19,24 +22,28 @@ export const Route = createFileRoute("/properties/$id")({
 function PropertyDetail() {
   const { id } = Route.useParams();
   const { employeeOpts, nameById } = useAssetOptions();
+  const { options: typeOpts, typeName } = useAssetTypes("property");
   const { data, isLoading } = useQuery(
     queryOptions({ queryKey: ["property", id], queryFn: () => getPropertyDetail(id) }),
   );
 
   const FIELDS: FieldDef[] = useMemo(() => [
     { name: "name", label: "اسم العقار", required: true },
-    { name: "type", label: "النوع", type: "select", required: true, options: [
+    { name: "type", label: "التصنيف الأساسي", type: "select", required: true, options: [
       { value: "عمارة", label: "عمارة" }, { value: "فيلا", label: "فيلا" }, { value: "مجمع", label: "مجمع" },
       { value: "أرض", label: "أرض" }, { value: "محل", label: "محل" }, { value: "مكتب", label: "مكتب" },
     ]},
+    { name: "type_id", label: "نوع العقار التفصيلي", type: "select", options: typeOpts },
     { name: "status", label: "الحالة", type: "select", required: true, options: [
       { value: "مؤجر", label: "مؤجر" }, { value: "خاصة", label: "خاصة" }, { value: "متاح", label: "متاح" },
     ]},
     { name: "responsible_employee_id", label: "المسؤول عن العقار (موظف)", type: "select", options: employeeOpts },
+    { name: "qr_code", label: "رمز الأصل (باركود)" },
     { name: "location", label: "الموقع" },
     { name: "address", label: "العنوان" },
     { name: "description", label: "الوصف", type: "textarea" },
-  ], [employeeOpts]);
+  ], [employeeOpts, typeOpts]);
+
 
   if (isLoading || !data) return <DashboardLayout title="جاري التحميل..."><div className="h-64 animate-pulse rounded-2xl bg-card" /></DashboardLayout>;
   if (!data.property) return <DashboardLayout title="غير موجود"><p>العقار غير موجود.</p></DashboardLayout>;
