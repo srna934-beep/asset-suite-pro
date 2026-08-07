@@ -43,6 +43,7 @@ import { Route as ContractsIndexRouteImport } from './routes/contracts.index'
 import { Route as BudgetsIndexRouteImport } from './routes/budgets.index'
 import { Route as AuditLogsIndexRouteImport } from './routes/audit-logs.index'
 import { Route as AttendanceIndexRouteImport } from './routes/attendance.index'
+import { Route as AssetTypesIndexRouteImport } from './routes/asset-types.index'
 import { Route as AccountsIndexRouteImport } from './routes/accounts.index'
 import { Route as AccountingIndexRouteImport } from './routes/accounting.index'
 import { Route as VehiclesIdRouteImport } from './routes/vehicles.$id'
@@ -227,6 +228,11 @@ const AttendanceIndexRoute = AttendanceIndexRouteImport.update({
   path: '/attendance/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AssetTypesIndexRoute = AssetTypesIndexRouteImport.update({
+  id: '/asset-types/',
+  path: '/asset-types/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AccountsIndexRoute = AccountsIndexRouteImport.update({
   id: '/accounts/',
   path: '/accounts/',
@@ -293,6 +299,7 @@ export interface FileRoutesByFullPath {
   '/vehicles/$id': typeof VehiclesIdRoute
   '/accounting/': typeof AccountingIndexRoute
   '/accounts/': typeof AccountsIndexRoute
+  '/asset-types/': typeof AssetTypesIndexRoute
   '/attendance/': typeof AttendanceIndexRoute
   '/audit-logs/': typeof AuditLogsIndexRoute
   '/budgets/': typeof BudgetsIndexRoute
@@ -339,6 +346,7 @@ export interface FileRoutesByTo {
   '/vehicles/$id': typeof VehiclesIdRoute
   '/accounting': typeof AccountingIndexRoute
   '/accounts': typeof AccountsIndexRoute
+  '/asset-types': typeof AssetTypesIndexRoute
   '/attendance': typeof AttendanceIndexRoute
   '/audit-logs': typeof AuditLogsIndexRoute
   '/budgets': typeof BudgetsIndexRoute
@@ -386,6 +394,7 @@ export interface FileRoutesById {
   '/vehicles/$id': typeof VehiclesIdRoute
   '/accounting/': typeof AccountingIndexRoute
   '/accounts/': typeof AccountsIndexRoute
+  '/asset-types/': typeof AssetTypesIndexRoute
   '/attendance/': typeof AttendanceIndexRoute
   '/audit-logs/': typeof AuditLogsIndexRoute
   '/budgets/': typeof BudgetsIndexRoute
@@ -434,6 +443,7 @@ export interface FileRouteTypes {
     | '/vehicles/$id'
     | '/accounting/'
     | '/accounts/'
+    | '/asset-types/'
     | '/attendance/'
     | '/audit-logs/'
     | '/budgets/'
@@ -480,6 +490,7 @@ export interface FileRouteTypes {
     | '/vehicles/$id'
     | '/accounting'
     | '/accounts'
+    | '/asset-types'
     | '/attendance'
     | '/audit-logs'
     | '/budgets'
@@ -526,6 +537,7 @@ export interface FileRouteTypes {
     | '/vehicles/$id'
     | '/accounting/'
     | '/accounts/'
+    | '/asset-types/'
     | '/attendance/'
     | '/audit-logs/'
     | '/budgets/'
@@ -573,6 +585,7 @@ export interface RootRouteChildren {
   VehiclesIdRoute: typeof VehiclesIdRoute
   AccountingIndexRoute: typeof AccountingIndexRoute
   AccountsIndexRoute: typeof AccountsIndexRoute
+  AssetTypesIndexRoute: typeof AssetTypesIndexRoute
   AttendanceIndexRoute: typeof AttendanceIndexRoute
   AuditLogsIndexRoute: typeof AuditLogsIndexRoute
   BudgetsIndexRoute: typeof BudgetsIndexRoute
@@ -845,6 +858,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AttendanceIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/asset-types/': {
+      id: '/asset-types/'
+      path: '/asset-types'
+      fullPath: '/asset-types/'
+      preLoaderRoute: typeof AssetTypesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/accounts/': {
       id: '/accounts/'
       path: '/accounts'
@@ -933,6 +953,7 @@ const rootRouteChildren: RootRouteChildren = {
   VehiclesIdRoute: VehiclesIdRoute,
   AccountingIndexRoute: AccountingIndexRoute,
   AccountsIndexRoute: AccountsIndexRoute,
+  AssetTypesIndexRoute: AssetTypesIndexRoute,
   AttendanceIndexRoute: AttendanceIndexRoute,
   AuditLogsIndexRoute: AuditLogsIndexRoute,
   BudgetsIndexRoute: BudgetsIndexRoute,
@@ -967,13 +988,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
