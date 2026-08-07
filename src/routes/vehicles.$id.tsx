@@ -12,6 +12,8 @@ import { Fuel, Wrench, ShieldCheck } from "lucide-react";
 
 import { RecordDialog } from "@/components/record-dialog";
 import { useAssetOptions } from "@/lib/asset-options";
+import { useAssetTypes } from "@/lib/asset-types";
+import { QrButton } from "@/components/qr-card";
 import { useMemo } from "react";
 import type { FieldDef } from "@/components/record-dialog";
 
@@ -28,8 +30,11 @@ function VehicleDetail() {
     queryFn: async () => (await supabase.from("vehicles" as any).select("*").eq("id", id).maybeSingle()).data as any,
   }));
 
+  const { options: typeOpts, typeName } = useAssetTypes("vehicle");
+
   const FIELDS: FieldDef[] = useMemo(() => [
     { name: "name", label: "اسم/وصف المركبة", required: true },
+    { name: "type_id", label: "نوع المركبة/المعدة التفصيلي", type: "select", options: typeOpts },
     { name: "vehicle_type", label: "النوع", type: "select", options: [
       { value: "سيارة", label: "سيارة" }, { value: "شاحنة", label: "شاحنة" },
       { value: "حافلة", label: "حافلة" }, { value: "دراجة نارية", label: "دراجة نارية" },
@@ -40,6 +45,7 @@ function VehicleDetail() {
     { name: "plate_number", label: "رقم اللوحة" }, { name: "chassis_number", label: "رقم الهيكل" },
     { name: "driver_name", label: "اسم السائق" }, { name: "driver_phone", label: "جوال السائق" },
     { name: "responsible_employee_id", label: "المسؤول عن الأصل (موظف)", type: "select", options: employeeOpts },
+    { name: "qr_code", label: "رمز الأصل (باركود)" },
     { name: "purchase_value", label: "قيمة الشراء", type: "number" },
     { name: "current_value", label: "القيمة الحالية", type: "number" },
     { name: "purchase_date", label: "تاريخ الشراء", type: "date" },
@@ -50,7 +56,7 @@ function VehicleDetail() {
       { value: "نشط", label: "نشط" }, { value: "صيانة", label: "صيانة" }, { value: "متوقف", label: "متوقف" },
     ]},
     { name: "notes", label: "ملاحظات", type: "textarea" },
-  ], [employeeOpts]);
+  ], [employeeOpts, typeOpts]);
 
   if (!v) return <DashboardLayout title="..."><div className="h-64 animate-pulse rounded-2xl bg-card" /></DashboardLayout>;
 
@@ -67,6 +73,7 @@ function VehicleDetail() {
           <div className="grid h-56 place-items-center bg-gradient-to-br from-sky-50 via-blue-50 to-cyan-50"><Car className="h-24 w-24 text-sky-500/40" /></div>
           <div className="grid gap-3 p-5 sm:grid-cols-2">
             <Info label="النوع" value={v.vehicle_type ?? "—"} />
+            <Info label="النوع التفصيلي" value={v.type_id ? typeName(v.type_id) : "غير محدد"} />
             <Info label="رقم اللوحة" value={v.plate_number ?? "—"} />
             <Info label="الماركة" value={v.brand ?? "—"} />
             <Info label="الموديل" value={v.model ?? "—"} />
@@ -89,7 +96,10 @@ function VehicleDetail() {
               <div className="flex justify-between"><span className="text-muted-foreground">انتهاء الاستمارة</span><span className="font-medium">{v.license_expiry ?? "—"}</span></div>
             </div>
           </div>
-          <RecordDialog table="vehicles" title="تعديل المركبة" fields={FIELDS} initial={v} invalidate={[["vehicle", id], ["vehicles-list"]]} />
+          <div className="flex gap-2">
+            <RecordDialog table="vehicles" title="تعديل المركبة" fields={FIELDS} initial={v} invalidate={[["vehicle", id], ["vehicles-list"]]} />
+            <QrButton path={`/vehicles/${id}`} title={v.name} subtitle={v.plate_number ?? typeName(v.type_id)} code={v.qr_code} />
+          </div>
         </div>
       </div>
 
