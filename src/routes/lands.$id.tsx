@@ -20,6 +20,7 @@ export const Route = createFileRoute("/lands/$id")({
 function LandDetail() {
   const { id } = Route.useParams();
   const { employeeOpts, nameById } = useAssetOptions();
+  const { options: typeOpts, typeName, isFarm } = useAssetTypes("land");
   const { data: v } = useQuery(queryOptions({
     queryKey: ["land", id],
     queryFn: async () => (await supabase.from("lands" as any).select("*").eq("id", id).maybeSingle()).data as any,
@@ -27,6 +28,7 @@ function LandDetail() {
 
   const FIELDS: FieldDef[] = useMemo(() => [
     { name: "name", label: "اسم/وصف الأرض", required: true },
+    { name: "type_id", label: "نوع الأرض / المزرعة", type: "select", options: typeOpts },
     { name: "deed_number", label: "رقم الصك" },
     { name: "ownership_type", label: "نوع الملكية", type: "select", options: [
       { value: "ملك حر", label: "ملك حر" }, { value: "وقف", label: "وقف" }, { value: "حكر", label: "حكر" },
@@ -35,6 +37,7 @@ function LandDetail() {
     { name: "location", label: "الموقع التفصيلي" }, { name: "coordinates", label: "الإحداثيات" },
     { name: "area_sqm", label: "المساحة (م²)", type: "number" },
     { name: "responsible_employee_id", label: "المسؤول عن الأصل (موظف)", type: "select", options: employeeOpts },
+    { name: "qr_code", label: "رمز الأصل (باركود)" },
     { name: "purchase_value", label: "قيمة الشراء", type: "number" },
     { name: "current_value", label: "القيمة الحالية", type: "number" },
     { name: "purchase_date", label: "تاريخ الشراء", type: "date" },
@@ -42,7 +45,8 @@ function LandDetail() {
       { value: "متاحة", label: "متاحة" }, { value: "مباعة", label: "مباعة" }, { value: "مرهونة", label: "مرهونة" }, { value: "قيد التطوير", label: "قيد التطوير" },
     ]},
     { name: "notes", label: "ملاحظات", type: "textarea" },
-  ], [employeeOpts]);
+  ], [employeeOpts, typeOpts]);
+
 
   if (!v) return <DashboardLayout title="..."><div className="h-64 animate-pulse rounded-2xl bg-card" /></DashboardLayout>;
 
