@@ -9,6 +9,9 @@ import { AssetLedgerAndReport } from "@/components/money-table";
 
 import { RecordDialog } from "@/components/record-dialog";
 import { useAssetOptions } from "@/lib/asset-options";
+import { useAssetTypes } from "@/lib/asset-types";
+import { QrButton } from "@/components/qr-card";
+import { Sprout } from "lucide-react";
 import { useMemo } from "react";
 import type { FieldDef } from "@/components/record-dialog";
 
@@ -62,6 +65,7 @@ function LandDetail() {
         <div className="lg:col-span-2 overflow-hidden rounded-2xl border border-border bg-card">
           <div className="grid h-56 place-items-center bg-gradient-to-br from-emerald-50 via-green-50 to-lime-50"><MapIcon className="h-24 w-24 text-emerald-500/40" /></div>
           <div className="grid gap-3 p-5 sm:grid-cols-2">
+            <Info label="النوع" value={v.type_id ? typeName(v.type_id) : "غير محدد"} />
             <Info label="رقم الصك" value={v.deed_number ?? "—"} />
             <Info label="نوع الملكية" value={v.ownership_type ?? "—"} />
             <Info label="المدينة" value={v.city ?? "—"} />
@@ -82,7 +86,16 @@ function LandDetail() {
             <div className="text-sm text-muted-foreground">{v.location ?? "—"}</div>
             {v.coordinates && <div className="mt-1 text-xs text-muted-foreground">إحداثيات: {v.coordinates}</div>}
           </div>
-          <RecordDialog table="lands" title="تعديل الأرض" fields={FIELDS} initial={v} invalidate={[["land", id], ["lands-list"]]} />
+          {isFarm(v.type_id) && (
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+              <div className="mb-1 flex items-center gap-2 text-sm font-bold text-emerald-800"><Sprout className="h-4 w-4" /> إدارة المزرعة مُفعّلة</div>
+              <p className="text-xs text-emerald-700">هذا الأصل مصنّف كمزرعة/بستان، وستظهر عليه وحدات الإنتاج والمواسم الزراعية والعمليات.</p>
+            </div>
+          )}
+          <div className="flex gap-2">
+            <RecordDialog table="lands" title="تعديل الأرض" fields={FIELDS} initial={v} invalidate={[["land", id], ["lands-list"]]} />
+            <QrButton path={`/lands/${id}`} title={v.name} subtitle={typeName(v.type_id)} code={v.qr_code} />
+          </div>
         </div>
       </div>
 
