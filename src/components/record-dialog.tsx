@@ -67,7 +67,9 @@ export function RecordDialog({ table, title, fields, initial, invalidate, trigge
       if (f.type === "number" && v !== null) v = Number(v);
       payload[f.name] = v;
     }
+    if (extra) Object.assign(payload, extra);
     const q = initial?.id
+
       ? await (supabase.from(table as any).update(payload).eq("id", initial.id))
       : await (supabase.from(table as any).insert(payload));
     setSaving(false);
