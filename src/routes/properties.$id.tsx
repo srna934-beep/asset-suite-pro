@@ -71,10 +71,12 @@ function PropertyDetail() {
             <Building2 className="h-24 w-24 text-primary/40" />
           </div>
           <div className="grid gap-3 p-5 sm:grid-cols-2">
-            <Info label="النوع" value={property.type} />
+            <Info label="التصنيف" value={property.type} />
+            <Info label="النوع التفصيلي" value={p.type_id ? typeName(p.type_id) : "غير محدد"} />
             <Info label="الحالة" value={<StatusPill tone={propertyTone(property.status)}>{property.status}</StatusPill>} />
             <Info label="الموقع" value={<span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{property.location ?? "—"}</span>} />
             <Info label="العنوان" value={p.address ?? "—"} />
+            <Info label="رمز الأصل" value={p.qr_code ?? "—"} />
             <Info label="الإيجار الشهري" value={`${monthlyIncome.toLocaleString()} ر.س`} />
             <Info label="نسبة الإشغال" value={`${occupancy}% (${occupied}/${units.length})`} />
           </div>
@@ -93,13 +95,21 @@ function PropertyDetail() {
               <div className="flex justify-between"><span className="text-muted-foreground">الشاغرة</span><span className="font-bold text-amber-600">{units.length - occupied}</span></div>
             </div>
           </div>
-          <RecordDialog table="properties" title="تعديل العقار" fields={FIELDS} initial={p} invalidate={[["property", id], ["properties-list"]]} />
+          <div className="flex gap-2">
+            <RecordDialog table="properties" title="تعديل العقار" fields={FIELDS} initial={p} invalidate={[["property", id], ["properties-list"]]} />
+            <QrButton path={`/properties/${id}`} title={property.name} subtitle={typeName(p.type_id) !== "—" ? typeName(p.type_id) : property.type} code={p.qr_code} />
+          </div>
         </div>
       </div>
 
       <Section title="الوحدات" icon={<Home className="h-5 w-5 text-amber-600" />}>
         <UnitsTable propertyId={id} units={units} />
       </Section>
+
+      <div className="mt-5">
+        <PropertyStructure propertyId={id} units={units} />
+      </div>
+
 
 
       <div className="mt-5">
