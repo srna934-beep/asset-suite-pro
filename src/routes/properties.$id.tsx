@@ -107,21 +107,12 @@ function PropertyDetail() {
       </Section>
 
       <div className="mt-5">
-        <PropertyStructure propertyId={id} units={units} />
-      </div>
-
-
-
-      <div className="mt-5">
-        <AssetFinanceTabs assetType="property" assetId={id} responsibleEmployeeId={p.responsible_employee_id} />
-      </div>
-
-      <div className="mt-5">
-        <AssetDocsAndActivity entityType="property" entityId={id} />
+        <AssetFinanceTabs assetType="property" assetId={id} lean />
       </div>
     </DashboardLayout>
   );
 }
+
 
 function UnitsTable({ propertyId, units }: { propertyId: string; units: any[] }) {
   const { data } = useQuery(queryOptions({

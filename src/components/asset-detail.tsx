@@ -11,8 +11,9 @@ import { useAssetOptions } from "@/lib/asset-options";
 type AssetType = "property" | "vehicle" | "land" | "unit";
 
 export function AssetFinanceTabs({
-  assetType, assetId, responsibleEmployeeId,
-}: { assetType: AssetType; assetId: string; responsibleEmployeeId?: string | null }) {
+  assetType, assetId, responsibleEmployeeId, lean = false,
+}: { assetType: AssetType; assetId: string; responsibleEmployeeId?: string | null; lean?: boolean }) {
+
   const { nameById } = useAssetOptions();
   const { data } = useQuery(queryOptions({
     queryKey: ["asset-finance", assetType, assetId],
@@ -43,14 +44,16 @@ export function AssetFinanceTabs({
 
   return (
     <div className="space-y-5">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatMini label="الإيرادات" value={fmtSAR(income)} icon={<TrendingUp className="h-5 w-5" />} tone="bg-emerald-50 border-emerald-200 text-emerald-700" />
-        <StatMini label="المصروفات" value={fmtSAR(outflow + expensesTotal)} icon={<TrendingDown className="h-5 w-5" />} tone="bg-rose-50 border-rose-200 text-rose-700" />
-        <StatMini label="تكلفة الصيانة" value={fmtSAR(maintCost)} icon={<Wrench className="h-5 w-5" />} tone="bg-amber-50 border-amber-200 text-amber-700" />
-        <StatMini label="صافي الربح" value={fmtSAR(net)} icon={<Wallet className="h-5 w-5" />} tone={net >= 0 ? "bg-sky-50 border-sky-200 text-sky-700" : "bg-rose-50 border-rose-200 text-rose-700"} />
-      </div>
+      {!lean && (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <StatMini label="الإيرادات" value={fmtSAR(income)} icon={<TrendingUp className="h-5 w-5" />} tone="bg-emerald-50 border-emerald-200 text-emerald-700" />
+          <StatMini label="المصروفات" value={fmtSAR(outflow + expensesTotal)} icon={<TrendingDown className="h-5 w-5" />} tone="bg-rose-50 border-rose-200 text-rose-700" />
+          <StatMini label="تكلفة الصيانة" value={fmtSAR(maintCost)} icon={<Wrench className="h-5 w-5" />} tone="bg-amber-50 border-amber-200 text-amber-700" />
+          <StatMini label="صافي الربح" value={fmtSAR(net)} icon={<Wallet className="h-5 w-5" />} tone={net >= 0 ? "bg-sky-50 border-sky-200 text-sky-700" : "bg-rose-50 border-rose-200 text-rose-700"} />
+        </div>
+      )}
 
-      {responsibleEmployeeId && (
+      {!lean && responsibleEmployeeId && (
         <Section title="المسؤول عن الأصل" icon={<Users className="h-5 w-5 text-primary" />}>
           <div className="px-5 py-4 text-sm">
             <div className="inline-flex items-center gap-2 rounded-xl bg-primary/5 px-3 py-2 font-semibold text-primary">
@@ -59,6 +62,7 @@ export function AssetFinanceTabs({
           </div>
         </Section>
       )}
+
 
       <Section title="الإيرادات والمصروفات (الحركات المالية)" icon={<DollarSign className="h-5 w-5 text-emerald-600" />}>
         <table className="w-full min-w-[600px] text-right text-sm">
@@ -82,6 +86,7 @@ export function AssetFinanceTabs({
         </table>
       </Section>
 
+      {!lean && (
       <Section title="المصاريف المباشرة" icon={<Wallet className="h-5 w-5 text-rose-600" />}>
         <table className="w-full min-w-[500px] text-right text-sm">
           <thead><tr className="bg-muted/40 text-[12px] font-bold text-muted-foreground">
@@ -101,7 +106,9 @@ export function AssetFinanceTabs({
           </tbody>
         </table>
       </Section>
+      )}
 
+      {!lean && (
       <Section title="طلبات الصيانة" icon={<Wrench className="h-5 w-5 text-sky-600" />}>
         <table className="w-full min-w-[600px] text-right text-sm">
           <thead><tr className="bg-muted/40 text-[12px] font-bold text-muted-foreground">
@@ -122,6 +129,8 @@ export function AssetFinanceTabs({
           </tbody>
         </table>
       </Section>
+      )}
+
     </div>
   );
 }
