@@ -101,7 +101,6 @@ function PayrollPage() {
       <ListToolbar
         search={search}
         onSearch={setSearch}
-        placeholder="بحث باسم الموظف..."
         filters={[{ value: status, onChange: setStatus, placeholder: "الحالة", options: [
           { value: "", label: "كل الحالات" },
           { value: "مستحق", label: "مستحق" },
