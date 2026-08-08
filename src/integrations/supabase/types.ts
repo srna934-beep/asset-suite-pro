@@ -1229,6 +1229,91 @@ export type Database = {
           },
         ]
       }
+      payroll: {
+        Row: {
+          account_id: string | null
+          allowances: number
+          basic_salary: number
+          created_at: string
+          created_by: string | null
+          deductions: number
+          employee_id: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          net_amount: number
+          notes: string | null
+          paid_date: string | null
+          period_month: number
+          period_year: number
+          project_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          account_id?: string | null
+          allowances?: number
+          basic_salary?: number
+          created_at?: string
+          created_by?: string | null
+          deductions?: number
+          employee_id: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          net_amount?: number
+          notes?: string | null
+          paid_date?: string | null
+          period_month: number
+          period_year: number
+          project_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string | null
+          allowances?: number
+          basic_salary?: number
+          created_at?: string
+          created_by?: string | null
+          deductions?: number
+          employee_id?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          net_amount?: number
+          notes?: string | null
+          paid_date?: string | null
+          period_month?: number
+          period_year?: number
+          project_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payroll_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payroll_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -2033,6 +2118,7 @@ export type Database = {
     }
     Functions: {
       dashboard_totals: { Args: never; Returns: Json }
+      default_account_id: { Args: never; Returns: string }
       generate_alert_notifications: { Args: never; Returns: undefined }
       has_role: {
         Args: {
