@@ -1,10 +1,10 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { usePerms } from "@/hooks/use-perms";
 import {
-  LayoutDashboard, Building2, Home, Users, FileText, DollarSign, Wrench, FolderOpen,
+  LayoutDashboard, Building2, Users, FileText, DollarSign, Wrench, FolderOpen,
   Bell, Calculator, BarChart3, Settings, Building, MousePointerClick,
   Car, Map, UserCog, ListChecks, MessageSquare, Wallet, ShieldCheck, History,
-  CalendarCheck, Plane, FileSignature, PieChart, Briefcase, Target,
+  PieChart, Briefcase, Target, Banknote,
 } from "lucide-react";
 
 const sections = [
@@ -23,16 +23,14 @@ const sections = [
     label: "الأصول والمشاريع",
     items: [
       { to: "/properties", label: "العقارات", icon: Building2 },
-      { to: "/units", label: "الوحدات", icon: Home },
-      { to: "/lands", label: "الأراضي", icon: Map },
-      { to: "/vehicles", label: "المركبات", icon: Car },
+      { to: "/lands", label: "الأراضي والمزارع", icon: Map },
+      { to: "/vehicles", label: "المركبات والمعدات", icon: Car },
       { to: "/projects", label: "المشاريع", icon: Briefcase },
     ],
   },
   {
     label: "العملاء والعقود",
     items: [
-      { to: "/tenants", label: "المستأجرين", icon: Users },
       { to: "/contracts", label: "العقود", icon: FileText },
       { to: "/payments", label: "الدفعات", icon: DollarSign },
     ],
@@ -52,9 +50,7 @@ const sections = [
     items: [
       { to: "/employees", label: "الموظفين", icon: UserCog },
       { to: "/departments", label: "الأقسام", icon: Building },
-      { to: "/employment-contracts", label: "عقود الموظفين", icon: FileSignature },
-      { to: "/attendance", label: "الحضور والانصراف", icon: CalendarCheck },
-      { to: "/leaves", label: "الإجازات", icon: Plane },
+      { to: "/payroll", label: "الرواتب", icon: Banknote },
     ],
   },
   {
@@ -76,6 +72,7 @@ const sections = [
     ],
   },
 ];
+
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
