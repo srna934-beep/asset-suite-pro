@@ -86,6 +86,7 @@ export function AssetFinanceTabs({
         </table>
       </Section>
 
+      {!lean && (
       <Section title="المصاريف المباشرة" icon={<Wallet className="h-5 w-5 text-rose-600" />}>
         <table className="w-full min-w-[500px] text-right text-sm">
           <thead><tr className="bg-muted/40 text-[12px] font-bold text-muted-foreground">
@@ -105,7 +106,9 @@ export function AssetFinanceTabs({
           </tbody>
         </table>
       </Section>
+      )}
 
+      {!lean && (
       <Section title="طلبات الصيانة" icon={<Wrench className="h-5 w-5 text-sky-600" />}>
         <table className="w-full min-w-[600px] text-right text-sm">
           <thead><tr className="bg-muted/40 text-[12px] font-bold text-muted-foreground">
@@ -126,6 +129,8 @@ export function AssetFinanceTabs({
           </tbody>
         </table>
       </Section>
+      )}
+
     </div>
   );
 }
