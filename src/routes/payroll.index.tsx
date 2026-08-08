@@ -123,9 +123,7 @@ function PayrollPage() {
           />
         </div>
       </ListToolbar>
-          </div>
-        }
-      />
+
 
       <div className="mt-4 overflow-x-auto rounded-2xl border border-border bg-card">
         <table className="w-full min-w-[820px] text-right text-sm">
