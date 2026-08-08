@@ -26,6 +26,7 @@ import { Route as PropertiesIndexRouteImport } from './routes/properties.index'
 import { Route as PropertiesDashboardIndexRouteImport } from './routes/properties-dashboard.index'
 import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
 import { Route as ProjectsDashboardIndexRouteImport } from './routes/projects-dashboard.index'
+import { Route as PayrollIndexRouteImport } from './routes/payroll.index'
 import { Route as PaymentsIndexRouteImport } from './routes/payments.index'
 import { Route as NotificationsCenterIndexRouteImport } from './routes/notifications-center.index'
 import { Route as MessagesIndexRouteImport } from './routes/messages.index'
@@ -139,6 +140,11 @@ const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
 const ProjectsDashboardIndexRoute = ProjectsDashboardIndexRouteImport.update({
   id: '/projects-dashboard/',
   path: '/projects-dashboard/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PayrollIndexRoute = PayrollIndexRouteImport.update({
+  id: '/payroll/',
+  path: '/payroll/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PaymentsIndexRoute = PaymentsIndexRouteImport.update({
@@ -317,6 +323,7 @@ export interface FileRoutesByFullPath {
   '/messages/': typeof MessagesIndexRoute
   '/notifications-center/': typeof NotificationsCenterIndexRoute
   '/payments/': typeof PaymentsIndexRoute
+  '/payroll/': typeof PayrollIndexRoute
   '/projects-dashboard/': typeof ProjectsDashboardIndexRoute
   '/projects/': typeof ProjectsIndexRoute
   '/properties-dashboard/': typeof PropertiesDashboardIndexRoute
@@ -364,6 +371,7 @@ export interface FileRoutesByTo {
   '/messages': typeof MessagesIndexRoute
   '/notifications-center': typeof NotificationsCenterIndexRoute
   '/payments': typeof PaymentsIndexRoute
+  '/payroll': typeof PayrollIndexRoute
   '/projects-dashboard': typeof ProjectsDashboardIndexRoute
   '/projects': typeof ProjectsIndexRoute
   '/properties-dashboard': typeof PropertiesDashboardIndexRoute
@@ -412,6 +420,7 @@ export interface FileRoutesById {
   '/messages/': typeof MessagesIndexRoute
   '/notifications-center/': typeof NotificationsCenterIndexRoute
   '/payments/': typeof PaymentsIndexRoute
+  '/payroll/': typeof PayrollIndexRoute
   '/projects-dashboard/': typeof ProjectsDashboardIndexRoute
   '/projects/': typeof ProjectsIndexRoute
   '/properties-dashboard/': typeof PropertiesDashboardIndexRoute
@@ -461,6 +470,7 @@ export interface FileRouteTypes {
     | '/messages/'
     | '/notifications-center/'
     | '/payments/'
+    | '/payroll/'
     | '/projects-dashboard/'
     | '/projects/'
     | '/properties-dashboard/'
@@ -508,6 +518,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/notifications-center'
     | '/payments'
+    | '/payroll'
     | '/projects-dashboard'
     | '/projects'
     | '/properties-dashboard'
@@ -555,6 +566,7 @@ export interface FileRouteTypes {
     | '/messages/'
     | '/notifications-center/'
     | '/payments/'
+    | '/payroll/'
     | '/projects-dashboard/'
     | '/projects/'
     | '/properties-dashboard/'
@@ -603,6 +615,7 @@ export interface RootRouteChildren {
   MessagesIndexRoute: typeof MessagesIndexRoute
   NotificationsCenterIndexRoute: typeof NotificationsCenterIndexRoute
   PaymentsIndexRoute: typeof PaymentsIndexRoute
+  PayrollIndexRoute: typeof PayrollIndexRoute
   ProjectsDashboardIndexRoute: typeof ProjectsDashboardIndexRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
   PropertiesDashboardIndexRoute: typeof PropertiesDashboardIndexRoute
@@ -737,6 +750,13 @@ declare module '@tanstack/react-router' {
       path: '/projects-dashboard'
       fullPath: '/projects-dashboard/'
       preLoaderRoute: typeof ProjectsDashboardIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payroll/': {
+      id: '/payroll/'
+      path: '/payroll'
+      fullPath: '/payroll/'
+      preLoaderRoute: typeof PayrollIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/payments/': {
@@ -971,6 +991,7 @@ const rootRouteChildren: RootRouteChildren = {
   MessagesIndexRoute: MessagesIndexRoute,
   NotificationsCenterIndexRoute: NotificationsCenterIndexRoute,
   PaymentsIndexRoute: PaymentsIndexRoute,
+  PayrollIndexRoute: PayrollIndexRoute,
   ProjectsDashboardIndexRoute: ProjectsDashboardIndexRoute,
   ProjectsIndexRoute: ProjectsIndexRoute,
   PropertiesDashboardIndexRoute: PropertiesDashboardIndexRoute,

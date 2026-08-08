@@ -102,14 +102,20 @@ function PayrollPage() {
         search={search}
         onSearch={setSearch}
         placeholder="بحث باسم الموظف..."
-        filters={[{ value: status, onChange: setStatus, options: [
+        filters={[{ value: status, onChange: setStatus, placeholder: "الحالة", options: [
           { value: "", label: "كل الحالات" },
           { value: "مستحق", label: "مستحق" },
           { value: "مدفوع", label: "مدفوع" },
         ]}]}
         actions={
           <div className="flex gap-2">
-            <ExportCsvButton filename="payroll" rows={rows} />
+            <ExportCsvButton filename="payroll" rows={rows} columns={[
+              { key: "period_year", label: "السنة" },
+              { key: "period_month", label: "الشهر" },
+              { key: "net_amount", label: "الصافي" },
+              { key: "status", label: "الحالة" },
+              { key: "paid_date", label: "تاريخ الدفع" },
+            ]} />
             <RecordDialog
               table="payroll"
               title="إضافة مسيّر راتب"
