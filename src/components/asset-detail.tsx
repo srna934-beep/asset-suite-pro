@@ -11,8 +11,9 @@ import { useAssetOptions } from "@/lib/asset-options";
 type AssetType = "property" | "vehicle" | "land" | "unit";
 
 export function AssetFinanceTabs({
-  assetType, assetId, responsibleEmployeeId,
-}: { assetType: AssetType; assetId: string; responsibleEmployeeId?: string | null }) {
+  assetType, assetId, responsibleEmployeeId, lean = false,
+}: { assetType: AssetType; assetId: string; responsibleEmployeeId?: string | null; lean?: boolean }) {
+
   const { nameById } = useAssetOptions();
   const { data } = useQuery(queryOptions({
     queryKey: ["asset-finance", assetType, assetId],
