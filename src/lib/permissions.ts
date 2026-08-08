@@ -52,9 +52,11 @@ export const MODULES: ModuleDef[] = [
   { key: "/notifications-center", label: "التنبيهات", group: "العمليات" },
   { key: "/employees", label: "الموظفين", group: "الموارد البشرية" },
   { key: "/departments", label: "الأقسام", group: "الموارد البشرية" },
+  { key: "/payroll", label: "الرواتب", group: "الموارد البشرية" },
   { key: "/employment-contracts", label: "عقود الموظفين", group: "الموارد البشرية" },
   { key: "/attendance", label: "الحضور والانصراف", group: "الموارد البشرية" },
   { key: "/leaves", label: "الإجازات", group: "الموارد البشرية" },
+
   { key: "/finance-dashboard", label: "لوحة المالية", group: "المالية" },
   { key: "/accounts", label: "الحسابات", group: "المالية" },
   { key: "/transactions", label: "الحركات المالية", group: "المالية" },
